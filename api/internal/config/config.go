@@ -1,0 +1,41 @@
+package config
+
+import (
+	"os"
+)
+
+type Config struct {
+	Port          string
+	Environment   string
+	DatabaseURL   string
+	RedisURL      string
+	CORSOrigins   []string
+	OTLPEndpoint  string
+	K8sConfigPath string
+}
+
+func Load() *Config {
+	return &Config{
+		Port:          getEnv("PORT", "8080"),
+		Environment:   getEnv("ENVIRONMENT", "development"),
+		DatabaseURL:   getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/agentops?sslmode=disable"),
+		RedisURL:      getEnv("REDIS_URL", "redis://localhost:6379"),
+		CORSOrigins:   getEnvSlice("CORS_ORIGINS", []string{"*"}),
+		OTLPEndpoint:  getEnv("OTLP_ENDPOINT", "localhost:4317"),
+		K8sConfigPath: getEnv("K8S_CONFIG_PATH", ""),
+	}
+}
+
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+func getEnvSlice(key string, defaultValue []string) []string {
+	if value := os.Getenv(key); value != "" {
+		return []string{value}
+	}
+	return defaultValue
+}
