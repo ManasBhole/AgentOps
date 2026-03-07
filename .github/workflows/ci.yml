@@ -75,14 +75,14 @@ jobs:
         run: go test -v -race -coverprofile=coverage.out ./...
 
       - name: Upload coverage (SDK)
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           file: ./sdk/coverage.out
           flags: sdk
           name: sdk-coverage
 
       - name: Upload coverage (API)
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           file: ./api/coverage.out
           flags: api
