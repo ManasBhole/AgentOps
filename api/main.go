@@ -44,7 +44,8 @@ func main() {
 	}
 
 	// Initialize services
-	incidentEngine := services.NewIncidentEngine(db, logger)
+	hub := services.NewEventHub()
+	incidentEngine := services.NewIncidentEngine(db, logger, hub)
 	orchestrationService := services.NewOrchestrationService(db, logger, cfg)
 	traceService := services.NewTraceService(db, logger)
 
@@ -55,6 +56,7 @@ func main() {
 		incidentEngine,
 		orchestrationService,
 		traceService,
+		hub,
 	)
 
 	// Setup router
@@ -100,6 +102,7 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 	router := gin.New()
 	router.Use(middleware.Logger(logger))
 	router.Use(middleware.Recovery(logger))
+	router.Use(middleware.SecurityHeaders())
 	router.Use(middleware.CORS(cfg.CORSOrigins))
 
 	// Health check
@@ -134,6 +137,17 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 		v1.POST("/orchestration/circuit-breaker", h.SetCircuitBreaker)
 
 		v1.GET("/stats", h.GetStats)
+		v1.GET("/events", h.StreamEvents)
+
+		// Agent Memory — persistent cross-run learning
+		v1.GET("/agents/:id/memory", h.GetAgentMemory)
+		v1.POST("/agents/:id/memory", h.SetMemory)
+		v1.DELETE("/agents/:id/memory/:key", h.DeleteMemory)
+		v1.GET("/memory/shared", h.GetSharedMemory)
+
+		// Model Router — intelligent cost-optimised model selection
+		v1.POST("/router/route", h.RouteModel)
+		v1.GET("/router/stats", h.GetRouterStats)
 	}
 
 	return router

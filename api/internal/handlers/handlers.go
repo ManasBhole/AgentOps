@@ -22,6 +22,9 @@ type Handlers struct {
 	incidentEngine       *services.IncidentEngine
 	orchestrationService *services.OrchestrationService
 	traceService         *services.TraceService
+	hub                  *services.EventHub
+	memoryService        *services.MemoryService
+	modelRouter          *services.ModelRouterService
 }
 
 func NewHandlers(
@@ -30,6 +33,7 @@ func NewHandlers(
 	incidentEngine *services.IncidentEngine,
 	orchestrationService *services.OrchestrationService,
 	traceService *services.TraceService,
+	hub *services.EventHub,
 ) *Handlers {
 	return &Handlers{
 		db:                   db,
@@ -37,6 +41,45 @@ func NewHandlers(
 		incidentEngine:       incidentEngine,
 		orchestrationService: orchestrationService,
 		traceService:         traceService,
+		hub:                  hub,
+		memoryService:        services.NewMemoryService(db, logger),
+		modelRouter:          services.NewModelRouterService(db, logger),
+	}
+}
+
+// ─── SSE Events Handler ──────────────────────────────────────────────────────
+
+// StreamEvents is the GET /api/v1/events SSE endpoint.
+func (h *Handlers) StreamEvents(c *gin.Context) {
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+	c.Header("X-Accel-Buffering", "no")
+
+	ch := h.hub.Subscribe()
+	defer h.hub.Unsubscribe(ch)
+
+	// Send a heartbeat every 20 s so proxies don't close the connection.
+	ticker := time.NewTicker(20 * time.Second)
+	defer ticker.Stop()
+
+	// Flush the headers immediately.
+	c.Writer.Flush()
+
+	for {
+		select {
+		case evt, ok := <-ch:
+			if !ok {
+				return
+			}
+			c.Writer.WriteString(evt.ToSSE())
+			c.Writer.Flush()
+		case <-ticker.C:
+			c.Writer.WriteString(": heartbeat\n\n")
+			c.Writer.Flush()
+		case <-c.Request.Context().Done():
+			return
+		}
 	}
 }
 
@@ -558,4 +601,84 @@ func (h *Handlers) SetCircuitBreaker(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "configured"})
+}
+
+// ─── Memory Handlers ──────────────────────────────────────────────────────────
+
+func (h *Handlers) GetAgentMemory(c *gin.Context) {
+	agentID := c.Param("id")
+	mems, err := h.memoryService.GetAgentMemory(agentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"memories": mems, "count": len(mems)})
+}
+
+func (h *Handlers) GetSharedMemory(c *gin.Context) {
+	mems, err := h.memoryService.GetSharedMemory()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"memories": mems, "count": len(mems)})
+}
+
+type SetMemoryRequest struct {
+	Key   string `json:"key"   binding:"required"`
+	Value string `json:"value" binding:"required"`
+	Scope string `json:"scope"`  // "agent" (default) | "shared"
+	RunID string `json:"run_id"`
+}
+
+func (h *Handlers) SetMemory(c *gin.Context) {
+	agentID := c.Param("id")
+	var req SetMemoryRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if req.Scope == "" {
+		req.Scope = "agent"
+	}
+	mem, err := h.memoryService.Set(agentID, req.Scope, req.Key, req.Value, req.RunID, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"memory": mem})
+}
+
+func (h *Handlers) DeleteMemory(c *gin.Context) {
+	agentID := c.Param("id")
+	key := c.Param("key")
+	scope := c.DefaultQuery("scope", "agent")
+	if err := h.memoryService.Delete(agentID, scope, key); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+}
+
+// ─── Model Router Handler ─────────────────────────────────────────────────────
+
+type RouteRequest struct {
+	AgentID         string `json:"agent_id"`
+	Task            string `json:"task"            binding:"required"`
+	PreferProvider  string `json:"prefer_provider"` // "openai" | "anthropic" | ""
+}
+
+func (h *Handlers) RouteModel(c *gin.Context) {
+	var req RouteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	decision := h.modelRouter.Route(req.AgentID, req.Task, req.PreferProvider)
+	c.JSON(http.StatusOK, gin.H{"decision": decision})
+}
+
+func (h *Handlers) GetRouterStats(c *gin.Context) {
+	stats := h.modelRouter.Stats()
+	c.JSON(http.StatusOK, gin.H{"router_stats": stats})
 }

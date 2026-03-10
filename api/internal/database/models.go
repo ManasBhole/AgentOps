@@ -66,6 +66,31 @@ type Deployment struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
+// AgentMemory stores persistent learnings across agent runs.
+// Scope "agent" = private to one agent; scope "shared" = readable by all.
+type AgentMemory struct {
+	ID        string    `gorm:"primaryKey" json:"id"`
+	AgentID   string    `gorm:"index" json:"agent_id"` // empty string = shared
+	Scope     string    `gorm:"index" json:"scope"`    // "agent" | "shared"
+	Key       string    `gorm:"index" json:"key"`
+	Value     string    `gorm:"type:text" json:"value"`
+	RunID     string    `json:"run_id"`     // run that wrote this memory
+	TTL       *time.Time `json:"ttl,omitempty"` // nil = permanent
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// RouterLog records every model-routing decision for analytics.
+type RouterLog struct {
+	ID          string    `gorm:"primaryKey" json:"id"`
+	AgentID     string    `gorm:"index" json:"agent_id"`
+	Task        string    `gorm:"type:text" json:"task"`
+	Complexity  string    `json:"complexity"`   // simple | moderate | complex
+	ModelChosen string    `json:"model_chosen"`
+	CostEstUSD  float64   `json:"cost_est_usd"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 // Migrate runs database migrations
 func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -73,5 +98,7 @@ func Migrate(db *gorm.DB) error {
 		&Trace{},
 		&Incident{},
 		&Deployment{},
+		&AgentMemory{},
+		&RouterLog{},
 	)
 }

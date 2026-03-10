@@ -1,0 +1,10 @@
+pyproject.toml
+agentops_sdk/__init__.py
+agentops_sdk/client.py
+agentops_sdk/decorators.py
+agentops_sdk/patches.py
+agentops_sdk.egg-info/PKG-INFO
+agentops_sdk.egg-info/SOURCES.txt
+agentops_sdk.egg-info/dependency_links.txt
+agentops_sdk.egg-info/requires.txt
+agentops_sdk.egg-info/top_level.txt

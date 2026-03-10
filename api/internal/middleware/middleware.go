@@ -44,6 +44,29 @@ func Recovery(logger *zap.Logger) gin.HandlerFunc {
 	})
 }
 
+// SecurityHeaders sets hardened HTTP security headers on every response.
+func SecurityHeaders() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Prevent MIME type sniffing
+		c.Header("X-Content-Type-Options", "nosniff")
+		// Deny framing (clickjacking)
+		c.Header("X-Frame-Options", "DENY")
+		// Enable XSS filter in older browsers
+		c.Header("X-XSS-Protection", "1; mode=block")
+		// Don't send referrer to cross-origin destinations
+		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
+		// Restrict browser features
+		c.Header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+		// Remove server fingerprint
+		c.Header("Server", "")
+		// Enforce HTTPS in production (only send over TLS)
+		if c.Request.TLS != nil {
+			c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		}
+		c.Next()
+	}
+}
+
 func CORS(origins []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")

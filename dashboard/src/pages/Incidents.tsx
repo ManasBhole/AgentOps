@@ -1,162 +1,207 @@
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  Siren, CheckCircle2, ChevronDown, ChevronRight,
+  Lightbulb, Filter, RefreshCw, ShieldCheck,
+} from 'lucide-react'
 import api from '../services/api'
 
 type Incident = {
-  id: string
-  title: string
-  severity: string
-  status: string
-  agent_id: string
-  trace_id: string
-  root_cause: string
-  confidence: number
-  created_at: string
-  resolved_at?: string | null
+  id: string; title: string; severity: string; status: string
+  agent_id: string; trace_id: string; root_cause: string
+  suggested_fix: string; confidence: number; created_at: string; resolved_at?: string
 }
 
-type IncidentsResponse = {
-  incidents: Incident[]
+const SEV: Record<string, { border: string; bg: string; badge: string; dot: string }> = {
+  critical: { border: 'border-red-900',    bg: 'bg-red-950/40',    badge: 'bg-red-900 text-red-300',    dot: 'bg-red-400' },
+  high:     { border: 'border-orange-900', bg: 'bg-orange-950/30', badge: 'bg-orange-900 text-orange-300', dot: 'bg-orange-400' },
+  medium:   { border: 'border-yellow-900', bg: 'bg-yellow-950/20', badge: 'bg-yellow-900 text-yellow-300', dot: 'bg-yellow-400' },
+  low:      { border: 'border-blue-900',   bg: 'bg-blue-950/20',   badge: 'bg-blue-900 text-blue-300',   dot: 'bg-blue-400' },
 }
+const fallbackSev = { border: 'border-gray-800', bg: '', badge: 'bg-gray-800 text-gray-300', dot: 'bg-gray-400' }
 
-async function fetchIncidents(): Promise<Incident[]> {
-  const { data } = await api.get<IncidentsResponse>('/incidents', {
-    params: { limit: 50 },
-  })
-  return data.incidents ?? []
-}
-
-async function resolveIncident(id: string): Promise<Incident> {
-  const { data } = await api.post<{ incident: Incident }>(`/incidents/${id}/resolve`)
-  return data.incident
+const STATUS: Record<string, string> = {
+  open:          'bg-red-900/60 text-red-300',
+  investigating: 'bg-yellow-900/60 text-yellow-300',
+  resolved:      'bg-emerald-900/60 text-emerald-300',
 }
 
 export default function Incidents() {
   const queryClient = useQueryClient()
+  const [statusFilter, setStatusFilter] = useState('')
+  const [sevFilter, setSevFilter] = useState('')
+  const [expanded, setExpanded] = useState<string | null>(null)
 
-  const { data, isLoading, isError } = useQuery({
+  const { data: all = [], isLoading, refetch, isFetching } = useQuery<Incident[]>({
     queryKey: ['incidents'],
-    queryFn: fetchIncidents,
-    refetchInterval: 10_000,
+    queryFn: async () => {
+      const { data } = await api.get<{ incidents: Incident[] }>('/incidents', { params: { limit: 100 } })
+      return data.incidents ?? []
+    },
+    refetchInterval: 15_000,
   })
 
   const resolveMutation = useMutation({
-    mutationFn: resolveIncident,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['incidents'] })
-    },
+    mutationFn: (id: string) => api.post(`/incidents/${id}/resolve`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['incidents'] }),
   })
 
+  const data = all.filter(i => {
+    if (statusFilter && i.status !== statusFilter) return false
+    if (sevFilter && i.severity !== sevFilter) return false
+    return true
+  })
+
+  const openCount = all.filter(i => i.status !== 'resolved').length
+  const critCount = all.filter(i => i.severity === 'critical' && i.status !== 'resolved').length
+
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900">Incidents</h2>
-      <p className="mt-1 text-sm text-gray-500">Monitor and resolve agent incidents</p>
-
-      <div className="mt-6 bg-white shadow rounded-lg">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="text-sm font-medium text-gray-900">Recent Incidents</h3>
-          <span className="text-xs text-gray-500">
-            {data?.length ?? 0} results
-          </span>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-white">Incidents</h1>
+          <p className="text-sm text-gray-500 mt-0.5">AI-powered root cause analysis · auto-remediation suggestions</p>
         </div>
+        <button onClick={() => refetch()}
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 px-3 py-1.5 rounded-lg">
+          <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
+        </button>
+      </div>
 
-        <div className="p-4">
-          {isLoading && <p className="text-gray-500 text-sm">Loading incidents...</p>}
-          {isError && (
-            <p className="text-red-500 text-sm">
-              Failed to load incidents. Check API and try again.
-            </p>
-          )}
+      {/* Summary strip */}
+      <div className="grid grid-cols-4 gap-3">
+        {[
+          { label: 'Total',    value: all.length,    color: 'text-white' },
+          { label: 'Open',     value: openCount,     color: openCount > 0 ? 'text-red-400' : 'text-emerald-400' },
+          { label: 'Critical', value: critCount,     color: critCount > 0 ? 'text-red-400' : 'text-gray-400' },
+          { label: 'Resolved', value: all.length - openCount, color: 'text-emerald-400' },
+        ].map(s => (
+          <div key={s.label} className="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2">
+            <div className="text-xs text-gray-500">{s.label}</div>
+            <div className={`text-lg font-semibold ${s.color}`}>{s.value}</div>
+          </div>
+        ))}
+      </div>
 
-          {!isLoading && !isError && (data?.length ?? 0) === 0 && (
-            <p className="text-gray-500 text-sm">
-              No incidents yet. Trigger an error trace to see auto-created incidents.
-            </p>
-          )}
+      {/* Filters */}
+      <div className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2">
+        <Filter className="h-3.5 w-3.5 text-gray-500" />
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+          className="bg-transparent text-sm text-gray-300 border-0 outline-none cursor-pointer">
+          <option value="">All statuses</option>
+          <option value="open">Open</option>
+          <option value="investigating">Investigating</option>
+          <option value="resolved">Resolved</option>
+        </select>
+        <div className="h-4 w-px bg-gray-700" />
+        <select value={sevFilter} onChange={e => setSevFilter(e.target.value)}
+          className="bg-transparent text-sm text-gray-300 border-0 outline-none cursor-pointer">
+          <option value="">All severities</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        {(statusFilter || sevFilter) && (
+          <button onClick={() => { setStatusFilter(''); setSevFilter('') }}
+            className="ml-auto text-xs text-gray-500 hover:text-white">Clear</button>
+        )}
+      </div>
 
-          {!isLoading && !isError && (data?.length ?? 0) > 0 && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Severity
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Agent
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Title
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Root Cause
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Created At
-                    </th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {data?.map((inc) => (
-                    <tr key={inc.id}>
-                      <td className="px-4 py-2 text-sm">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            inc.severity === 'critical'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}
-                        >
-                          {inc.severity}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 text-sm">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            inc.status === 'resolved'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-orange-100 text-orange-800'
-                          }`}
-                        >
-                          {inc.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">
-                        {inc.agent_id || '-'}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-900">
-                        {inc.title}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-500 max-w-xs truncate">
-                        {inc.root_cause}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">
-                        {new Date(inc.created_at).toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-right">
-                        {inc.status !== 'resolved' && (
-                          <button
-                            type="button"
-                            onClick={() => resolveMutation.mutate(inc.id)}
-                            disabled={resolveMutation.isPending}
-                            className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
-                          >
-                            Resolve
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Incident list */}
+      <div className="space-y-2">
+        {isLoading && <div className="p-8 text-center text-gray-500 text-sm">Loading incidents…</div>}
+        {!isLoading && data.length === 0 && (
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 text-center text-gray-500 text-sm">
+            No incidents found.
+          </div>
+        )}
+        {data.map(inc => {
+          const s = SEV[inc.severity] ?? fallbackSev
+          const isOpen = expanded === inc.id
+          return (
+            <div key={inc.id} className={`border rounded-xl overflow-hidden transition-all ${s.border} ${s.bg}`}>
+              {/* Row header */}
+              <button
+                onClick={() => setExpanded(isOpen ? null : inc.id)}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left"
+              >
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${s.dot}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-gray-100 truncate">{inc.title}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.badge}`}>{inc.severity}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS[inc.status] ?? 'bg-gray-800 text-gray-300'}`}>{inc.status}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-0.5">{inc.agent_id} · {new Date(inc.created_at).toLocaleString()}</div>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  {inc.status !== 'resolved' && (
+                    <button
+                      onClick={e => { e.stopPropagation(); resolveMutation.mutate(inc.id) }}
+                      disabled={resolveMutation.isPending}
+                      className="flex items-center gap-1 text-xs px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg disabled:opacity-50"
+                    >
+                      <ShieldCheck className="h-3 w-3" /> Resolve
+                    </button>
+                  )}
+                  {isOpen ? <ChevronDown className="h-4 w-4 text-gray-500" /> : <ChevronRight className="h-4 w-4 text-gray-600" />}
+                </div>
+              </button>
+
+              {/* Expanded detail */}
+              {isOpen && (
+                <div className="border-t border-gray-800 px-4 py-4 space-y-4 bg-gray-900/50">
+                  {/* Metadata */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[['Incident ID', inc.id], ['Trace ID', inc.trace_id || '—'],
+                      ['Confidence', `${Math.round(inc.confidence * 100)}%`],
+                      ['Resolved', inc.resolved_at ? new Date(inc.resolved_at).toLocaleString() : '—'],
+                    ].map(([l, v]) => (
+                      <div key={l}>
+                        <div className="text-xs text-gray-500 mb-1">{l}</div>
+                        <div className="text-xs font-mono text-gray-300 truncate">{v}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Root cause */}
+                  <div className="p-3 bg-gray-800 rounded-lg border border-gray-700">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Siren className="h-3.5 w-3.5 text-red-400" />
+                      <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">Root Cause</span>
+                      <span className="ml-auto text-xs text-gray-500">
+                        {Math.round(inc.confidence * 100)}% confidence
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-1 mb-2">
+                      <div className="bg-indigo-500 h-1 rounded-full" style={{ width: `${inc.confidence * 100}%` }} />
+                    </div>
+                    <p className="text-sm text-gray-200">{inc.root_cause || 'No root cause identified yet.'}</p>
+                  </div>
+
+                  {/* Suggested fix */}
+                  {inc.suggested_fix && (
+                    <div className="p-3 bg-emerald-950 rounded-lg border border-emerald-900">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Lightbulb className="h-3.5 w-3.5 text-emerald-400" />
+                        <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Suggested Fix</span>
+                      </div>
+                      <p className="text-sm text-emerald-200/80">{inc.suggested_fix}</p>
+                    </div>
+                  )}
+
+                  {inc.status === 'resolved' && (
+                    <div className="flex items-center gap-2 text-xs text-emerald-400">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Resolved {inc.resolved_at ? new Date(inc.resolved_at).toLocaleString() : ''}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          )
+        })}
       </div>
     </div>
   )

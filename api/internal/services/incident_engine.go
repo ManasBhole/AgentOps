@@ -15,10 +15,11 @@ import (
 type IncidentEngine struct {
 	db     *gorm.DB
 	logger *zap.Logger
+	hub    *EventHub
 }
 
-func NewIncidentEngine(db *gorm.DB, logger *zap.Logger) *IncidentEngine {
-	return &IncidentEngine{db: db, logger: logger}
+func NewIncidentEngine(db *gorm.DB, logger *zap.Logger, hub *EventHub) *IncidentEngine {
+	return &IncidentEngine{db: db, logger: logger, hub: hub}
 }
 
 // AnalyzeTrace inspects a trace and creates an incident if it represents an error.
@@ -74,6 +75,25 @@ func (ie *IncidentEngine) investigateError(ctx context.Context, trace *database.
 	if err := ie.db.Create(incident).Error; err != nil {
 		return nil, err
 	}
+
+	// Broadcast to SSE subscribers
+	if ie.hub != nil {
+		ie.hub.Publish(Event{
+			Type:      "incident.created",
+			ID:        incident.ID,
+			Title:     incident.Title,
+			Severity:  incident.Severity,
+			AgentID:   incident.AgentID,
+			TraceID:   incident.TraceID,
+			Timestamp: now,
+			Data: map[string]any{
+				"root_cause":    incident.RootCause,
+				"suggested_fix": incident.SuggestedFix,
+				"confidence":    incident.Confidence,
+			},
+		})
+	}
+
 	return incident, nil
 }
 
@@ -233,7 +253,20 @@ func (ie *IncidentEngine) ResolveIncident(ctx context.Context, id string) (*data
 	incident.Status = "resolved"
 	incident.ResolvedAt = &now
 	incident.UpdatedAt = now
-	return incident, ie.db.WithContext(ctx).Save(incident).Error
+	if err := ie.db.WithContext(ctx).Save(incident).Error; err != nil {
+		return nil, err
+	}
+	if ie.hub != nil {
+		ie.hub.Publish(Event{
+			Type:      "incident.resolved",
+			ID:        incident.ID,
+			Title:     incident.Title,
+			Severity:  incident.Severity,
+			AgentID:   incident.AgentID,
+			Timestamp: now,
+		})
+	}
+	return incident, nil
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

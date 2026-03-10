@@ -5,6 +5,20 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AgentOps - Control Plane for AI-Powered Operations</title>
+    <!--
+      Content Security Policy:
+      - default-src 'self'          → only load resources from same origin
+      - script-src 'self' 'unsafe-inline' → Vite HMR needs inline scripts in dev
+      - style-src 'self' 'unsafe-inline'  → Tailwind injects inline styles
+      - connect-src 'self'          → fetch/XHR/SSE only to same origin (API proxy)
+      - img-src 'self' data:        → allow data URIs for chart/icon embeds
+      - font-src 'self'             → no external font CDNs
+      - frame-ancestors 'none'      → blocks clickjacking (mirrors X-Frame-Options)
+      - object-src 'none'           → no Flash / plugins
+      - base-uri 'self'             → prevents base tag hijacking
+    -->
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' ws://localhost:* wss://localhost:*; img-src 'self' data:; font-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self';" />
   </head>
   <body>
     <div id="root"></div>

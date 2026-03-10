@@ -18,7 +18,7 @@ func Load() *Config {
 	return &Config{
 		Port:          getEnv("PORT", "8080"),
 		Environment:   getEnv("ENVIRONMENT", "development"),
-		DatabaseURL:   getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/agentops?sslmode=disable"),
+		DatabaseURL:   getEnv("DATABASE_URL", "postgres://manasbhole@localhost:5432/agentops?sslmode=disable"),
 		RedisURL:      getEnv("REDIS_URL", "redis://localhost:6379"),
 		CORSOrigins:   getEnvSlice("CORS_ORIGINS", []string{"*"}),
 		OTLPEndpoint:  getEnv("OTLP_ENDPOINT", "localhost:4317"),

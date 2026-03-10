@@ -5,6 +5,7 @@ import Agents from './pages/Agents'
 import Traces from './pages/Traces'
 import Incidents from './pages/Incidents'
 import Orchestration from './pages/Orchestration'
+import Intelligence from './pages/Intelligence'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/traces" element={<Traces />} />
           <Route path="/incidents" element={<Incidents />} />
           <Route path="/orchestration" element={<Orchestration />} />
+          <Route path="/intelligence" element={<Intelligence />} />
         </Routes>
       </Layout>
     </BrowserRouter>
