@@ -169,7 +169,7 @@ export default function Dashboard() {
                 <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 10 }} axisLine={false} tickLine={false} unit="%" />
                 <YAxis type="category" dataKey="id" tick={{ fill: '#9ca3af', fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
                 <Tooltip
-                  contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8, color: '#f9fafb' }}
+                  contentStyle={{ background: '#4d7de3', border: '1px solid #2e726a', borderRadius: 8, color: '#f9fafb' }}
                   formatter={(v: number) => [`${v}%`, 'Error rate']}
                 />
                 <Bar dataKey="rate" radius={[0, 4, 4, 0]}>
