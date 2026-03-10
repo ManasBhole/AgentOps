@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -17,139 +18,231 @@ type IncidentEngine struct {
 }
 
 func NewIncidentEngine(db *gorm.DB, logger *zap.Logger) *IncidentEngine {
-	return &IncidentEngine{
-		db:     db,
-		logger: logger,
-	}
+	return &IncidentEngine{db: db, logger: logger}
 }
 
-// AnalyzeTrace analyzes a trace for potential incidents
+// AnalyzeTrace inspects a trace and creates an incident if it represents an error.
 func (ie *IncidentEngine) AnalyzeTrace(ctx context.Context, traceID string) error {
-	// Fetch trace and related data
 	var trace database.Trace
-	if err := ie.db.Where("trace_id = ?", traceID).First(&trace).Error; err != nil {
+	if err := ie.db.WithContext(ctx).Where("trace_id = ?", traceID).First(&trace).Error; err != nil {
 		return err
 	}
 
-	// Check for error status
-	if trace.Status == "error" {
-		incident, err := ie.investigateError(ctx, &trace)
-		if err != nil {
-			return err
-		}
-
-		if incident != nil {
-			ie.logger.Info("Incident created", zap.String("incident_id", incident.ID))
-		}
+	if trace.Status != "error" {
+		return nil
 	}
 
+	// Deduplication: skip if an open incident already exists for this trace
+	var existing database.Incident
+	if err := ie.db.Where("trace_id = ? AND status != ?", traceID, "resolved").First(&existing).Error; err == nil {
+		return nil
+	}
+
+	incident, err := ie.investigateError(ctx, &trace)
+	if err != nil {
+		return err
+	}
+	if incident != nil {
+		ie.logger.Info("incident created",
+			zap.String("incident_id", incident.ID),
+			zap.String("severity", incident.Severity),
+		)
+	}
 	return nil
 }
 
-// investigateError performs root cause analysis on an error trace
 func (ie *IncidentEngine) investigateError(ctx context.Context, trace *database.Trace) (*database.Incident, error) {
-	// Correlate with infrastructure metrics
-	infraMetrics, err := ie.correlateInfraMetrics(ctx, trace)
-	if err != nil {
-		ie.logger.Warn("Failed to correlate infra metrics", zap.Error(err))
-	}
+	relatedTraces, _ := ie.findRelatedTraces(ctx, trace)
+	rootCause, suggestedFix, confidence := ie.analyzeRootCause(trace, relatedTraces)
 
-	// Find related traces
-	relatedTraces, err := ie.findRelatedTraces(ctx, trace)
-	if err != nil {
-		ie.logger.Warn("Failed to find related traces", zap.Error(err))
-	}
-
-	// Perform root cause analysis
-	rootCause, confidence := ie.analyzeRootCause(ctx, trace, infraMetrics, relatedTraces)
-
-	// Create incident
+	now := time.Now().UTC()
 	incident := &database.Incident{
-		ID:              fmt.Sprintf("inc_%d", time.Now().Unix()),
-		Title:           fmt.Sprintf("Agent Error: %s", trace.Name),
-		Severity:        ie.determineSeverity(trace),
-		Status:          "open",
-		AgentID:         trace.AgentID,
-		TraceID:         trace.TraceID,
-		RootCause:       rootCause,
-		Confidence:      confidence,
-		CorrelatedTraces: fmt.Sprintf("%v", relatedTraces),
-		InfraMetrics:     fmt.Sprintf("%v", infraMetrics),
-		CreatedAt:        time.Now(),
-		UpdatedAt:        time.Now(),
+		ID:               fmt.Sprintf("inc_%d", now.UnixNano()),
+		Title:            fmt.Sprintf("Agent Error: %s", trace.Name),
+		Severity:         ie.determineSeverity(trace, len(relatedTraces)),
+		Status:           "open",
+		AgentID:          trace.AgentID,
+		TraceID:          trace.TraceID,
+		RootCause:        rootCause,
+		SuggestedFix:     suggestedFix,
+		Confidence:       confidence,
+		CorrelatedTraces: strings.Join(relatedTraces, ","),
+		CreatedAt:        now,
+		UpdatedAt:        now,
 	}
 
 	if err := ie.db.Create(incident).Error; err != nil {
 		return nil, err
 	}
-
 	return incident, nil
 }
 
-// correlateInfraMetrics correlates trace with infrastructure metrics
-func (ie *IncidentEngine) correlateInfraMetrics(ctx context.Context, trace *database.Trace) (map[string]interface{}, error) {
-	// TODO: Query Prometheus/Cortex for metrics around trace time
-	// TODO: Query K8s for pod metrics
-	// TODO: Query database for query performance
-
-	metrics := make(map[string]interface{})
-	metrics["timestamp"] = trace.StartTime
-
-	return metrics, nil
+// rcaPattern is a matching rule with its diagnosis.
+type rcaPattern struct {
+	match        func(trace *database.Trace, attrs string) bool
+	rootCause    string
+	suggestedFix string
+	confidence   float64
 }
 
-// findRelatedTraces finds traces related to the current trace
+var rcaPatterns = []rcaPattern{
+	{
+		match: func(t *database.Trace, attrs string) bool {
+			return t.Duration > 30_000 && containsAny(attrs, "timeout", "deadline", "context canceled")
+		},
+		rootCause:    "Agent execution timed out — downstream service or LLM call exceeded the configured deadline.",
+		suggestedFix: "Increase the agent timeout budget or add a retry with exponential back-off. Check downstream service latency.",
+		confidence:   0.88,
+	},
+	{
+		match: func(t *database.Trace, attrs string) bool {
+			return containsAny(attrs, "rate limit", "429", "too many requests", "quota exceeded")
+		},
+		rootCause:    "LLM or external API rate limit hit during agent execution.",
+		suggestedFix: "Implement token-bucket throttling before LLM calls. Add jitter to retry logic and consider increasing API quota.",
+		confidence:   0.92,
+	},
+	{
+		match: func(t *database.Trace, attrs string) bool {
+			return containsAny(attrs, "tool_error", "tool failed", "tool call", "function_call")
+		},
+		rootCause:    "Agent tool call failed — a tool returned an error or produced an unexpected result.",
+		suggestedFix: "Inspect tool input/output schemas. Add input validation and fallback behavior in the tool wrapper.",
+		confidence:   0.85,
+	},
+	{
+		match: func(t *database.Trace, attrs string) bool {
+			return containsAny(attrs, "oom", "out of memory", "memory pressure", "killed")
+		},
+		rootCause:    "Agent process or pod was terminated due to memory pressure.",
+		suggestedFix: "Increase pod memory limits, reduce context window size, or stream large payloads instead of buffering.",
+		confidence:   0.90,
+	},
+	{
+		match: func(t *database.Trace, attrs string) bool {
+			return containsAny(attrs, "invalid json", "parse error", "unmarshal", "syntax error")
+		},
+		rootCause:    "LLM returned malformed output that the agent could not parse.",
+		suggestedFix: "Add output validation with JSON mode. Implement a parse-and-retry loop with a stricter prompt.",
+		confidence:   0.82,
+	},
+	{
+		match: func(t *database.Trace, attrs string) bool {
+			return containsAny(attrs, "connection refused", "connection reset", "no such host", "dial tcp")
+		},
+		rootCause:    "Network connectivity failure — agent could not reach a required service.",
+		suggestedFix: "Verify service DNS, firewall rules, and health checks. Add circuit-breaker around network calls.",
+		confidence:   0.87,
+	},
+	{
+		match: func(t *database.Trace, attrs string) bool {
+			return t.Duration > 60_000
+		},
+		rootCause:    "Agent run exceeded 60 s — possible infinite loop or stalled reasoning chain.",
+		suggestedFix: "Add a max-iterations guard and a hard wall-clock timeout. Review the agent's planning loop for cycles.",
+		confidence:   0.75,
+	},
+}
+
+func (ie *IncidentEngine) analyzeRootCause(trace *database.Trace, relatedTraces []string) (rootCause, suggestedFix string, confidence float64) {
+	attrs := strings.ToLower(trace.Attributes + " " + trace.Events)
+
+	for _, p := range rcaPatterns {
+		if p.match(trace, attrs) {
+			boost := 0.0
+			if len(relatedTraces) >= 3 {
+				boost = 0.05
+			}
+			conf := p.confidence + boost
+			if conf > 0.99 {
+				conf = 0.99
+			}
+			return p.rootCause, p.suggestedFix, conf
+		}
+	}
+
+	return "Agent execution failed — no matching pattern detected. Manual investigation required.",
+		"Review the full trace attributes and events for clues. Check agent logs around " + trace.StartTime.Format(time.RFC3339) + ".",
+		0.50
+}
+
 func (ie *IncidentEngine) findRelatedTraces(ctx context.Context, trace *database.Trace) ([]string, error) {
-	// Find traces from same agent around the same time
+	window := 5 * time.Minute
 	var related []database.Trace
-	timeWindow := trace.StartTime.Add(-5 * time.Minute)
-	
-	if err := ie.db.Where("agent_id = ? AND start_time >= ? AND start_time <= ? AND trace_id != ?",
-		trace.AgentID, timeWindow, trace.StartTime.Add(5*time.Minute), trace.TraceID).
-		Find(&related).Error; err != nil {
+	err := ie.db.WithContext(ctx).
+		Where("agent_id = ? AND status = ? AND start_time BETWEEN ? AND ? AND trace_id != ?",
+			trace.AgentID, "error",
+			trace.StartTime.Add(-window), trace.StartTime.Add(window),
+			trace.TraceID).
+		Limit(20).
+		Find(&related).Error
+	if err != nil {
 		return nil, err
 	}
-
-	traceIDs := make([]string, len(related))
+	ids := make([]string, len(related))
 	for i, t := range related {
-		traceIDs[i] = t.TraceID
+		ids[i] = t.TraceID
 	}
-
-	return traceIDs, nil
+	return ids, nil
 }
 
-// analyzeRootCause performs AI-powered root cause analysis
-func (ie *IncidentEngine) analyzeRootCause(
-	ctx context.Context,
-	trace *database.Trace,
-	infraMetrics map[string]interface{},
-	relatedTraces []string,
-) (string, float64) {
-	// TODO: Implement AI model for root cause analysis
-	// This would use an LLM to analyze:
-	// - Trace attributes and events
-	// - Infrastructure metrics
-	// - Related traces
-	// - Historical patterns
-
-	// Placeholder logic
-	rootCause := "Agent execution failed - requires investigation"
-	confidence := 0.5
-
-	// Check for common patterns
-	if trace.Duration > 30000 { // 30 seconds
-		rootCause = "Agent timeout - possible infrastructure bottleneck"
-		confidence = 0.7
-	}
-
-	return rootCause, confidence
-}
-
-// determineSeverity determines incident severity
-func (ie *IncidentEngine) determineSeverity(trace *database.Trace) string {
-	// Simple severity determination based on duration and error type
-	if trace.Duration > 60000 { // 1 minute
+func (ie *IncidentEngine) determineSeverity(trace *database.Trace, relatedCount int) string {
+	switch {
+	case trace.Duration > 60_000 || relatedCount >= 5:
 		return "critical"
+	case trace.Duration > 30_000 || relatedCount >= 2:
+		return "high"
+	case trace.Duration > 10_000:
+		return "medium"
+	default:
+		return "low"
 	}
-	return "high"
+}
+
+// ─── Public service methods ──────────────────────────────────────────────────
+
+func (ie *IncidentEngine) ListIncidents(ctx context.Context, agentID, status string, limit int) ([]database.Incident, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	query := ie.db.WithContext(ctx).Order("created_at DESC").Limit(limit)
+	if agentID != "" {
+		query = query.Where("agent_id = ?", agentID)
+	}
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+	var incidents []database.Incident
+	return incidents, query.Find(&incidents).Error
+}
+
+func (ie *IncidentEngine) GetIncident(ctx context.Context, id string) (*database.Incident, error) {
+	var incident database.Incident
+	if err := ie.db.WithContext(ctx).Where("id = ?", id).First(&incident).Error; err != nil {
+		return nil, err
+	}
+	return &incident, nil
+}
+
+func (ie *IncidentEngine) ResolveIncident(ctx context.Context, id string) (*database.Incident, error) {
+	incident, err := ie.GetIncident(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now().UTC()
+	incident.Status = "resolved"
+	incident.ResolvedAt = &now
+	incident.UpdatedAt = now
+	return incident, ie.db.WithContext(ctx).Save(incident).Error
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+func containsAny(s string, keywords ...string) bool {
+	for _, kw := range keywords {
+		if strings.Contains(s, kw) {
+			return true
+		}
+	}
+	return false
 }

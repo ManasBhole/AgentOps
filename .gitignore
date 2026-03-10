@@ -32,3 +32,13 @@ go.work
 # OS
 .DS_Store
 Thumbs.db
+
+# Node
+node_modules/
+dashboard/dist/
+dashboard/.vite/
+dashboard/package-lock.json
+
+# Go build output
+api/bin/
+dist/

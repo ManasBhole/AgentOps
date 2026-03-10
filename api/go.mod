@@ -1,4 +1,4 @@
-module github.com/ManasBhole/AgentOps/api
+module github.com/agentops/agentops/api
 
 go 1.21
 

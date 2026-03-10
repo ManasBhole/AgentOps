@@ -45,6 +45,7 @@ type Incident struct {
 	AgentID         string    `gorm:"index" json:"agent_id"`
 	TraceID         string    `gorm:"index" json:"trace_id"`
 	RootCause       string    `gorm:"type:text" json:"root_cause"`
+	SuggestedFix    string    `gorm:"type:text" json:"suggested_fix"`
 	Confidence      float64   `json:"confidence"`
 	CorrelatedTraces string   `gorm:"type:jsonb" json:"correlated_traces"`
 	InfraMetrics    string    `gorm:"type:jsonb" json:"infra_metrics"`

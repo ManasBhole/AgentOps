@@ -132,6 +132,8 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 		v1.POST("/orchestration/deploy", h.DeployAgent)
 		v1.POST("/orchestration/scale", h.ScaleAgent)
 		v1.POST("/orchestration/circuit-breaker", h.SetCircuitBreaker)
+
+		v1.GET("/stats", h.GetStats)
 	}
 
 	return router
