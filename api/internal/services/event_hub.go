@@ -8,7 +8,7 @@ import (
 
 // Event is the payload sent over SSE.
 type Event struct {
-	Type      string         `json:"type"`       // "incident.created" | "incident.resolved" | "trace.error"
+	Type      string         `json:"type"` // "incident.created" | "incident.resolved" | "trace.error"
 	ID        string         `json:"id"`
 	Title     string         `json:"title"`
 	Severity  string         `json:"severity,omitempty"`

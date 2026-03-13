@@ -13,46 +13,46 @@ import (
 
 // ModelTier describes a model option with pricing.
 type ModelTier struct {
-	Model          string  `json:"model"`
-	Provider       string  `json:"provider"`
-	CostPer1kIn    float64 `json:"cost_per_1k_input"`
-	CostPer1kOut   float64 `json:"cost_per_1k_output"`
-	ContextWindow  int     `json:"context_window"`
-	Capability     string  `json:"capability"` // "fast" | "balanced" | "powerful"
+	Model         string  `json:"model"`
+	Provider      string  `json:"provider"`
+	CostPer1kIn   float64 `json:"cost_per_1k_input"`
+	CostPer1kOut  float64 `json:"cost_per_1k_output"`
+	ContextWindow int     `json:"context_window"`
+	Capability    string  `json:"capability"` // "fast" | "balanced" | "powerful"
 }
 
 // RouteDecision is returned by the router for each task.
 type RouteDecision struct {
-	Task           string    `json:"task"`
-	Complexity     string    `json:"complexity"`   // simple | moderate | complex
-	Model          string    `json:"model"`
-	Provider       string    `json:"provider"`
-	EstCostUSD     float64   `json:"est_cost_usd"`
-	FullCostUSD    float64   `json:"full_cost_usd"` // cost if always using GPT-4o
-	SavingsUSD     float64   `json:"savings_usd"`
-	SavingsPct     float64   `json:"savings_pct"`
-	Rationale      string    `json:"rationale"`
+	Task             string  `json:"task"`
+	Complexity       string  `json:"complexity"` // simple | moderate | complex
+	Model            string  `json:"model"`
+	Provider         string  `json:"provider"`
+	EstCostUSD       float64 `json:"est_cost_usd"`
+	FullCostUSD      float64 `json:"full_cost_usd"` // cost if always using GPT-4o
+	SavingsUSD       float64 `json:"savings_usd"`
+	SavingsPct       float64 `json:"savings_pct"`
+	Rationale        string  `json:"rationale"`
 	AlternativeModel string  `json:"alternative_model,omitempty"`
 }
 
 // RouterStats aggregates total routing savings.
 type RouterStats struct {
-	TotalDecisions  int64   `json:"total_decisions"`
-	TotalCostUSD    float64 `json:"total_cost_usd"`
-	TotalSavedUSD   float64 `json:"total_saved_usd"`
-	SavingsPct      float64 `json:"savings_pct"`
+	TotalDecisions int64   `json:"total_decisions"`
+	TotalCostUSD   float64 `json:"total_cost_usd"`
+	TotalSavedUSD  float64 `json:"total_saved_usd"`
+	SavingsPct     float64 `json:"savings_pct"`
 }
 
 var tiers = []ModelTier{
 	// Fast / cheap — simple tasks
-	{Model: "gpt-4o-mini",                     Provider: "openai",    CostPer1kIn: 0.00015, CostPer1kOut: 0.00060, ContextWindow: 128000, Capability: "fast"},
-	{Model: "claude-haiku-4-5-20251001",        Provider: "anthropic", CostPer1kIn: 0.00025, CostPer1kOut: 0.00125, ContextWindow: 200000, Capability: "fast"},
+	{Model: "gpt-4o-mini", Provider: "openai", CostPer1kIn: 0.00015, CostPer1kOut: 0.00060, ContextWindow: 128000, Capability: "fast"},
+	{Model: "claude-haiku-4-5-20251001", Provider: "anthropic", CostPer1kIn: 0.00025, CostPer1kOut: 0.00125, ContextWindow: 200000, Capability: "fast"},
 	// Balanced — moderate tasks
-	{Model: "claude-sonnet-4-6",                Provider: "anthropic", CostPer1kIn: 0.003,   CostPer1kOut: 0.015,   ContextWindow: 200000, Capability: "balanced"},
-	{Model: "gpt-4o",                           Provider: "openai",    CostPer1kIn: 0.005,   CostPer1kOut: 0.015,   ContextWindow: 128000, Capability: "balanced"},
+	{Model: "claude-sonnet-4-6", Provider: "anthropic", CostPer1kIn: 0.003, CostPer1kOut: 0.015, ContextWindow: 200000, Capability: "balanced"},
+	{Model: "gpt-4o", Provider: "openai", CostPer1kIn: 0.005, CostPer1kOut: 0.015, ContextWindow: 128000, Capability: "balanced"},
 	// Powerful — complex tasks
-	{Model: "claude-opus-4-6",                  Provider: "anthropic", CostPer1kIn: 0.015,   CostPer1kOut: 0.075,   ContextWindow: 200000, Capability: "powerful"},
-	{Model: "gpt-4-turbo",                      Provider: "openai",    CostPer1kIn: 0.010,   CostPer1kOut: 0.030,   ContextWindow: 128000, Capability: "powerful"},
+	{Model: "claude-opus-4-6", Provider: "anthropic", CostPer1kIn: 0.015, CostPer1kOut: 0.075, ContextWindow: 200000, Capability: "powerful"},
+	{Model: "gpt-4-turbo", Provider: "openai", CostPer1kIn: 0.010, CostPer1kOut: 0.030, ContextWindow: 128000, Capability: "powerful"},
 }
 
 // complexitySignals maps keyword patterns to complexity levels.

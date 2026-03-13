@@ -501,13 +501,13 @@ func (h *Handlers) DeleteAgent(c *gin.Context) {
 // ─── Stats Handler ───────────────────────────────────────────────────────────
 
 type StatsResponse struct {
-	TotalAgents      int64   `json:"total_agents"`
-	ActiveAgents     int64   `json:"active_agents"`
-	ActiveIncidents  int64   `json:"active_incidents"`
-	TotalTraces      int64   `json:"total_traces"`
-	ErrorTraces      int64   `json:"error_traces"`
-	AvgLatencyMs     float64 `json:"avg_latency_ms"`
-	ErrorRate        float64 `json:"error_rate"`
+	TotalAgents     int64   `json:"total_agents"`
+	ActiveAgents    int64   `json:"active_agents"`
+	ActiveIncidents int64   `json:"active_incidents"`
+	TotalTraces     int64   `json:"total_traces"`
+	ErrorTraces     int64   `json:"error_traces"`
+	AvgLatencyMs    float64 `json:"avg_latency_ms"`
+	ErrorRate       float64 `json:"error_rate"`
 }
 
 func (h *Handlers) GetStats(c *gin.Context) {
@@ -641,7 +641,7 @@ func (h *Handlers) GetSharedMemory(c *gin.Context) {
 type SetMemoryRequest struct {
 	Key   string `json:"key"   binding:"required"`
 	Value string `json:"value" binding:"required"`
-	Scope string `json:"scope"`  // "agent" (default) | "shared"
+	Scope string `json:"scope"` // "agent" (default) | "shared"
 	RunID string `json:"run_id"`
 }
 
@@ -677,9 +677,9 @@ func (h *Handlers) DeleteMemory(c *gin.Context) {
 // ─── Model Router Handler ─────────────────────────────────────────────────────
 
 type RouteRequest struct {
-	AgentID         string `json:"agent_id"`
-	Task            string `json:"task"            binding:"required"`
-	PreferProvider  string `json:"prefer_provider"` // "openai" | "anthropic" | ""
+	AgentID        string `json:"agent_id"`
+	Task           string `json:"task"            binding:"required"`
+	PreferProvider string `json:"prefer_provider"` // "openai" | "anthropic" | ""
 }
 
 func (h *Handlers) RouteModel(c *gin.Context) {

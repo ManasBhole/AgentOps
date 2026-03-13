@@ -17,8 +17,8 @@ import (
 
 // CausalGraph is the response DTO for the UI's DAG renderer.
 type CausalGraph struct {
-	GraphID string              `json:"graph_id"`
-	Nodes   []CausalNode        `json:"nodes"`
+	GraphID string                `json:"graph_id"`
+	Nodes   []CausalNode          `json:"nodes"`
 	Edges   []database.CausalEdge `json:"edges"`
 }
 
@@ -164,7 +164,7 @@ func (s *CausalGraphService) BuildCausalGraph(
 	for _, edge := range newEdges {
 		e := edge
 		s.db.WithContext(ctx).Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "cause_id"}, {Name: "effect_id"}},
+			Columns: []clause.Column{{Name: "cause_id"}, {Name: "effect_id"}},
 			DoUpdates: clause.AssignmentColumns([]string{
 				"confidence", "lag_ms", "correlation_method",
 				"shared_agent_id", "shared_trace_id", "shared_run_id", "graph_id",

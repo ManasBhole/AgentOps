@@ -26,18 +26,18 @@ var fingerprintWindows = []struct {
 
 // windowStats is the raw aggregation result from Postgres.
 type windowStats struct {
-	SampleCount     int64
-	P50LatencyMs    float64
-	P95LatencyMs    float64
-	P99LatencyMs    float64
-	AvgLatencyMs    float64
-	MaxLatencyMs    float64
-	ErrorRate       float64
-	ErrorCount      int64
-	AvgTokens       float64
-	P95Tokens       float64
-	AvgCostPerReq   float64
-	TotalCost       float64
+	SampleCount   int64
+	P50LatencyMs  float64
+	P95LatencyMs  float64
+	P99LatencyMs  float64
+	AvgLatencyMs  float64
+	MaxLatencyMs  float64
+	ErrorRate     float64
+	ErrorCount    int64
+	AvgTokens     float64
+	P95Tokens     float64
+	AvgCostPerReq float64
+	TotalCost     float64
 }
 
 type BehavioralFingerprintService struct {
@@ -97,7 +97,7 @@ func (s *BehavioralFingerprintService) ComputeFingerprint(
 	}
 
 	result := s.db.WithContext(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "id"}},
+		Columns: []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{
 			"sample_count", "p50_latency_ms", "p95_latency_ms", "p99_latency_ms",
 			"avg_latency_ms", "max_latency_ms", "error_rate", "error_count",
@@ -178,18 +178,18 @@ func (s *BehavioralFingerprintService) queryWindowStats(
 	ctx context.Context, agentID string, from, to time.Time,
 ) (*windowStats, error) {
 	type row struct {
-		SampleCount  int64   `gorm:"column:sample_count"`
-		P50          float64 `gorm:"column:p50"`
-		P95          float64 `gorm:"column:p95"`
-		P99          float64 `gorm:"column:p99"`
-		AvgLatency   float64 `gorm:"column:avg_latency"`
-		MaxLatency   float64 `gorm:"column:max_latency"`
-		ErrorRate    float64 `gorm:"column:error_rate"`
-		ErrorCount   int64   `gorm:"column:error_count"`
-		AvgTokens    float64 `gorm:"column:avg_tokens"`
-		P95Tokens    float64 `gorm:"column:p95_tokens"`
-		AvgCost      float64 `gorm:"column:avg_cost"`
-		TotalCost    float64 `gorm:"column:total_cost"`
+		SampleCount int64   `gorm:"column:sample_count"`
+		P50         float64 `gorm:"column:p50"`
+		P95         float64 `gorm:"column:p95"`
+		P99         float64 `gorm:"column:p99"`
+		AvgLatency  float64 `gorm:"column:avg_latency"`
+		MaxLatency  float64 `gorm:"column:max_latency"`
+		ErrorRate   float64 `gorm:"column:error_rate"`
+		ErrorCount  int64   `gorm:"column:error_count"`
+		AvgTokens   float64 `gorm:"column:avg_tokens"`
+		P95Tokens   float64 `gorm:"column:p95_tokens"`
+		AvgCost     float64 `gorm:"column:avg_cost"`
+		TotalCost   float64 `gorm:"column:total_cost"`
 	}
 
 	var r row

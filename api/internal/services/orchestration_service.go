@@ -15,9 +15,9 @@ import (
 )
 
 type OrchestrationService struct {
-	db       *gorm.DB
-	logger   *zap.Logger
-	config   *config.Config
+	db        *gorm.DB
+	logger    *zap.Logger
+	config    *config.Config
 	k8sClient *kubernetes.Clientset
 }
 
@@ -117,7 +117,7 @@ func (os *OrchestrationService) SetCircuitBreaker(ctx context.Context, agentID s
 func (os *OrchestrationService) deployToK8s(ctx context.Context, deployment *database.Deployment, agent *database.Agent) error {
 	// TODO: Create K8s Deployment, Service, ConfigMap, etc.
 	// This would use the k8s client to create resources
-	os.logger.Info("Deploying to K8s", 
+	os.logger.Info("Deploying to K8s",
 		zap.String("agent_id", agent.ID),
 		zap.String("namespace", deployment.Namespace),
 	)
@@ -143,6 +143,6 @@ func (os *OrchestrationService) scaleInK8s(ctx context.Context, deployment *data
 
 	_, err = os.k8sClient.AppsV1().Deployments(deployment.Namespace).
 		Update(ctx, k8sDeployment, metav1.UpdateOptions{})
-	
+
 	return err
 }

@@ -72,8 +72,8 @@ func (s *PredictiveHealthService) RunPredictions(ctx context.Context) error {
 	}
 
 	horizons := []struct {
-		Label   string
-		Offset  time.Duration
+		Label  string
+		Offset time.Duration
 	}{
 		{"+1h", 1 * time.Hour},
 		{"+4h", 4 * time.Hour},
@@ -138,7 +138,7 @@ func (s *PredictiveHealthService) RunPredictions(ctx context.Context) error {
 			}
 
 			s.db.WithContext(ctx).Clauses(clause.OnConflict{
-				Columns:   []clause.Column{{Name: "id"}},
+				Columns: []clause.Column{{Name: "id"}},
 				DoUpdates: clause.AssignmentColumns([]string{
 					"predicted_score", "slope", "intercept", "r_squared",
 					"training_points", "is_critical", "predicted_at",
@@ -148,11 +148,11 @@ func (s *PredictiveHealthService) RunPredictions(ctx context.Context) error {
 			// Fire SSE if newly predicted critical (was healthy before)
 			if isCritical && currentScore >= 50 {
 				s.hub.Publish(Event{
-					Type:     "health.prediction.critical",
-					ID:       pred.ID,
-					AgentID:  agent.ID,
-					Title:    fmt.Sprintf("Agent trending critical in %s (predicted %.0f)", hz.Label, predicted),
-					Severity: "high",
+					Type:      "health.prediction.critical",
+					ID:        pred.ID,
+					AgentID:   agent.ID,
+					Title:     fmt.Sprintf("Agent trending critical in %s (predicted %.0f)", hz.Label, predicted),
+					Severity:  "high",
 					Timestamp: now,
 				})
 			}

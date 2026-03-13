@@ -13,13 +13,13 @@ import (
 
 // HealthScore is the computed health profile for one agent.
 type HealthScore struct {
-	AgentID      string           `json:"agent_id"`
-	Score        int              `json:"score"`        // 0-100
-	Grade        string           `json:"grade"`        // A B C D F
-	Status       string           `json:"status"`       // healthy degraded critical
-	Breakdown    ScoreBreakdown   `json:"breakdown"`
-	Trend        string           `json:"trend"`        // up down stable
-	ComputedAt   time.Time        `json:"computed_at"`
+	AgentID    string         `json:"agent_id"`
+	Score      int            `json:"score"`  // 0-100
+	Grade      string         `json:"grade"`  // A B C D F
+	Status     string         `json:"status"` // healthy degraded critical
+	Breakdown  ScoreBreakdown `json:"breakdown"`
+	Trend      string         `json:"trend"` // up down stable
+	ComputedAt time.Time      `json:"computed_at"`
 }
 
 type ScoreBreakdown struct {
@@ -30,10 +30,10 @@ type ScoreBreakdown struct {
 }
 
 type ComponentScore struct {
-	Score   int     `json:"score"`   // 0-25 (each component max 25)
-	Label   string  `json:"label"`
-	Value   string  `json:"value"`   // human-readable metric
-	Weight  int     `json:"weight"`  // percentage weight
+	Score  int    `json:"score"` // 0-25 (each component max 25)
+	Label  string `json:"label"`
+	Value  string `json:"value"`  // human-readable metric
+	Weight int    `json:"weight"` // percentage weight
 }
 
 type HealthService struct {
@@ -156,9 +156,9 @@ func (s *HealthService) ComputeHealth(agentID string) HealthScore {
 		Status:  status,
 		Trend:   trend,
 		Breakdown: ScoreBreakdown{
-			ErrorRate:    ComponentScore{Score: errorScore, Label: "Error Rate", Value: errorRateStr, Weight: 35},
-			Latency:      ComponentScore{Score: latencyScore, Label: "Avg Latency", Value: latencyStr, Weight: 25},
-			IncidentRate: ComponentScore{Score: incidentScore, Label: "Open Incidents", Value: incidentStr, Weight: 25},
+			ErrorRate:      ComponentScore{Score: errorScore, Label: "Error Rate", Value: errorRateStr, Weight: 35},
+			Latency:        ComponentScore{Score: latencyScore, Label: "Avg Latency", Value: latencyStr, Weight: 25},
+			IncidentRate:   ComponentScore{Score: incidentScore, Label: "Open Incidents", Value: incidentStr, Weight: 25},
 			CostEfficiency: ComponentScore{Score: costScore, Label: "Cost Efficiency", Value: costStr, Weight: 15},
 		},
 		ComputedAt: now,

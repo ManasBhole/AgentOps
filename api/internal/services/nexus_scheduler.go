@@ -41,11 +41,12 @@ func NewNEXUSScheduler(
 // Start launches all background goroutines. Call once from main().
 //
 // Schedule:
-//   Every 30s  → Topology rebuild
-//   Every 5m   → Fingerprint computation + health snapshots
-//   Every 15m  → Anomaly detection scan
-//   Every 10m  → Causal graph build
-//   Every 15m  → Predictive health regression
+//
+//	Every 30s  → Topology rebuild
+//	Every 5m   → Fingerprint computation + health snapshots
+//	Every 15m  → Anomaly detection scan
+//	Every 10m  → Causal graph build
+//	Every 15m  → Predictive health regression
 func (s *NEXUSScheduler) Start(ctx context.Context) {
 	go s.runTopology(ctx)
 	go s.runFingerprints(ctx)
