@@ -3,8 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Key, Webhook, Trash2, Plus, Copy, Eye, EyeOff,
   CheckCircle2, RefreshCw, Zap, Globe, AlertTriangle,
+  Users, UserPlus, Shield, User, Lock,
 } from 'lucide-react'
 import api from '../services/api'
+import { authApi } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
 type APIKey = {
   id: string; name: string; key_prefix: string
@@ -24,9 +27,61 @@ const EVENT_OPTIONS = [
   { value: '*',                 label: 'All Events',         color: 'text-indigo-400' },
 ]
 
+const ROLE_BADGE: Record<string, string> = {
+  owner: 'bg-yellow-900/60 text-yellow-300 border-yellow-800',
+  admin: 'bg-indigo-900/60 text-indigo-300 border-indigo-800',
+  'agent-runner': 'bg-emerald-900/60 text-emerald-300 border-emerald-800',
+  viewer: 'bg-gray-800 text-gray-400 border-gray-700',
+}
+
 export default function Settings() {
   const qc = useQueryClient()
-  const [tab, setTab] = useState<'apikeys' | 'webhooks'>('apikeys')
+  const { user: me, checkAccess } = useAuth()
+  const canManageUsers = checkAccess('users', 'read')
+  const [tab, setTab] = useState<'profile' | 'apikeys' | 'webhooks' | 'users'>('profile')
+
+  // Profile
+  const [profileName, setProfileName]   = useState(me?.name ?? '')
+  const [oldPass, setOldPass]           = useState('')
+  const [newPass, setNewPass]           = useState('')
+  const [profileMsg, setProfileMsg]     = useState('')
+  const [profileErr, setProfileErr]     = useState('')
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async () => authApi.patch('/auth/me', {
+      name: profileName !== me?.name ? profileName : undefined,
+      old_password: oldPass || undefined,
+      new_password: newPass || undefined,
+    }),
+    onSuccess: () => {
+      setProfileMsg('Profile updated successfully')
+      setOldPass(''); setNewPass(''); setProfileErr('')
+      setTimeout(() => setProfileMsg(''), 3000)
+    },
+    onError: (e: any) => setProfileErr(e?.response?.data?.error ?? 'Update failed'),
+  })
+
+  // Users (admin/owner only)
+  const [newUserEmail, setNewUserEmail] = useState('')
+  const [newUserName, setNewUserName]   = useState('')
+  const [newUserPass, setNewUserPass]   = useState('')
+  const [newUserRole, setNewUserRole]   = useState('viewer')
+
+  const { data: usersData, refetch: refetchUsers } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => { const { data } = await authApi.get('/auth/users'); return data as any[] },
+    enabled: canManageUsers,
+  })
+
+  const createUserMutation = useMutation({
+    mutationFn: async () => authApi.post('/auth/users', {
+      email: newUserEmail, name: newUserName, password: newUserPass, role: newUserRole,
+    }),
+    onSuccess: () => {
+      setNewUserEmail(''); setNewUserName(''); setNewUserPass(''); setNewUserRole('viewer')
+      refetchUsers()
+    },
+  })
 
   // API Keys
   const [newKeyName, setNewKeyName]   = useState('')
@@ -105,8 +160,13 @@ export default function Settings() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-900 border border-gray-800 rounded-lg p-1 w-fit">
-        {([['apikeys', Key, 'API Keys'], ['webhooks', Webhook, 'Webhooks']] as const).map(([id, Icon, label]) => (
+      <div className="flex gap-1 bg-gray-900 border border-gray-800 rounded-lg p-1 w-fit flex-wrap">
+        {([
+          ['profile', User, 'Profile'],
+          ['apikeys', Key, 'API Keys'],
+          ['webhooks', Webhook, 'Webhooks'],
+          ...(canManageUsers ? [['users', Users, 'Users']] : []),
+        ] as [string, React.ElementType, string][]).map(([id, Icon, label]) => (
           <button key={id} onClick={() => setTab(id as any)}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-colors
               ${tab === id ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'}`}>
@@ -114,6 +174,151 @@ export default function Settings() {
           </button>
         ))}
       </div>
+
+      {/* ── Profile Tab ──────────────────────────────────────────────────── */}
+      {tab === 'profile' && (
+        <div className="space-y-4 max-w-lg">
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
+            <div className="flex items-center gap-3 pb-3 border-b border-gray-800">
+              <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                {me?.name?.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-white">{me?.name}</div>
+                <div className="text-xs text-gray-500">{me?.email}</div>
+              </div>
+              <span className={`ml-auto text-xs px-2 py-0.5 rounded-full border font-medium ${ROLE_BADGE[me?.role ?? 'viewer']}`}>
+                {me?.role}
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Display Name</label>
+              <input
+                value={profileName}
+                onChange={e => setProfileName(e.target.value)}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="border-t border-gray-800 pt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Lock className="h-3.5 w-3.5 text-gray-400" />
+                <span className="text-xs font-medium text-gray-300">Change Password</span>
+              </div>
+              <div className="space-y-2">
+                <input
+                  type="password"
+                  placeholder="Current password"
+                  value={oldPass}
+                  onChange={e => setOldPass(e.target.value)}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                />
+                <input
+                  type="password"
+                  placeholder="New password (min 8 chars)"
+                  value={newPass}
+                  onChange={e => setNewPass(e.target.value)}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            {profileErr && <p className="text-xs text-red-400">{profileErr}</p>}
+            {profileMsg && <p className="text-xs text-emerald-400">{profileMsg}</p>}
+
+            <button
+              onClick={() => updateProfileMutation.mutate()}
+              disabled={updateProfileMutation.isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
+            >
+              {updateProfileMutation.isPending ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+              Save Changes
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Users Tab ────────────────────────────────────────────────────── */}
+      {tab === 'users' && canManageUsers && (
+        <div className="space-y-4">
+          {/* Invite form */}
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <UserPlus className="h-4 w-4 text-indigo-400" />
+              <h3 className="text-sm font-semibold text-white">Invite New User</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Full Name</label>
+                <input value={newUserName} onChange={e => setNewUserName(e.target.value)}
+                  placeholder="Jane Smith"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Email</label>
+                <input value={newUserEmail} onChange={e => setNewUserEmail(e.target.value)}
+                  placeholder="jane@company.com" type="email"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Temporary Password</label>
+                <input value={newUserPass} onChange={e => setNewUserPass(e.target.value)}
+                  placeholder="Min 8 characters" type="password"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Role</label>
+                <select value={newUserRole} onChange={e => setNewUserRole(e.target.value)}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                  {me?.role === 'owner' && <option value="owner">Owner</option>}
+                  <option value="admin">Admin</option>
+                  <option value="agent-runner">Agent Runner</option>
+                  <option value="viewer">Viewer</option>
+                </select>
+              </div>
+            </div>
+            <button
+              onClick={() => createUserMutation.mutate()}
+              disabled={!newUserEmail || !newUserName || !newUserPass || createUserMutation.isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              {createUserMutation.isPending ? 'Creating…' : 'Create User'}
+            </button>
+          </div>
+
+          {/* Users list */}
+          <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-gray-800 flex items-center gap-2">
+              <Users className="h-4 w-4 text-indigo-400" />
+              <span className="text-sm font-semibold text-white">Team Members</span>
+              <span className="ml-auto text-xs text-gray-500">{(usersData ?? []).length} users</span>
+            </div>
+            {(usersData ?? []).map((u: any) => (
+              <div key={u.id} className="flex items-center gap-4 px-5 py-3 border-b border-gray-800 last:border-0">
+                <div className="w-8 h-8 rounded-full bg-indigo-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  {u.name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-200">{u.name}</span>
+                    {u.id === me?.id && <span className="text-xs text-gray-500">(you)</span>}
+                  </div>
+                  <div className="text-xs text-gray-500">{u.email}</div>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full border font-medium flex items-center gap-1 ${ROLE_BADGE[u.role]}`}>
+                  <Shield className="h-2.5 w-2.5" />
+                  {u.role}
+                </span>
+                <div className="text-xs text-gray-600">
+                  {u.last_login_at ? `Last login ${new Date(u.last_login_at).toLocaleDateString()}` : 'Never signed in'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── API Keys Tab ─────────────────────────────────────────────────── */}
       {tab === 'apikeys' && (

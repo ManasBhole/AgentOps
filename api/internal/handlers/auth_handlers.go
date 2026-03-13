@@ -131,6 +131,31 @@ func (h *Handlers) RegisterUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, user)
 }
 
+// PATCH /auth/me — update own name or password.
+// RequireAuth middleware guarantees claims are present.
+func (h *Handlers) UpdateMe(c *gin.Context) {
+	var req struct {
+		Name        string `json:"name"`
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if req.Name == "" && req.NewPassword == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "nothing to update: provide name or new_password"})
+		return
+	}
+	claims := middleware.GetClaims(c)
+	user, err := h.authService.UpdateProfile(claims.UserID, req.Name, req.OldPassword, req.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}
+
 // CheckAccess answers RBAC queries for frontend enforcement.
 // GET /auth/check-access?resource=agents&action=write
 func (h *Handlers) CheckAccess(c *gin.Context) {

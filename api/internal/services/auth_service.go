@@ -222,6 +222,41 @@ func (s *AuthService) ListUsers() ([]database.User, error) {
 	return users, err
 }
 
+// UpdateProfile updates a user's display name and/or password.
+// OldPassword is required only when NewPassword is non-empty.
+func (s *AuthService) UpdateProfile(userID, name, oldPassword, newPassword string) (*database.User, error) {
+	var user database.User
+	if err := s.db.First(&user, "id = ?", userID).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	updates := map[string]interface{}{}
+
+	if name != "" && name != user.Name {
+		updates["name"] = name
+	}
+
+	if newPassword != "" {
+		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(oldPassword)); err != nil {
+			return nil, errors.New("current password is incorrect")
+		}
+		hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, err
+		}
+		updates["password_hash"] = string(hash)
+	}
+
+	if len(updates) == 0 {
+		return &user, nil
+	}
+
+	if err := s.db.Model(&user).Updates(updates).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 // EnsureDefaultOwner creates an initial owner account if no users exist.
 func (s *AuthService) EnsureDefaultOwner() {
 	var count int64

@@ -144,6 +144,7 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		authProtected.Use(middleware.RequireAuth(authSvc))
 		{
 			authProtected.GET("/me", h.Me)
+			authProtected.PATCH("/me", h.UpdateMe)
 			authProtected.GET("/check-access", h.CheckAccess)
 			authProtected.GET("/users", middleware.RequireRole("users", "read"), h.ListUsers)
 			authProtected.POST("/users", middleware.RequireRole("users", "read"), h.RegisterUser)
