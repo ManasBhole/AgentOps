@@ -1,7 +1,7 @@
 import { ReactNode, useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
-  LayoutDashboard, Bot, GitBranch, Siren, Layers, Brain,
+  LayoutDashboard, Bot, GitBranch, Siren, Layers, Brain, Settings,
   ChevronLeft, ChevronRight, Bell, Circle, BellRing, BellOff,
   CheckCircle2, AlertTriangle,
 } from 'lucide-react'
@@ -18,6 +18,7 @@ const navItems = [
   { path: '/incidents', label: 'Incidents', icon: Siren },
   { path: '/orchestration', label: 'Orchestration', icon: Layers },
   { path: '/intelligence', label: 'Intelligence', icon: Brain },
+  { path: '/settings',    label: 'Settings',     icon: Settings },
 ]
 
 const SEV_DOT: Record<string, string> = {

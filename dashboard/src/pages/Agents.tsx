@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, ToggleLeft, ToggleRight, RefreshCw } from 'lucide-react'
 import api from '../services/api'
+import { useFleetHealth, scoreColor, scoreBg, trendIcon } from '../hooks/useAgentHealth'
 
 type Agent = {
   id: string
@@ -86,6 +87,9 @@ export default function Agents() {
   const activeCount = agents?.filter(a => a.status === 'active').length ?? 0
   const pausedCount = agents?.filter(a => a.status === 'paused').length ?? 0
   const errorCount  = agents?.filter(a => a.status === 'error').length ?? 0
+
+  const { data: fleetHealth } = useFleetHealth()
+  const healthMap = Object.fromEntries((fleetHealth ?? []).map(h => [h.agent_id, h]))
 
   return (
     <div className="space-y-4">
@@ -195,7 +199,7 @@ export default function Agents() {
             <table className="min-w-full">
               <thead>
                 <tr className="border-b border-gray-800">
-                  {['Name', 'Type', 'Version', 'Status', 'Created', 'Actions'].map(h => (
+                  {['Name', 'Type', 'Version', 'Status', 'Health', 'Created', 'Actions'].map(h => (
                     <th key={h} className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {h}
                     </th>
@@ -217,6 +221,19 @@ export default function Agents() {
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLES[agent.status] ?? 'bg-gray-800 text-gray-300'}`}>
                         {agent.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {(() => {
+                        const h = healthMap[agent.id]
+                        if (!h) return <span className="text-xs text-gray-600">—</span>
+                        return (
+                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border text-xs font-semibold ${scoreBg(h.score)}`}>
+                            <span className={scoreColor(h.score)}>{h.score}</span>
+                            <span className="text-gray-500">{h.grade}</span>
+                            <span className="text-gray-600">{trendIcon(h.trend)}</span>
+                          </div>
+                        )
+                      })()}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {new Date(agent.created_at).toLocaleDateString()}

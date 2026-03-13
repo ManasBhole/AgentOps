@@ -148,6 +148,26 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 		// Model Router — intelligent cost-optimised model selection
 		v1.POST("/router/route", h.RouteModel)
 		v1.GET("/router/stats", h.GetRouterStats)
+
+		// Agent Health Score
+		v1.GET("/agents/:id/health", h.GetAgentHealth)
+		v1.GET("/health/fleet", h.GetFleetHealth)
+
+		// Webhooks
+		v1.GET("/webhooks", h.ListWebhooks)
+		v1.POST("/webhooks", h.CreateWebhook)
+		v1.DELETE("/webhooks/:id", h.DeleteWebhook)
+		v1.POST("/webhooks/:id/test", h.TestWebhook)
+
+		// Cost Budgets
+		v1.GET("/agents/:id/budget", h.GetBudget)
+		v1.POST("/agents/:id/budget", h.SetBudget)
+		v1.GET("/budgets", h.GetAllBudgets)
+
+		// API Keys
+		v1.GET("/api-keys", h.ListAPIKeys)
+		v1.POST("/api-keys", h.CreateAPIKey)
+		v1.DELETE("/api-keys/:id", h.RevokeAPIKey)
 	}
 
 	return router

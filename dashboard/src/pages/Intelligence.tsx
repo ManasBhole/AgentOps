@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Brain, Zap, DollarSign, Database, Trash2,
-  ChevronDown, ChevronUp, RefreshCw, Sparkles,
+  ChevronDown, ChevronUp, RefreshCw, Sparkles, AlertTriangle,
 } from 'lucide-react'
 import api from '../services/api'
 
@@ -22,6 +22,18 @@ type RouterDecision = {
 type RouterStats = {
   total_decisions: number; total_cost_usd: number
   total_saved_usd: number; savings_pct: number
+}
+
+type BudgetStatus = {
+  agent_id: string; daily_limit_usd: number; monthly_limit_usd: number
+  alert_threshold_pct: number; daily_spend_usd: number; monthly_spend_usd: number
+  daily_pct: number; monthly_pct: number; daily_status: string; monthly_status: string
+}
+
+const BUDGET_BAR: Record<string, string> = {
+  ok:       'bg-emerald-500',
+  warning:  'bg-yellow-500',
+  exceeded: 'bg-red-500',
 }
 
 const COMPLEXITY_STYLE: Record<string, string> = {
@@ -45,6 +57,10 @@ export default function Intelligence() {
   const [task, setTask]         = useState('')
   const [provider, setProvider] = useState('')
   const [decision, setDecision] = useState<RouterDecision | null>(null)
+  const [budgetAgent, setBudgetAgent] = useState('')
+  const [budgetDaily, setBudgetDaily]     = useState('')
+  const [budgetMonthly, setBudgetMonthly] = useState('')
+  const [budgetAlertPct, setBudgetAlertPct] = useState('80')
 
   const { data: agents = [] } = useQuery<Agent[]>({
     queryKey: ['agents'],
@@ -104,6 +120,21 @@ export default function Intelligence() {
       setDecision(d)
       qc.invalidateQueries({ queryKey: ['router-stats'] })
     },
+  })
+
+  const { data: allBudgets, refetch: refetchBudgets } = useQuery<BudgetStatus[]>({
+    queryKey: ['budgets'],
+    queryFn: async () => { const { data } = await api.get('/budgets'); return data.budgets ?? [] },
+    refetchInterval: 30_000,
+  })
+
+  const setBudgetMutation = useMutation({
+    mutationFn: async () => api.post(`/agents/${budgetAgent}/budget`, {
+      daily_limit_usd:    parseFloat(budgetDaily)    || 0,
+      monthly_limit_usd:  parseFloat(budgetMonthly)  || 0,
+      alert_threshold_pct: parseFloat(budgetAlertPct) || 80,
+    }),
+    onSuccess: () => { refetchBudgets(); setBudgetAgent(''); setBudgetDaily(''); setBudgetMonthly('') },
   })
 
   const agentMems: Memory[] = agentMemData?.memories ?? []
@@ -323,6 +354,105 @@ export default function Intelligence() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* ── Cost Budgets ────────────────────────────────────────────────── */}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-yellow-400" />
+            <span className="text-sm font-semibold text-white">Cost Budgets</span>
+            <span className="text-xs text-gray-500">— set daily &amp; monthly spend limits per agent</span>
+          </div>
+          <button onClick={() => refetchBudgets()} className="text-gray-500 hover:text-white">
+            <RefreshCw className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        <div className="p-4 space-y-4">
+          {/* Set budget form */}
+          <div className="flex flex-wrap gap-3 items-end">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Agent</label>
+              <select className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-48 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value={budgetAgent} onChange={e => setBudgetAgent(e.target.value)}>
+                <option value="">Select agent…</option>
+                {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Daily limit (USD)</label>
+              <input type="number" min="0" step="0.01" placeholder="e.g. 5.00"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-28 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-600"
+                value={budgetDaily} onChange={e => setBudgetDaily(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Monthly limit (USD)</label>
+              <input type="number" min="0" step="0.01" placeholder="e.g. 50.00"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-28 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-600"
+                value={budgetMonthly} onChange={e => setBudgetMonthly(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">Alert at %</label>
+              <input type="number" min="1" max="100"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value={budgetAlertPct} onChange={e => setBudgetAlertPct(e.target.value)} />
+            </div>
+            <button
+              onClick={() => setBudgetMutation.mutate()}
+              disabled={!budgetAgent || setBudgetMutation.isPending}
+              className="px-4 py-1.5 bg-yellow-600 text-white text-sm rounded-lg hover:bg-yellow-700 disabled:opacity-50">
+              {setBudgetMutation.isPending ? 'Saving…' : 'Set Budget'}
+            </button>
+          </div>
+
+          {/* Budget status rows */}
+          {(allBudgets ?? []).length === 0 && (
+            <p className="text-xs text-gray-600 text-center py-3">No budgets configured. Set one above.</p>
+          )}
+          <div className="space-y-2">
+            {(allBudgets ?? []).map(b => {
+              const agentName = agents.find(a => a.id === b.agent_id)?.name ?? b.agent_id.slice(0, 8)
+              return (
+                <div key={b.agent_id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-200">{agentName}</span>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      {b.daily_status !== 'ok' && (
+                        <span className={`flex items-center gap-1 ${b.daily_status === 'exceeded' ? 'text-red-400' : 'text-yellow-400'}`}>
+                          <AlertTriangle className="h-3 w-3" /> Daily {b.daily_status}
+                        </span>
+                      )}
+                      {b.monthly_status !== 'ok' && (
+                        <span className={`flex items-center gap-1 ${b.monthly_status === 'exceeded' ? 'text-red-400' : 'text-yellow-400'}`}>
+                          <AlertTriangle className="h-3 w-3" /> Monthly {b.monthly_status}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { label: 'Daily', spent: b.daily_spend_usd, limit: b.daily_limit_usd, pct: b.daily_pct, status: b.daily_status },
+                      { label: 'Monthly', spent: b.monthly_spend_usd, limit: b.monthly_limit_usd, pct: b.monthly_pct, status: b.monthly_status },
+                    ].map(row => (
+                      <div key={row.label}>
+                        <div className="flex justify-between text-xs text-gray-500 mb-1">
+                          <span>{row.label}</span>
+                          <span className="text-gray-300">${row.spent.toFixed(4)} <span className="text-gray-600">/ ${row.limit.toFixed(2)}</span></span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-1.5">
+                          <div className={`h-1.5 rounded-full transition-all ${BUDGET_BAR[row.status] ?? 'bg-gray-500'}`}
+                            style={{ width: `${Math.min(row.pct, 100)}%` }} />
+                        </div>
+                        <div className="text-xs text-gray-600 mt-0.5">{row.pct.toFixed(1)}% used</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </div>
   )

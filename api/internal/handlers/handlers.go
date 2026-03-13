@@ -682,3 +682,148 @@ func (h *Handlers) GetRouterStats(c *gin.Context) {
 	stats := h.modelRouter.Stats()
 	c.JSON(http.StatusOK, gin.H{"router_stats": stats})
 }
+
+// ─── Health Score Handlers ────────────────────────────────────────────────────
+
+func (h *Handlers) GetAgentHealth(c *gin.Context) {
+	hs := services.NewHealthService(h.db, h.logger)
+	score := hs.ComputeHealth(c.Param("id"))
+	c.JSON(http.StatusOK, gin.H{"health": score})
+}
+
+func (h *Handlers) GetFleetHealth(c *gin.Context) {
+	hs := services.NewHealthService(h.db, h.logger)
+	scores := hs.ComputeFleetHealth()
+	c.JSON(http.StatusOK, gin.H{"health": scores, "count": len(scores)})
+}
+
+// ─── Webhook Handlers ─────────────────────────────────────────────────────────
+
+type CreateWebhookRequest struct {
+	Name   string   `json:"name"   binding:"required"`
+	URL    string   `json:"url"    binding:"required"`
+	Events []string `json:"events" binding:"required"`
+}
+
+func (h *Handlers) ListWebhooks(c *gin.Context) {
+	svc := services.NewWebhookService(h.db, h.logger)
+	hooks, err := svc.List()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"webhooks": hooks, "count": len(hooks)})
+}
+
+func (h *Handlers) CreateWebhook(c *gin.Context) {
+	var req CreateWebhookRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	svc := services.NewWebhookService(h.db, h.logger)
+	hook, err := svc.Create(req.Name, req.URL, req.Events)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"webhook": hook})
+}
+
+func (h *Handlers) DeleteWebhook(c *gin.Context) {
+	svc := services.NewWebhookService(h.db, h.logger)
+	if err := svc.Delete(c.Param("id")); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+}
+
+func (h *Handlers) TestWebhook(c *gin.Context) {
+	svc := services.NewWebhookService(h.db, h.logger)
+	status, msg, err := svc.Test(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": status, "message": msg})
+}
+
+// ─── Budget Handlers ──────────────────────────────────────────────────────────
+
+type SetBudgetRequest struct {
+	DailyLimitUSD   float64 `json:"daily_limit_usd"`
+	MonthlyLimitUSD float64 `json:"monthly_limit_usd"`
+	AlertPct        float64 `json:"alert_threshold_pct"`
+}
+
+func (h *Handlers) GetBudget(c *gin.Context) {
+	svc := services.NewBudgetService(h.db, h.logger)
+	status, err := svc.Status(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "no budget set for this agent"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"budget": status})
+}
+
+func (h *Handlers) SetBudget(c *gin.Context) {
+	var req SetBudgetRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	svc := services.NewBudgetService(h.db, h.logger)
+	budget, err := svc.Set(c.Param("id"), req.DailyLimitUSD, req.MonthlyLimitUSD, req.AlertPct)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"budget": budget})
+}
+
+func (h *Handlers) GetAllBudgets(c *gin.Context) {
+	svc := services.NewBudgetService(h.db, h.logger)
+	statuses := svc.AllStatuses()
+	c.JSON(http.StatusOK, gin.H{"budgets": statuses, "count": len(statuses)})
+}
+
+// ─── API Key Handlers ─────────────────────────────────────────────────────────
+
+type CreateAPIKeyRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+func (h *Handlers) ListAPIKeys(c *gin.Context) {
+	svc := services.NewAPIKeyService(h.db, h.logger)
+	keys, err := svc.List()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"api_keys": keys, "count": len(keys)})
+}
+
+func (h *Handlers) CreateAPIKey(c *gin.Context) {
+	var req CreateAPIKeyRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	svc := services.NewAPIKeyService(h.db, h.logger)
+	key, err := svc.Create(req.Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"api_key": key})
+}
+
+func (h *Handlers) RevokeAPIKey(c *gin.Context) {
+	svc := services.NewAPIKeyService(h.db, h.logger)
+	if err := svc.Revoke(c.Param("id")); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "revoked"})
+}

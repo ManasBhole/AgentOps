@@ -91,6 +91,41 @@ type RouterLog struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+// Webhook delivers event payloads to external URLs (Slack, PagerDuty, custom).
+type Webhook struct {
+	ID        string    `gorm:"primaryKey" json:"id"`
+	Name      string    `json:"name"`
+	URL       string    `gorm:"type:text" json:"url"`
+	Events    string    `gorm:"type:jsonb" json:"events"` // ["incident.created","incident.resolved","trace.error"]
+	Secret    string    `json:"-"`                        // HMAC-SHA256 signing secret, never returned
+	Active    bool      `gorm:"default:true" json:"active"`
+	LastFired *time.Time `json:"last_fired,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// AgentBudget defines spend limits per agent.
+type AgentBudget struct {
+	AgentID          string    `gorm:"primaryKey" json:"agent_id"`
+	DailyLimitUSD    float64   `json:"daily_limit_usd"`
+	MonthlyLimitUSD  float64   `json:"monthly_limit_usd"`
+	AlertThresholdPct float64  `json:"alert_threshold_pct"` // e.g. 80 = alert at 80% of limit
+	Active           bool      `gorm:"default:true" json:"active"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
+}
+
+// APIKey authenticates SDK / external callers.
+type APIKey struct {
+	ID          string     `gorm:"primaryKey" json:"id"`
+	Name        string     `json:"name"`
+	KeyHash     string     `gorm:"uniqueIndex" json:"-"` // SHA-256 of the raw key
+	KeyPrefix   string     `json:"key_prefix"`           // first 8 chars shown in UI e.g. "ao_k_1a2b"
+	Active      bool       `gorm:"default:true" json:"active"`
+	LastUsedAt  *time.Time `json:"last_used_at,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
+}
+
 // Migrate runs database migrations
 func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -100,5 +135,8 @@ func Migrate(db *gorm.DB) error {
 		&Deployment{},
 		&AgentMemory{},
 		&RouterLog{},
+		&Webhook{},
+		&AgentBudget{},
+		&APIKey{},
 	)
 }
