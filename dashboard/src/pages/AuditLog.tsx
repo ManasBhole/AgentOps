@@ -67,34 +67,37 @@ export default function AuditLog() {
   const [search, setSearch] = useState('')
   const [kindFilter, setKindFilter] = useState<EventKind | 'all'>('all')
 
-  const { data: traces = [], isFetching: tFetch, refetch: refetchTraces } = useQuery<Trace[]>({
+  const { data: tracesRaw, isFetching: tFetch, refetch: refetchTraces } = useQuery<Trace[]>({
     queryKey: ['audit-traces'],
-    queryFn: async () => { const { data } = await api.get('/traces?limit=200'); return data },
+    queryFn: async () => { const { data } = await api.get('/traces'); return data ?? [] },
     refetchInterval: 20_000,
   })
 
-  const { data: incidents = [], isFetching: iFetch, refetch: refetchIncidents } = useQuery<Incident[]>({
+  const { data: incidentsRaw, isFetching: iFetch, refetch: refetchIncidents } = useQuery<Incident[]>({
     queryKey: ['audit-incidents'],
-    queryFn: async () => { const { data } = await api.get('/incidents?limit=200'); return data },
+    queryFn: async () => { const { data } = await api.get('/incidents'); return data ?? [] },
     refetchInterval: 20_000,
   })
+
+  const traces: Trace[] = Array.isArray(tracesRaw) ? tracesRaw : []
+  const incidents: Incident[] = Array.isArray(incidentsRaw) ? incidentsRaw : []
 
   const events: AuditEvent[] = [
     ...traces.map(t => ({
-      id: t.id,
+      id: t.id ?? '',
       kind: 'trace' as EventKind,
-      actor: t.agent_id.slice(0, 12) + '…',
-      action: t.name,
-      detail: `run_id: ${t.run_id.slice(0, 12)}`,
+      actor: (t.agent_id ?? '').slice(0, 12) + '…',
+      action: t.name ?? '(unnamed)',
+      detail: `run_id: ${(t.run_id ?? '').slice(0, 12)}`,
       severity: t.status,
       status: t.status,
       timestamp: t.created_at,
     })),
     ...incidents.map(i => ({
-      id: i.id,
+      id: i.id ?? '',
       kind: 'incident' as EventKind,
-      actor: i.agent_id.slice(0, 12) + '…',
-      action: i.title,
+      actor: (i.agent_id ?? '').slice(0, 12) + '…',
+      action: i.title ?? '(untitled)',
       detail: i.root_cause?.slice(0, 80) ?? '',
       severity: i.severity,
       status: i.status,

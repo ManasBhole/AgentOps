@@ -30,10 +30,11 @@ export default function Playground() {
   const [copied, setCopied] = useState(false)
   const [showAttrs, setShowAttrs] = useState(false)
 
-  const { data: agents = [] } = useQuery<Agent[]>({
+  const { data: agentsRaw } = useQuery<Agent[]>({
     queryKey: ['agents'],
-    queryFn: async () => { const { data } = await api.get('/agents'); return data },
+    queryFn: async () => { const { data } = await api.get('/agents'); return data ?? [] },
   })
+  const agents: Agent[] = Array.isArray(agentsRaw) ? agentsRaw : []
 
   const handleRun = async () => {
     if (!task.trim()) return
