@@ -25,6 +25,13 @@ type Handlers struct {
 	hub                  *services.EventHub
 	memoryService        *services.MemoryService
 	modelRouter          *services.ModelRouterService
+	// NEXUS services
+	fingerprint *services.BehavioralFingerprintService
+	anomaly     *services.AnomalyDetectionService
+	causal      *services.CausalGraphService
+	predictive  *services.PredictiveHealthService
+	topology    *services.TopologyService
+	health      *services.HealthService
 }
 
 func NewHandlers(
@@ -35,6 +42,7 @@ func NewHandlers(
 	traceService *services.TraceService,
 	hub *services.EventHub,
 ) *Handlers {
+	health := services.NewHealthService(db, logger)
 	return &Handlers{
 		db:                   db,
 		logger:               logger,
@@ -44,6 +52,12 @@ func NewHandlers(
 		hub:                  hub,
 		memoryService:        services.NewMemoryService(db, logger),
 		modelRouter:          services.NewModelRouterService(db, logger),
+		health:               health,
+		fingerprint:          services.NewBehavioralFingerprintService(db, logger),
+		anomaly:              services.NewAnomalyDetectionService(db, logger, hub),
+		causal:               services.NewCausalGraphService(db, logger, hub),
+		predictive:           services.NewPredictiveHealthService(db, logger, hub),
+		topology:             services.NewTopologyService(db, logger),
 	}
 }
 
@@ -902,4 +916,222 @@ func (h *Handlers) ListRouterLogs(c *gin.Context) {
 	var logs []database.RouterLog
 	h.db.Order("created_at desc").Limit(limit).Find(&logs)
 	c.JSON(http.StatusOK, logs)
+}
+
+// ─── NEXUS: Behavioral Fingerprints ──────────────────────────────────────────
+
+func (h *Handlers) GetFingerprint(c *gin.Context) {
+	window := c.DefaultQuery("window", "24h")
+	fp, err := h.fingerprint.GetFingerprint(c.Request.Context(), c.Param("agentID"), window)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "no fingerprint found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"fingerprint": fp})
+}
+
+func (h *Handlers) GetFingerprintHistory(c *gin.Context) {
+	window := c.DefaultQuery("window", "24h")
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "48"))
+	fps, err := h.fingerprint.GetFingerprintHistory(c.Request.Context(), c.Param("agentID"), window, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"history": fps})
+}
+
+func (h *Handlers) GetFleetFingerprints(c *gin.Context) {
+	window := c.DefaultQuery("window", "24h")
+	fps, err := h.fingerprint.GetFleetFingerprints(c.Request.Context(), window)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"fingerprints": fps, "count": len(fps)})
+}
+
+// ─── NEXUS: Anomaly Detection ─────────────────────────────────────────────────
+
+func (h *Handlers) GetAnomalyFeed(c *gin.Context) {
+	agentID := c.Query("agent_id")
+	status := c.Query("status")
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	evts, err := h.anomaly.GetAnomalyFeed(c.Request.Context(), agentID, status, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"anomalies": evts, "count": len(evts)})
+}
+
+func (h *Handlers) AcknowledgeAnomaly(c *gin.Context) {
+	evt, err := h.anomaly.AcknowledgeAnomaly(c.Request.Context(), c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "anomaly not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"anomaly": evt})
+}
+
+func (h *Handlers) TriggerAnomalyScan(c *gin.Context) {
+	var body struct {
+		ZScoreThreshold float64 `json:"z_score_threshold"`
+	}
+	c.ShouldBindJSON(&body)
+	if body.ZScoreThreshold <= 0 {
+		body.ZScoreThreshold = 2.5
+	}
+	fired, err := h.anomaly.RunDetection(c.Request.Context(), body.ZScoreThreshold)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"fired": len(fired), "anomalies": fired})
+}
+
+// ─── NEXUS: Causal Graph ──────────────────────────────────────────────────────
+
+func (h *Handlers) ListCausalGraphs(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	graphs, err := h.causal.ListGraphs(c.Request.Context(), limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"graphs": graphs})
+}
+
+func (h *Handlers) GetCausalGraph(c *gin.Context) {
+	graph, err := h.causal.GetGraph(c.Request.Context(), c.Param("graphID"))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "graph not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"graph": graph})
+}
+
+func (h *Handlers) GetIncidentCausalGraph(c *gin.Context) {
+	graph, err := h.causal.GetGraphForIncident(c.Request.Context(), c.Param("incidentID"))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "no causal graph for this incident"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"graph": graph})
+}
+
+func (h *Handlers) RebuildCausalGraph(c *gin.Context) {
+	var body struct {
+		LookbackMinutes int     `json:"lookback_minutes"`
+		MaxLagMs        int64   `json:"max_lag_ms"`
+		MinConfidence   float64 `json:"min_confidence"`
+	}
+	c.ShouldBindJSON(&body)
+	if body.LookbackMinutes <= 0 {
+		body.LookbackMinutes = 30
+	}
+	if body.MaxLagMs <= 0 {
+		body.MaxLagMs = 300_000
+	}
+	if body.MinConfidence <= 0 {
+		body.MinConfidence = 0.3
+	}
+	lookback := time.Duration(body.LookbackMinutes) * time.Minute
+	edges, err := h.causal.BuildCausalGraph(c.Request.Context(), lookback, body.MaxLagMs, body.MinConfidence)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"edges_created": len(edges)})
+}
+
+// ─── NEXUS: Predictive Health ─────────────────────────────────────────────────
+
+func (h *Handlers) GetAgentPredictions(c *gin.Context) {
+	agentID := c.Param("agentID")
+	preds, err := h.predictive.GetPredictions(c.Request.Context(), agentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	since := time.Now().Add(-48 * time.Hour)
+	history, _ := h.predictive.GetHealthHistory(c.Request.Context(), agentID, since)
+	c.JSON(http.StatusOK, gin.H{"predictions": preds, "history": history})
+}
+
+func (h *Handlers) GetAllPredictions(c *gin.Context) {
+	criticalOnly := c.Query("critical_only") == "true"
+	preds, err := h.predictive.GetAllPredictions(c.Request.Context(), criticalOnly)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"predictions": preds, "count": len(preds)})
+}
+
+func (h *Handlers) GetAgentHealthHistory(c *gin.Context) {
+	hours, _ := strconv.Atoi(c.DefaultQuery("hours", "48"))
+	since := time.Now().Add(-time.Duration(hours) * time.Hour)
+	history, err := h.predictive.GetHealthHistory(c.Request.Context(), c.Param("agentID"), since)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"history": history})
+}
+
+// ─── NEXUS: Topology ──────────────────────────────────────────────────────────
+
+func (h *Handlers) GetTopologyGraph(c *gin.Context) {
+	graph, err := h.topology.GetTopologyGraph(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"graph": graph})
+}
+
+func (h *Handlers) RebuildTopology(c *gin.Context) {
+	if err := h.topology.RebuildTopology(c.Request.Context()); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}
+
+// ─── NEXUS: Summary ───────────────────────────────────────────────────────────
+
+func (h *Handlers) GetNEXUSSummary(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var activeAnomalies int64
+	h.db.WithContext(ctx).Model(&database.AnomalyEvent{}).Where("status = 'open'").Count(&activeAnomalies)
+
+	var criticalPredictions int64
+	h.db.WithContext(ctx).Model(&database.HealthPrediction{}).Where("is_critical = true").Count(&criticalPredictions)
+
+	type graphCount struct{ Count int64 }
+	var gc struct{ Count int64 }
+	h.db.WithContext(ctx).Raw("SELECT COUNT(DISTINCT graph_id) AS count FROM causal_edges").Scan(&gc)
+
+	var fingerprintedAgents int64
+	h.db.WithContext(ctx).Raw("SELECT COUNT(DISTINCT agent_id) FROM behavioral_fingerprints").Scan(&fingerprintedAgents)
+
+	var topoNodes int64
+	h.db.WithContext(ctx).Raw("SELECT COUNT(DISTINCT parent_agent_id) + COUNT(DISTINCT child_agent_id) FROM topology_edges WHERE window_start >= ?",
+		time.Now().Add(-2*time.Hour)).Scan(&topoNodes)
+
+	var topoEdges int64
+	h.db.WithContext(ctx).Model(&database.TopologyEdge{}).
+		Where("window_start >= ?", time.Now().Add(-2*time.Hour)).Count(&topoEdges)
+
+	c.JSON(http.StatusOK, gin.H{
+		"active_anomalies":     activeAnomalies,
+		"critical_predictions": criticalPredictions,
+		"causal_clusters":      gc.Count,
+		"agents_fingerprinted": fingerprintedAgents,
+		"topology_nodes":       topoNodes,
+		"topology_edges":       topoEdges,
+		"last_scan_at":         time.Now(),
+	})
 }

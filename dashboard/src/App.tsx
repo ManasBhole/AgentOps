@@ -6,6 +6,7 @@ import Traces from './pages/Traces'
 import Incidents from './pages/Incidents'
 import Orchestration from './pages/Orchestration'
 import Intelligence from './pages/Intelligence'
+import Nexus from './pages/Nexus'
 import Analytics from './pages/Analytics'
 import Playground from './pages/Playground'
 import Deployments from './pages/Deployments'
@@ -23,6 +24,7 @@ function App() {
           <Route path="/incidents" element={<Incidents />} />
           <Route path="/orchestration" element={<Orchestration />} />
           <Route path="/intelligence" element={<Intelligence />} />
+          <Route path="/nexus" element={<Nexus />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/playground" element={<Playground />} />
           <Route path="/deployments" element={<Deployments />} />

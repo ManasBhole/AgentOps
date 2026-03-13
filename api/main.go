@@ -59,6 +59,20 @@ func main() {
 		hub,
 	)
 
+	// Start NEXUS background scheduler
+	nexusCtx, nexusCancel := context.WithCancel(context.Background())
+	defer nexusCancel()
+	nexus := services.NewNEXUSScheduler(
+		services.NewBehavioralFingerprintService(db, logger),
+		services.NewAnomalyDetectionService(db, logger, hub),
+		services.NewCausalGraphService(db, logger, hub),
+		services.NewPredictiveHealthService(db, logger, hub),
+		services.NewTopologyService(db, logger),
+		services.NewHealthService(db, logger),
+		logger,
+	)
+	nexus.Start(nexusCtx)
+
 	// Setup router
 	router := setupRouter(h, logger, cfg)
 
@@ -178,6 +192,34 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 
 		// Intelligence — router logs for Analytics page
 		v1.GET("/intelligence/router/logs", h.ListRouterLogs)
+
+		// NEXUS: Behavioral Fingerprints
+		v1.GET("/nexus/fingerprints", h.GetFleetFingerprints)
+		v1.GET("/nexus/fingerprints/:agentID", h.GetFingerprint)
+		v1.GET("/nexus/fingerprints/:agentID/history", h.GetFingerprintHistory)
+
+		// NEXUS: Anomaly Detection
+		v1.GET("/nexus/anomalies", h.GetAnomalyFeed)
+		v1.POST("/nexus/anomalies/:id/acknowledge", h.AcknowledgeAnomaly)
+		v1.POST("/nexus/anomalies/scan", h.TriggerAnomalyScan)
+
+		// NEXUS: Causal Graph
+		v1.GET("/nexus/causal/graphs", h.ListCausalGraphs)
+		v1.GET("/nexus/causal/graphs/:graphID", h.GetCausalGraph)
+		v1.GET("/nexus/causal/incidents/:incidentID/graph", h.GetIncidentCausalGraph)
+		v1.POST("/nexus/causal/rebuild", h.RebuildCausalGraph)
+
+		// NEXUS: Predictive Health
+		v1.GET("/nexus/predictions", h.GetAllPredictions)
+		v1.GET("/nexus/predictions/:agentID", h.GetAgentPredictions)
+		v1.GET("/nexus/predictions/:agentID/history", h.GetAgentHealthHistory)
+
+		// NEXUS: Topology
+		v1.GET("/nexus/topology", h.GetTopologyGraph)
+		v1.POST("/nexus/topology/rebuild", h.RebuildTopology)
+
+		// NEXUS: Summary
+		v1.GET("/nexus/summary", h.GetNEXUSSummary)
 	}
 
 	return router

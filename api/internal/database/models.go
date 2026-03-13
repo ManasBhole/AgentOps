@@ -126,6 +126,99 @@ type APIKey struct {
 	CreatedAt   time.Time  `json:"created_at"`
 }
 
+// ── NEXUS Models ──────────────────────────────────────────────────────────────
+
+// BehavioralFingerprint stores statistical DNA for one agent over a time window.
+type BehavioralFingerprint struct {
+	ID               string    `gorm:"primaryKey" json:"id"`
+	AgentID          string    `gorm:"index" json:"agent_id"`
+	Window           string    `json:"window"` // "1h" | "6h" | "24h" | "7d"
+	WindowStart      time.Time `gorm:"index" json:"window_start"`
+	WindowEnd        time.Time `json:"window_end"`
+	SampleCount      int64     `json:"sample_count"`
+	P50LatencyMs     float64   `json:"p50_latency_ms"`
+	P95LatencyMs     float64   `json:"p95_latency_ms"`
+	P99LatencyMs     float64   `json:"p99_latency_ms"`
+	AvgLatencyMs     float64   `json:"avg_latency_ms"`
+	MaxLatencyMs     float64   `json:"max_latency_ms"`
+	ErrorRate        float64   `json:"error_rate"`
+	ErrorCount       int64     `json:"error_count"`
+	AvgTokensPerReq  float64   `json:"avg_tokens_per_req"`
+	P95TokensPerReq  float64   `json:"p95_tokens_per_req"`
+	AvgCostPerReqUSD float64   `json:"avg_cost_per_req_usd"`
+	TotalCostUSD     float64   `json:"total_cost_usd"`
+	HealthScore      int       `json:"health_score"`
+	ComputedAt       time.Time `gorm:"index" json:"computed_at"`
+}
+
+// AnomalyEvent fires when a metric deviates > 2.5σ from the 7-day baseline.
+type AnomalyEvent struct {
+	ID            string     `gorm:"primaryKey" json:"id"`
+	AgentID       string     `gorm:"index" json:"agent_id"`
+	Metric        string     `json:"metric"`
+	ZScore        float64    `json:"z_score"`
+	BaselineMean  float64    `json:"baseline_mean"`
+	BaselineStdev float64    `json:"baseline_stddev"`
+	ObservedValue float64    `json:"observed_value"`
+	DeviationPct  float64    `json:"deviation_pct"`
+	Severity      string     `json:"severity"` // "warning" | "critical"
+	Status        string     `json:"status"`   // "open" | "acknowledged" | "resolved"
+	WindowStart   time.Time  `json:"window_start"`
+	WindowEnd     time.Time  `json:"window_end"`
+	ResolvedAt    *time.Time `json:"resolved_at,omitempty"`
+	CreatedAt     time.Time  `gorm:"index" json:"created_at"`
+}
+
+// CausalEdge links two incidents in a cause→effect relationship.
+type CausalEdge struct {
+	ID                string    `gorm:"primaryKey" json:"id"`
+	CauseID           string    `gorm:"index" json:"cause_id"`
+	EffectID          string    `gorm:"index" json:"effect_id"`
+	Confidence        float64   `json:"confidence"`
+	LagMs             int64     `json:"lag_ms"`
+	CorrelationMethod string    `json:"correlation_method"`
+	SharedAgentID     string    `json:"shared_agent_id,omitempty"`
+	SharedTraceID     string    `json:"shared_trace_id,omitempty"`
+	SharedRunID       string    `json:"shared_run_id,omitempty"`
+	GraphID           string    `gorm:"index" json:"graph_id"`
+	CreatedAt         time.Time `json:"created_at"`
+}
+
+// HealthScoreHistory is the time-series consumed by the linear regression engine.
+type HealthScoreHistory struct {
+	ID            string    `gorm:"primaryKey" json:"id"`
+	AgentID       string    `gorm:"index" json:"agent_id"`
+	Score         int       `json:"score"`
+	ErrorRate     float64   `json:"error_rate"`
+	AvgLatencyMs  float64   `json:"avg_latency_ms"`
+	OpenIncidents int       `json:"open_incidents"`
+	RecordedAt    time.Time `gorm:"index" json:"recorded_at"`
+}
+
+// HealthPrediction stores OLS regression output per agent per horizon.
+type HealthPrediction struct {
+	ID             string    `gorm:"primaryKey" json:"id"`
+	AgentID        string    `gorm:"index" json:"agent_id"`
+	Horizon        string    `json:"horizon"` // "+1h" | "+4h" | "+24h"
+	PredictedScore float64   `json:"predicted_score"`
+	Slope          float64   `json:"slope"`
+	Intercept      float64   `json:"intercept"`
+	RSquared       float64   `json:"r_squared"`
+	TrainingPoints int       `json:"training_points"`
+	IsCritical     bool      `json:"is_critical"`
+	PredictedAt    time.Time `gorm:"index" json:"predicted_at"`
+}
+
+// TopologyEdge stores computed parent→child agent call relationships.
+type TopologyEdge struct {
+	ID            string    `gorm:"primaryKey" json:"id"`
+	ParentAgentID string    `gorm:"index" json:"parent_agent_id"`
+	ChildAgentID  string    `gorm:"index" json:"child_agent_id"`
+	EdgeCount     int64     `json:"edge_count"`
+	LastSeenAt    time.Time `json:"last_seen_at"`
+	WindowStart   time.Time `gorm:"index" json:"window_start"`
+}
+
 // Migrate runs database migrations
 func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -138,5 +231,12 @@ func Migrate(db *gorm.DB) error {
 		&Webhook{},
 		&AgentBudget{},
 		&APIKey{},
+		// NEXUS
+		&BehavioralFingerprint{},
+		&AnomalyEvent{},
+		&CausalEdge{},
+		&HealthScoreHistory{},
+		&HealthPrediction{},
+		&TopologyEdge{},
 	)
 }

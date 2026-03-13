@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Bot, GitBranch, Siren, Layers, Brain, Settings,
   ChevronLeft, ChevronRight, Bell, Circle, BellRing, BellOff,
-  CheckCircle2, AlertTriangle, FlaskConical, BarChart3, Rocket, ScrollText,
+  CheckCircle2, AlertTriangle, FlaskConical, BarChart3, Rocket, ScrollText, Cpu,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
@@ -18,6 +18,7 @@ const navItems = [
   { path: '/incidents', label: 'Incidents', icon: Siren },
   { path: '/orchestration', label: 'Orchestration', icon: Layers },
   { path: '/intelligence', label: 'Intelligence', icon: Brain },
+  { path: '/nexus', label: 'NEXUS', icon: Cpu },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/playground', label: 'Playground', icon: FlaskConical },
   { path: '/deployments', label: 'Deployments', icon: Rocket },
