@@ -827,3 +827,79 @@ func (h *Handlers) RevokeAPIKey(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "revoked"})
 }
+
+// ─── Deployments ─────────────────────────────────────────────────────────────
+
+func (h *Handlers) ListDeployments(c *gin.Context) {
+	var deps []database.Deployment
+	h.db.Order("created_at desc").Find(&deps)
+	c.JSON(http.StatusOK, deps)
+}
+
+func (h *Handlers) CreateDeployment(c *gin.Context) {
+	var dep database.Deployment
+	if err := c.ShouldBindJSON(&dep); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	dep.ID = uuid.New().String()
+	dep.CreatedAt = time.Now()
+	dep.UpdatedAt = time.Now()
+	if dep.Status == "" {
+		dep.Status = "pending"
+	}
+	if dep.Config == "" {
+		dep.Config = "{}"
+	}
+	if err := h.db.Create(&dep).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, dep)
+}
+
+func (h *Handlers) GetDeployment(c *gin.Context) {
+	var dep database.Deployment
+	if err := h.db.First(&dep, "id = ?", c.Param("id")).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		return
+	}
+	c.JSON(http.StatusOK, dep)
+}
+
+func (h *Handlers) UpdateDeployment(c *gin.Context) {
+	var dep database.Deployment
+	if err := h.db.First(&dep, "id = ?", c.Param("id")).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		return
+	}
+	var update map[string]interface{}
+	if err := c.ShouldBindJSON(&update); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	update["updated_at"] = time.Now()
+	h.db.Model(&dep).Updates(update)
+	c.JSON(http.StatusOK, dep)
+}
+
+func (h *Handlers) DeleteDeployment(c *gin.Context) {
+	if err := h.db.Delete(&database.Deployment{}, "id = ?", c.Param("id")).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+}
+
+// ─── Router Logs ─────────────────────────────────────────────────────────────
+
+func (h *Handlers) ListRouterLogs(c *gin.Context) {
+	limitStr := c.DefaultQuery("limit", "100")
+	limit, _ := strconv.Atoi(limitStr)
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	var logs []database.RouterLog
+	h.db.Order("created_at desc").Limit(limit).Find(&logs)
+	c.JSON(http.StatusOK, logs)
+}

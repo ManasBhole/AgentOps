@@ -168,6 +168,16 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 		v1.GET("/api-keys", h.ListAPIKeys)
 		v1.POST("/api-keys", h.CreateAPIKey)
 		v1.DELETE("/api-keys/:id", h.RevokeAPIKey)
+
+		// Deployments (direct CRUD — separate from orchestration)
+		v1.GET("/deployments", h.ListDeployments)
+		v1.POST("/deployments", h.CreateDeployment)
+		v1.GET("/deployments/:id", h.GetDeployment)
+		v1.PATCH("/deployments/:id", h.UpdateDeployment)
+		v1.DELETE("/deployments/:id", h.DeleteDeployment)
+
+		// Intelligence — router logs for Analytics page
+		v1.GET("/intelligence/router/logs", h.ListRouterLogs)
 	}
 
 	return router

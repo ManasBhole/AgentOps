@@ -6,6 +6,10 @@ import Traces from './pages/Traces'
 import Incidents from './pages/Incidents'
 import Orchestration from './pages/Orchestration'
 import Intelligence from './pages/Intelligence'
+import Analytics from './pages/Analytics'
+import Playground from './pages/Playground'
+import Deployments from './pages/Deployments'
+import AuditLog from './pages/AuditLog'
 import Settings from './pages/Settings'
 
 function App() {
@@ -19,6 +23,10 @@ function App() {
           <Route path="/incidents" element={<Incidents />} />
           <Route path="/orchestration" element={<Orchestration />} />
           <Route path="/intelligence" element={<Intelligence />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/playground" element={<Playground />} />
+          <Route path="/deployments" element={<Deployments />} />
+          <Route path="/audit" element={<AuditLog />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Layout>

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Bot, GitBranch, Siren, Layers, Brain, Settings,
   ChevronLeft, ChevronRight, Bell, Circle, BellRing, BellOff,
-  CheckCircle2, AlertTriangle,
+  CheckCircle2, AlertTriangle, FlaskConical, BarChart3, Rocket, ScrollText,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
@@ -18,7 +18,11 @@ const navItems = [
   { path: '/incidents', label: 'Incidents', icon: Siren },
   { path: '/orchestration', label: 'Orchestration', icon: Layers },
   { path: '/intelligence', label: 'Intelligence', icon: Brain },
-  { path: '/settings',    label: 'Settings',     icon: Settings },
+  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+  { path: '/playground', label: 'Playground', icon: FlaskConical },
+  { path: '/deployments', label: 'Deployments', icon: Rocket },
+  { path: '/audit', label: 'Audit Log', icon: ScrollText },
+  { path: '/settings', label: 'Settings', icon: Settings },
 ]
 
 const SEV_DOT: Record<string, string> = {
