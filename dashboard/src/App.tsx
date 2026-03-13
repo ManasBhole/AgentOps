@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
+import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Agents from './pages/Agents'
 import Traces from './pages/Traces'
@@ -16,22 +19,34 @@ import Settings from './pages/Settings'
 function App() {
   return (
     <BrowserRouter>
-      <Layout>
+      <AuthProvider>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/agents" element={<Agents />} />
-          <Route path="/traces" element={<Traces />} />
-          <Route path="/incidents" element={<Incidents />} />
-          <Route path="/orchestration" element={<Orchestration />} />
-          <Route path="/intelligence" element={<Intelligence />} />
-          <Route path="/nexus" element={<Nexus />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/playground" element={<Playground />} />
-          <Route path="/deployments" element={<Deployments />} />
-          <Route path="/audit" element={<AuditLog />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/agents" element={<Agents />} />
+                    <Route path="/traces" element={<Traces />} />
+                    <Route path="/incidents" element={<Incidents />} />
+                    <Route path="/orchestration" element={<Orchestration />} />
+                    <Route path="/intelligence" element={<Intelligence />} />
+                    <Route path="/nexus" element={<Nexus />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/playground" element={<Playground />} />
+                    <Route path="/deployments" element={<Deployments />} />
+                    <Route path="/audit" element={<AuditLog />} />
+                    <Route path="/settings" element={<Settings />} />
+                  </Routes>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
-      </Layout>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

@@ -219,6 +219,32 @@ type TopologyEdge struct {
 	WindowStart   time.Time `gorm:"index" json:"window_start"`
 }
 
+// User represents a human operator of the AgentOps platform.
+// Roles: owner | admin | viewer | agent-runner
+type User struct {
+	ID           string    `gorm:"primaryKey" json:"id"`
+	Email        string    `gorm:"uniqueIndex;not null" json:"email"`
+	Name         string    `json:"name"`
+	Role         string    `gorm:"not null;default:'viewer'" json:"role"`
+	PasswordHash string    `gorm:"not null" json:"-"`
+	AvatarURL    string    `json:"avatar_url"`
+	IsActive     bool      `gorm:"default:true" json:"is_active"`
+	LastLoginAt  *time.Time `json:"last_login_at"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// Session tracks active JWT refresh tokens per user.
+type Session struct {
+	ID           string    `gorm:"primaryKey" json:"id"`
+	UserID       string    `gorm:"index;not null" json:"user_id"`
+	RefreshToken string    `gorm:"uniqueIndex;not null" json:"-"`
+	UserAgent    string    `json:"user_agent"`
+	IPAddress    string    `json:"ip_address"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 // Migrate runs database migrations
 func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -231,6 +257,9 @@ func Migrate(db *gorm.DB) error {
 		&Webhook{},
 		&AgentBudget{},
 		&APIKey{},
+		// Auth
+		&User{},
+		&Session{},
 		// NEXUS
 		&BehavioralFingerprint{},
 		&AnomalyEvent{},

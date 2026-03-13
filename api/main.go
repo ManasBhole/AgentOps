@@ -43,6 +43,10 @@ func main() {
 		logger.Fatal("Failed to run migrations", zap.Error(err))
 	}
 
+	// Initialize auth service and seed default owner if empty
+	authSvc := services.NewAuthService(db, logger, cfg.JWTSecret)
+	authSvc.EnsureDefaultOwner()
+
 	// Initialize services
 	hub := services.NewEventHub()
 	incidentEngine := services.NewIncidentEngine(db, logger, hub)
@@ -57,6 +61,7 @@ func main() {
 		orchestrationService,
 		traceService,
 		hub,
+		authSvc,
 	)
 
 	// Start NEXUS background scheduler
@@ -74,7 +79,7 @@ func main() {
 	nexus.Start(nexusCtx)
 
 	// Setup router
-	router := setupRouter(h, logger, cfg)
+	router := setupRouter(h, logger, cfg, authSvc)
 
 	// Start server
 	srv := &http.Server{
@@ -108,7 +113,7 @@ func main() {
 	logger.Info("Server exited")
 }
 
-func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *gin.Engine {
+func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, authSvc *services.AuthService) *gin.Engine {
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -119,7 +124,7 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 	router.Use(middleware.SecurityHeaders())
 	router.Use(middleware.CORS(cfg.CORSOrigins))
 
-	// Health check
+	// Health check — public
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  "healthy",
@@ -127,70 +132,94 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 		})
 	})
 
-	// API routes
-	v1 := router.Group("/api/v1")
+	// ── Auth routes — public ─────────────────────────────────────────────────
+	auth := router.Group("/auth")
 	{
+		auth.POST("/login", h.Login)
+		auth.POST("/logout", h.Logout)
+		auth.POST("/refresh", h.RefreshToken)
+
+		// Protected auth routes
+		authProtected := auth.Group("")
+		authProtected.Use(middleware.RequireAuth(authSvc))
+		{
+			authProtected.GET("/me", h.Me)
+			authProtected.GET("/check-access", h.CheckAccess)
+			authProtected.GET("/users", middleware.RequireRole("users", "read"), h.ListUsers)
+			authProtected.POST("/users", middleware.RequireRole("users", "read"), h.RegisterUser)
+		}
+	}
+
+	// ── API routes — all protected by JWT ───────────────────────────────────
+	v1 := router.Group("/api/v1")
+	v1.Use(middleware.RequireAuth(authSvc))
+	{
+		// Traces
 		v1.GET("/traces", h.GetTraces)
 		v1.GET("/traces/:id", h.GetTrace)
-		v1.POST("/traces", h.CreateTrace)
+		v1.POST("/traces", middleware.RequireRole("traces", "write"), h.CreateTrace)
 
+		// Incidents
 		v1.GET("/incidents", h.GetIncidents)
 		v1.GET("/incidents/:id", h.GetIncident)
-		v1.POST("/incidents", h.CreateIncident)
-		v1.POST("/incidents/:id/resolve", h.ResolveIncident)
+		v1.POST("/incidents", middleware.RequireRole("incidents", "write"), h.CreateIncident)
+		v1.POST("/incidents/:id/resolve", middleware.RequireRole("incidents", "resolve"), h.ResolveIncident)
 
+		// Agents
 		v1.GET("/agents", h.GetAgents)
 		v1.GET("/agents/:id", h.GetAgent)
-		v1.POST("/agents", h.CreateAgent)
-		v1.PUT("/agents/:id", h.UpdateAgent)
-		v1.DELETE("/agents/:id", h.DeleteAgent)
+		v1.POST("/agents", middleware.RequireRole("agents", "write"), h.CreateAgent)
+		v1.PUT("/agents/:id", middleware.RequireRole("agents", "write"), h.UpdateAgent)
+		v1.DELETE("/agents/:id", middleware.RequireRole("agents", "delete"), h.DeleteAgent)
 
+		// Orchestration
 		v1.GET("/orchestration/deployments", h.GetDeployments)
-		v1.POST("/orchestration/deploy", h.DeployAgent)
-		v1.POST("/orchestration/scale", h.ScaleAgent)
-		v1.POST("/orchestration/circuit-breaker", h.SetCircuitBreaker)
+		v1.POST("/orchestration/deploy", middleware.RequireRole("deployments", "write"), h.DeployAgent)
+		v1.POST("/orchestration/scale", middleware.RequireRole("deployments", "write"), h.ScaleAgent)
+		v1.POST("/orchestration/circuit-breaker", middleware.RequireRole("deployments", "write"), h.SetCircuitBreaker)
 
+		// Stats & SSE
 		v1.GET("/stats", h.GetStats)
 		v1.GET("/events", h.StreamEvents)
 
-		// Agent Memory — persistent cross-run learning
+		// Agent Memory
 		v1.GET("/agents/:id/memory", h.GetAgentMemory)
-		v1.POST("/agents/:id/memory", h.SetMemory)
-		v1.DELETE("/agents/:id/memory/:key", h.DeleteMemory)
+		v1.POST("/agents/:id/memory", middleware.RequireRole("agents", "write"), h.SetMemory)
+		v1.DELETE("/agents/:id/memory/:key", middleware.RequireRole("agents", "write"), h.DeleteMemory)
 		v1.GET("/memory/shared", h.GetSharedMemory)
 
-		// Model Router — intelligent cost-optimised model selection
-		v1.POST("/router/route", h.RouteModel)
+		// Model Router
+		v1.POST("/router/route", middleware.RequireRole("traces", "write"), h.RouteModel)
 		v1.GET("/router/stats", h.GetRouterStats)
 
-		// Agent Health Score
+		// Agent Health
 		v1.GET("/agents/:id/health", h.GetAgentHealth)
 		v1.GET("/health/fleet", h.GetFleetHealth)
 
 		// Webhooks
 		v1.GET("/webhooks", h.ListWebhooks)
-		v1.POST("/webhooks", h.CreateWebhook)
-		v1.DELETE("/webhooks/:id", h.DeleteWebhook)
-		v1.POST("/webhooks/:id/test", h.TestWebhook)
+		v1.POST("/webhooks", middleware.RequireRole("agents", "write"), h.CreateWebhook)
+		v1.DELETE("/webhooks/:id", middleware.RequireRole("agents", "write"), h.DeleteWebhook)
+		v1.POST("/webhooks/:id/test", middleware.RequireRole("agents", "write"), h.TestWebhook)
 
 		// Cost Budgets
 		v1.GET("/agents/:id/budget", h.GetBudget)
-		v1.POST("/agents/:id/budget", h.SetBudget)
+		v1.POST("/agents/:id/budget", middleware.RequireRole("agents", "write"), h.SetBudget)
 		v1.GET("/budgets", h.GetAllBudgets)
 
 		// API Keys
-		v1.GET("/api-keys", h.ListAPIKeys)
-		v1.POST("/api-keys", h.CreateAPIKey)
-		v1.DELETE("/api-keys/:id", h.RevokeAPIKey)
+		v1.GET("/api-keys", middleware.RequireRole("agents", "read"), h.ListAPIKeys)
+		v1.POST("/api-keys", middleware.RequireRole("agents", "write"), h.CreateAPIKey)
+		v1.DELETE("/api-keys/:id", middleware.RequireRole("agents", "write"), h.RevokeAPIKey)
 
-		// Deployments (direct CRUD — separate from orchestration)
+		// Deployments
 		v1.GET("/deployments", h.ListDeployments)
-		v1.POST("/deployments", h.CreateDeployment)
+		v1.POST("/deployments", middleware.RequireRole("deployments", "write"), h.CreateDeployment)
 		v1.GET("/deployments/:id", h.GetDeployment)
-		v1.PATCH("/deployments/:id", h.UpdateDeployment)
-		v1.DELETE("/deployments/:id", h.DeleteDeployment)
+		v1.PATCH("/deployments/:id", middleware.RequireRole("deployments", "write"), h.UpdateDeployment)
+		v1.DELETE("/deployments/:id", middleware.RequireRole("deployments", "delete"), h.DeleteDeployment)
 
-		// Intelligence — router logs for Analytics page
+		// Intelligence
 		v1.GET("/intelligence/router/logs", h.ListRouterLogs)
 
 		// NEXUS: Behavioral Fingerprints
@@ -200,14 +229,14 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 
 		// NEXUS: Anomaly Detection
 		v1.GET("/nexus/anomalies", h.GetAnomalyFeed)
-		v1.POST("/nexus/anomalies/:id/acknowledge", h.AcknowledgeAnomaly)
-		v1.POST("/nexus/anomalies/scan", h.TriggerAnomalyScan)
+		v1.POST("/nexus/anomalies/:id/acknowledge", middleware.RequireRole("nexus", "write"), h.AcknowledgeAnomaly)
+		v1.POST("/nexus/anomalies/scan", middleware.RequireRole("nexus", "write"), h.TriggerAnomalyScan)
 
 		// NEXUS: Causal Graph
 		v1.GET("/nexus/causal/graphs", h.ListCausalGraphs)
 		v1.GET("/nexus/causal/graphs/:graphID", h.GetCausalGraph)
 		v1.GET("/nexus/causal/incidents/:incidentID/graph", h.GetIncidentCausalGraph)
-		v1.POST("/nexus/causal/rebuild", h.RebuildCausalGraph)
+		v1.POST("/nexus/causal/rebuild", middleware.RequireRole("nexus", "write"), h.RebuildCausalGraph)
 
 		// NEXUS: Predictive Health
 		v1.GET("/nexus/predictions", h.GetAllPredictions)
@@ -216,7 +245,7 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config) *
 
 		// NEXUS: Topology
 		v1.GET("/nexus/topology", h.GetTopologyGraph)
-		v1.POST("/nexus/topology/rebuild", h.RebuildTopology)
+		v1.POST("/nexus/topology/rebuild", middleware.RequireRole("nexus", "write"), h.RebuildTopology)
 
 		// NEXUS: Summary
 		v1.GET("/nexus/summary", h.GetNEXUSSummary)

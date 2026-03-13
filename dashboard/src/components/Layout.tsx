@@ -4,10 +4,12 @@ import {
   LayoutDashboard, Bot, GitBranch, Siren, Layers, Brain, Settings,
   ChevronLeft, ChevronRight, Bell, Circle, BellRing, BellOff,
   CheckCircle2, AlertTriangle, FlaskConical, BarChart3, Rocket, ScrollText, Cpu,
+  LogOut, User, Shield,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
 import { useNotifications } from '../hooks/useNotifications'
+import { useAuth } from '../context/AuthContext'
 
 interface LayoutProps { children: ReactNode }
 
@@ -30,11 +32,21 @@ const SEV_DOT: Record<string, string> = {
   critical: 'bg-red-500', high: 'bg-orange-400', medium: 'bg-yellow-400', low: 'bg-blue-400',
 }
 
+const ROLE_COLOR: Record<string, string> = {
+  owner: 'text-yellow-400',
+  admin: 'text-indigo-400',
+  'agent-runner': 'text-emerald-400',
+  viewer: 'text-gray-400',
+}
+
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
+  const { user, logout } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const notifRef = useRef<HTMLDivElement>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   const { data: stats } = useQuery({
     queryKey: ['dashboard-stats'],
@@ -45,12 +57,11 @@ export default function Layout({ children }: LayoutProps) {
   const { permission, pushEnabled, requestPermission, enablePush, disablePush, events, unread, markRead } = useNotifications()
   const activeIncidents: number = stats?.active_incidents ?? 0
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setNotifOpen(false)
-      }
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false)
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -214,7 +225,43 @@ export default function Layout({ children }: LayoutProps) {
               )}
             </div>
 
-            <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">M</div>
+            {/* ── User menu ────────────────────────────────── */}
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setUserMenuOpen(v => !v)}
+                className="flex items-center gap-2 hover:bg-gray-800 rounded-lg px-2 py-1 transition-colors"
+              >
+                <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">
+                  {user?.name?.charAt(0).toUpperCase() ?? 'U'}
+                </div>
+                {!collapsed && <span className="text-xs text-gray-300 max-w-[80px] truncate hidden sm:block">{user?.name}</span>}
+              </button>
+
+              {userMenuOpen && (
+                <div className="absolute right-0 top-10 w-56 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50">
+                  <div className="px-4 py-3 border-b border-gray-800">
+                    <div className="flex items-center gap-2 mb-1">
+                      <User className="h-3.5 w-3.5 text-gray-400" />
+                      <span className="text-sm font-medium text-white truncate">{user?.name}</span>
+                    </div>
+                    <div className="text-xs text-gray-500 truncate">{user?.email}</div>
+                    <div className={`flex items-center gap-1 mt-1.5 text-xs font-medium ${ROLE_COLOR[user?.role ?? 'viewer']}`}>
+                      <Shield className="h-3 w-3" />
+                      {user?.role}
+                    </div>
+                  </div>
+                  <div className="p-1">
+                    <button
+                      onClick={() => { setUserMenuOpen(false); logout() }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-950 rounded-lg transition-colors"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

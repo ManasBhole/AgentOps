@@ -32,6 +32,8 @@ type Handlers struct {
 	predictive  *services.PredictiveHealthService
 	topology    *services.TopologyService
 	health      *services.HealthService
+	// Auth
+	authService *services.AuthService
 }
 
 func NewHandlers(
@@ -41,6 +43,7 @@ func NewHandlers(
 	orchestrationService *services.OrchestrationService,
 	traceService *services.TraceService,
 	hub *services.EventHub,
+	authService *services.AuthService,
 ) *Handlers {
 	health := services.NewHealthService(db, logger)
 	return &Handlers{
@@ -58,6 +61,7 @@ func NewHandlers(
 		causal:               services.NewCausalGraphService(db, logger, hub),
 		predictive:           services.NewPredictiveHealthService(db, logger, hub),
 		topology:             services.NewTopologyService(db, logger),
+		authService:          authService,
 	}
 }
 

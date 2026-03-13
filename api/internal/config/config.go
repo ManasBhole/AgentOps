@@ -12,6 +12,7 @@ type Config struct {
 	CORSOrigins   []string
 	OTLPEndpoint  string
 	K8sConfigPath string
+	JWTSecret     string
 }
 
 func Load() *Config {
@@ -23,6 +24,7 @@ func Load() *Config {
 		CORSOrigins:   getEnvSlice("CORS_ORIGINS", []string{"*"}),
 		OTLPEndpoint:  getEnv("OTLP_ENDPOINT", "localhost:4317"),
 		K8sConfigPath: getEnv("K8S_CONFIG_PATH", ""),
+		JWTSecret:     getEnv("JWT_SECRET", "change-me-in-production-use-32-chars-min"),
 	}
 }
 
