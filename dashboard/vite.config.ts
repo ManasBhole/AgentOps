@@ -19,6 +19,11 @@ export default defineConfig({
           })
         },
       },
+      // Auth routes must also proxy to the Go backend
+      '/auth': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
     },
   },
 })
