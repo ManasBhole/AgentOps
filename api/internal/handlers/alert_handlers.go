@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/agentops/agentops/api/internal/services"
 )
 
 // GET /api/v1/alerts/clusters
@@ -22,6 +23,12 @@ func (h *Handlers) CorrelateAlerts(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+	if len(clusters) > 0 {
+		go services.NewWebhookService(h.db, h.logger).Fire("alert.clusters_detected", map[string]interface{}{
+			"count":    len(clusters),
+			"clusters": clusters,
+		})
 	}
 	c.JSON(http.StatusOK, gin.H{"clusters": clusters, "count": len(clusters)})
 }

@@ -1,4 +1,4 @@
-import { ReactNode, useState, useRef, useEffect } from 'react'
+import { ReactNode, useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Bot, GitBranch, Siren, Layers, Brain, Settings,
@@ -6,12 +6,14 @@ import {
   FlaskConical, BarChart3, Rocket, ScrollText, Cpu,
   LogOut, Shield, Target, Rewind, Radiation,
   Sparkles, Dna, Zap, Flame, DollarSign, GitMerge,
-  ChevronDown, ChevronRight,
+  ChevronDown, ChevronRight, Sun, Moon, Search,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
 import { useNotifications } from '../hooks/useNotifications'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
+import CommandPalette from './CommandPalette'
 
 interface LayoutProps { children: ReactNode }
 
@@ -97,11 +99,27 @@ const ROLE_BG: Record<string, string> = {
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
   const { user, logout } = useAuth()
+  const { theme, toggle: toggleTheme } = useTheme()
   const [collapsed, setCollapsed] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
   const notifRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
+
+  const openPalette = useCallback(() => setPaletteOpen(true), [])
+
+  // Global Cmd+K / Ctrl+K shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setPaletteOpen(v => !v)
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [])
 
   const { data: stats } = useQuery({
     queryKey: ['dashboard-stats'],
@@ -245,8 +263,27 @@ export default function Layout({ children }: LayoutProps) {
             )}
           </div>
 
-          {/* Right: bell + user */}
+          {/* Right: search + theme + bell + user */}
           <div className="flex items-center gap-2">
+
+            {/* Search trigger */}
+            <button
+              onClick={openPalette}
+              className="hidden sm:flex items-center gap-2 text-xs text-gray-500 hover:text-gray-300 bg-gray-800/70 hover:bg-gray-800 border border-gray-700/60 rounded-lg pl-2.5 pr-3 py-1.5 transition-colors"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <span>Search…</span>
+              <kbd className="ml-1 text-[10px] text-gray-600 bg-gray-700 border border-gray-600 px-1 rounded font-mono">⌘K</kbd>
+            </button>
+
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
 
             {/* Notification bell */}
             <div className="relative" ref={notifRef}>
@@ -391,6 +428,8 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </main>
       </div>
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   )
 }

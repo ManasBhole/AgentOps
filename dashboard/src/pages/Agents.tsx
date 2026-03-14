@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, ToggleLeft, ToggleRight, RefreshCw } from 'lucide-react'
 import api from '../services/api'
 import { useFleetHealth, scoreColor, scoreBg, trendIcon } from '../hooks/useAgentHealth'
+import ExportButton from '../components/ExportButton'
 
 type Agent = {
   id: string
@@ -100,6 +101,10 @@ export default function Agents() {
           <p className="text-sm text-gray-500 mt-0.5">Register and manage your AI agent fleet</p>
         </div>
         <div className="flex items-center gap-2">
+          <ExportButton
+            data={(agents ?? []).map(a => ({ id: a.id, name: a.name, type: a.type, version: a.version, status: a.status, created_at: a.created_at }))}
+            filename="agents"
+          />
           <button onClick={() => refetch()}
             className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 px-3 py-1.5 rounded-lg">
             <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} /> Refresh

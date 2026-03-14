@@ -6,6 +6,7 @@ import {
 } from 'recharts'
 import { DollarSign, TrendingUp, RefreshCw, Layers } from 'lucide-react'
 import api from '../services/api'
+import ExportButton from '../components/ExportButton'
 
 type BreakdownItem = {
   agent_id: string
@@ -70,9 +71,15 @@ export default function CostAllocation() {
             <p className="text-sm text-gray-500">30-day spend breakdown by agent with chargeback attribution</p>
           </div>
         </div>
-        <button onClick={() => refetch()} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 px-3 py-1.5 rounded-lg">
-          <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <ExportButton
+            data={items.map(i => ({ agent: i.agent_name, total_cost_usd: i.total_cost_usd, pct_of_total: i.pct_of_total, calls: i.trace_count, avg_per_call: i.avg_cost_per_call, tokens: i.tokens_used }))}
+            filename="cost-allocation"
+          />
+          <button onClick={() => refetch()} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 px-3 py-1.5 rounded-lg">
+            <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Summary */}

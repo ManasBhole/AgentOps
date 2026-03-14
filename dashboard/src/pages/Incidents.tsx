@@ -6,6 +6,7 @@ import {
   Lightbulb, Filter, RefreshCw, ShieldCheck, Radio,
 } from 'lucide-react'
 import api from '../services/api'
+import ExportButton from '../components/ExportButton'
 
 type Incident = {
   id: string; title: string; severity: string; status: string
@@ -63,10 +64,16 @@ export default function Incidents() {
           <h1 className="text-xl font-semibold text-white">Incidents</h1>
           <p className="text-sm text-gray-500 mt-0.5">AI-powered root cause analysis · auto-remediation suggestions</p>
         </div>
-        <button onClick={() => refetch()}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 px-3 py-1.5 rounded-lg">
-          <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <ExportButton
+            data={all.map(i => ({ id: i.id, title: i.title, severity: i.severity, status: i.status, agent_id: i.agent_id, created_at: i.created_at, resolved_at: i.resolved_at ?? '' }))}
+            filename="incidents"
+          />
+          <button onClick={() => refetch()}
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 px-3 py-1.5 rounded-lg">
+            <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Summary strip */}

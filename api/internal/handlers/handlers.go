@@ -364,6 +364,8 @@ func (h *Handlers) CreateIncident(c *gin.Context) {
 		return
 	}
 
+	go services.NewWebhookService(h.db, h.logger).Fire("incident.created", incidentToResponse(incident))
+
 	c.JSON(http.StatusCreated, gin.H{"incident": incidentToResponse(incident)})
 }
 
@@ -374,6 +376,7 @@ func (h *Handlers) ResolveIncident(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to resolve incident"})
 		return
 	}
+	go services.NewWebhookService(h.db, h.logger).Fire("incident.resolved", incidentToResponse(incident))
 	c.JSON(http.StatusOK, gin.H{"incident": incidentToResponse(incident)})
 }
 
