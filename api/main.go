@@ -151,9 +151,10 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		}
 	}
 
-	// ── API routes — all protected by JWT ───────────────────────────────────
+	// ── API routes — all protected by JWT + auto audit logging ──────────────
 	v1 := router.Group("/api/v1")
 	v1.Use(middleware.RequireAuth(authSvc))
+	v1.Use(middleware.AuditLogger(h.AuditService()))
 	{
 		// Traces
 		v1.GET("/traces", h.GetTraces)
@@ -250,6 +251,9 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 
 		// NEXUS: Summary
 		v1.GET("/nexus/summary", h.GetNEXUSSummary)
+
+		// Audit log
+		v1.GET("/audit", middleware.RequireRole("audit", "read"), h.ListAuditEntries)
 	}
 
 	return router

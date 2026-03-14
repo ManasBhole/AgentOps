@@ -245,6 +245,24 @@ type Session struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
+// AuditEntry records every meaningful user or system action for compliance and observability.
+type AuditEntry struct {
+	ID         string    `gorm:"primaryKey" json:"id"`
+	UserID     string    `gorm:"index" json:"user_id"`
+	UserEmail  string    `json:"user_email"`
+	UserRole   string    `json:"user_role"`
+	Action     string    `gorm:"index" json:"action"`   // e.g. "login", "agent.create", "trace.ingest"
+	Resource   string    `json:"resource"`               // e.g. "agent", "trace", "incident"
+	ResourceID string    `json:"resource_id"`
+	Method     string    `json:"method"`                 // HTTP method
+	Path       string    `json:"path"`                   // request path
+	StatusCode int       `json:"status_code"`
+	IPAddress  string    `json:"ip_address"`
+	UserAgent  string    `json:"user_agent"`
+	Detail     string    `gorm:"type:jsonb" json:"detail"` // extra JSON payload
+	CreatedAt  time.Time `gorm:"index" json:"created_at"`
+}
+
 // Migrate runs database migrations
 func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -260,6 +278,7 @@ func Migrate(db *gorm.DB) error {
 		// Auth
 		&User{},
 		&Session{},
+		&AuditEntry{},
 		// NEXUS
 		&BehavioralFingerprint{},
 		&AnomalyEvent{},

@@ -9,6 +9,7 @@ import (
 	"github.com/agentops/agentops/api/internal/services"
 )
 
+
 // POST /auth/login
 func (h *Handlers) Login(c *gin.Context) {
 	var req struct {
@@ -29,6 +30,19 @@ func (h *Handlers) Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 		return
 	}
+
+	h.auditService.Log(services.LogParams{
+		UserID:    user.ID,
+		UserEmail: user.Email,
+		UserRole:  user.Role,
+		Action:    "auth.login",
+		Resource:  "auth",
+		Method:    "POST",
+		Path:      "/auth/login",
+		StatusCode: 200,
+		IPAddress: c.ClientIP(),
+		UserAgent: c.Request.UserAgent(),
+	})
 
 	c.JSON(http.StatusOK, gin.H{
 		"access_token":  access,

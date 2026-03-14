@@ -33,7 +33,8 @@ type Handlers struct {
 	topology    *services.TopologyService
 	health      *services.HealthService
 	// Auth
-	authService *services.AuthService
+	authService  *services.AuthService
+	auditService *services.AuditService
 }
 
 func NewHandlers(
@@ -62,8 +63,11 @@ func NewHandlers(
 		predictive:           services.NewPredictiveHealthService(db, logger, hub),
 		topology:             services.NewTopologyService(db, logger),
 		authService:          authService,
+		auditService:         services.NewAuditService(db),
 	}
 }
+
+func (h *Handlers) AuditService() *services.AuditService { return h.auditService }
 
 // ─── SSE Events Handler ──────────────────────────────────────────────────────
 
