@@ -54,21 +54,23 @@ function StatCard({ label, value, sub, icon: Icon, color }: {
 }
 
 export default function Analytics() {
-  const { data: logs = [] } = useQuery<RouterLog[]>({
+  const { data: logsRaw } = useQuery<RouterLog[]>({
     queryKey: ['router-logs'],
-    queryFn: async () => { const { data } = await api.get('/intelligence/router/logs'); return data },
+    queryFn: async () => { const { data } = await api.get('/intelligence/router/logs'); return data ?? [] },
     refetchInterval: 30_000,
   })
+  const logs: RouterLog[] = Array.isArray(logsRaw) ? logsRaw : []
 
-  const { data: budgets = [] } = useQuery<BudgetStatus[]>({
+  const { data: budgetsRaw } = useQuery<BudgetStatus[]>({
     queryKey: ['budgets'],
-    queryFn: async () => { const { data } = await api.get('/budgets'); return data },
+    queryFn: async () => { const { data } = await api.get('/budgets'); return data ?? [] },
     refetchInterval: 30_000,
   })
+  const budgets: BudgetStatus[] = Array.isArray(budgetsRaw) ? budgetsRaw : []
 
   const { data: stats } = useQuery({
     queryKey: ['dashboard-stats'],
-    queryFn: async () => { const { data } = await api.get('/stats'); return data },
+    queryFn: async () => { const { data } = await api.get('/stats'); return data ?? {} },
     refetchInterval: 30_000,
   })
 
@@ -193,7 +195,7 @@ export default function Analytics() {
               <tbody className="divide-y divide-gray-800">
                 {budgets.map(b => (
                   <tr key={b.agent_id} className="text-gray-300">
-                    <td className="py-2.5 text-xs font-mono text-gray-400">{b.agent_id.slice(0, 12)}…</td>
+                    <td className="py-2.5 text-xs font-mono text-gray-400">{(b.agent_id ?? '').slice(0, 12)}…</td>
                     <td className="py-2.5 text-xs">${b.daily_spend.toFixed(4)} / ${b.daily_limit.toFixed(2)}</td>
                     <td className="py-2.5 text-xs">${b.monthly_spend.toFixed(4)} / ${b.monthly_limit.toFixed(2)}</td>
                     <td className="py-2.5">

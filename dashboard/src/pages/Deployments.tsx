@@ -27,11 +27,12 @@ export default function Deployments() {
   const [showCreate, setShowCreate] = useState(false)
   const [form, setForm] = useState({ agent_id: '', namespace: 'default', replicas: '1' })
 
-  const { data: deployments = [], isLoading } = useQuery<Deployment[]>({
+  const { data: deploymentsRaw, isLoading } = useQuery<Deployment[]>({
     queryKey: ['deployments'],
-    queryFn: async () => { const { data } = await api.get('/deployments'); return data },
+    queryFn: async () => { const { data } = await api.get('/deployments'); return data ?? [] },
     refetchInterval: 15_000,
   })
+  const deployments: Deployment[] = Array.isArray(deploymentsRaw) ? deploymentsRaw : []
 
   const createMutation = useMutation({
     mutationFn: (body: object) => api.post('/deployments', body),
