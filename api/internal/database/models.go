@@ -263,6 +263,47 @@ type AuditEntry struct {
 	CreatedAt  time.Time `gorm:"index" json:"created_at"`
 }
 
+// ── Collaborative War Room ────────────────────────────────────────────────────
+
+// WarRoom is one live incident response session tied to an Incident.
+type WarRoom struct {
+	ID           string     `gorm:"primaryKey" json:"id"`
+	IncidentID   string     `gorm:"uniqueIndex;not null" json:"incident_id"`
+	Title        string     `json:"title"`
+	Status       string     `json:"status"`      // "active" | "resolved"
+	Commander    string     `json:"commander"`   // user_id of incident commander
+	Participants string     `gorm:"type:jsonb" json:"participants"` // []ParticipantInfo JSON
+	CreatedBy    string     `json:"created_by"`
+	CreatedAt    time.Time  `json:"created_at"`
+	ResolvedAt   *time.Time `json:"resolved_at,omitempty"`
+}
+
+// WarRoomMessage is a chat/annotation message in a war room.
+type WarRoomMessage struct {
+	ID         string    `gorm:"primaryKey" json:"id"`
+	RoomID     string    `gorm:"index;not null" json:"room_id"`
+	UserID     string    `json:"user_id"`
+	UserEmail  string    `json:"user_email"`
+	UserRole   string    `json:"user_role"`
+	Kind       string    `json:"kind"`    // "chat" | "annotation" | "system"
+	Body       string    `gorm:"type:text" json:"body"`
+	TraceID    string    `json:"trace_id,omitempty"`  // optional linked trace
+	CreatedAt  time.Time `gorm:"index" json:"created_at"`
+}
+
+// WarRoomTask is a checklist item in a war room.
+type WarRoomTask struct {
+	ID          string     `gorm:"primaryKey" json:"id"`
+	RoomID      string     `gorm:"index;not null" json:"room_id"`
+	Title       string     `json:"title"`
+	AssignedTo  string     `json:"assigned_to"`   // user_id
+	AssigneeName string    `json:"assignee_name"`
+	Done        bool       `json:"done"`
+	CreatedBy   string     `json:"created_by"`
+	CreatedAt   time.Time  `json:"created_at"`
+	DoneAt      *time.Time `json:"done_at,omitempty"`
+}
+
 // BlastRadiusSimulation records one what-if simulation run.
 type BlastRadiusSimulation struct {
 	ID           string    `gorm:"primaryKey" json:"id"`
@@ -343,6 +384,11 @@ func Migrate(db *gorm.DB) error {
 		&HealthPrediction{},
 		&TopologyEdge{},
 		// SLO
+		// War Room
+		&WarRoom{},
+		&WarRoomMessage{},
+		&WarRoomTask{},
+		// Blast Radius
 		&BlastRadiusSimulation{},
 		&SLODefinition{},
 		// Time-Travel Debugger

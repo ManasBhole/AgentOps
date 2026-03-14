@@ -41,6 +41,8 @@ type Handlers struct {
 	timeTravelService *services.TimeTravelService
 	// Blast Radius Simulator
 	blastRadiusService *services.BlastRadiusService
+	// War Room
+	warRoomService *services.WarRoomService
 }
 
 func NewHandlers(
@@ -73,6 +75,7 @@ func NewHandlers(
 		sloService:           services.NewSLOService(db, logger, hub),
 		timeTravelService:    services.NewTimeTravelService(db, logger),
 		blastRadiusService:   services.NewBlastRadiusService(db, logger, hub),
+		warRoomService:       services.NewWarRoomService(db, logger),
 	}
 }
 

@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Siren, CheckCircle2, ChevronDown, ChevronRight,
-  Lightbulb, Filter, RefreshCw, ShieldCheck,
+  Lightbulb, Filter, RefreshCw, ShieldCheck, Radio,
 } from 'lucide-react'
 import api from '../services/api'
 
@@ -197,6 +198,17 @@ export default function Incidents() {
                       Resolved {inc.resolved_at ? new Date(inc.resolved_at).toLocaleString() : ''}
                     </div>
                   )}
+
+                  {/* War Room link */}
+                  <div className="flex justify-end pt-1">
+                    <Link
+                      to={`/warroom/${inc.id}`}
+                      onClick={e => e.stopPropagation()}
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-indigo-950 border border-indigo-800 hover:bg-indigo-900 text-indigo-300 rounded-lg transition-colors"
+                    >
+                      <Radio className="h-3 w-3" /> Open War Room
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>

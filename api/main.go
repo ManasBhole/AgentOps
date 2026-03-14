@@ -262,6 +262,13 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.DELETE("/slo/:id", middleware.RequireRole("agents", "write"), h.DeleteSLO)
 		v1.GET("/slo/:id/history", h.GetSLOHistory)
 
+		// Collaborative War Room
+		v1.POST("/warroom/:incidentID", h.OpenWarRoom)
+		v1.GET("/warroom/:incidentID/ws", h.WarRoomWS)
+		v1.POST("/warroom/:incidentID/messages", h.PostWarRoomMessage)
+		v1.POST("/warroom/:incidentID/tasks", h.CreateWarRoomTask)
+		v1.PATCH("/warroom/:incidentID/tasks/:taskID/toggle", h.ToggleWarRoomTask)
+
 		// Blast Radius Simulator
 		v1.POST("/blast-radius/simulate", h.RunBlastRadius)
 		v1.GET("/blast-radius/simulations", h.ListBlastRadiusSimulations)
