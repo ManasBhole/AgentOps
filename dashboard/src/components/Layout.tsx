@@ -180,8 +180,8 @@ export default function Layout({ children }: LayoutProps) {
           </button>
         </div>
 
-        {/* Nav — no scroll, sections collapse to fit */}
-        <nav className="flex-1 py-2 px-2 flex flex-col gap-0.5 overflow-hidden">
+        {/* Nav — scrolls when all sections are expanded */}
+        <nav className="flex-1 py-2 px-2 flex flex-col gap-0.5 overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: 'thin', scrollbarColor: '#374151 transparent' }}>
 
           {/* Dashboard — always visible, no section header */}
           <Link
