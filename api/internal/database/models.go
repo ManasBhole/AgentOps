@@ -263,6 +263,48 @@ type AuditEntry struct {
 	CreatedAt  time.Time `gorm:"index" json:"created_at"`
 }
 
+// SLODefinition defines a Service Level Objective for one agent.
+type SLODefinition struct {
+	ID          string    `gorm:"primaryKey" json:"id"`
+	AgentID     string    `gorm:"index;not null" json:"agent_id"`
+	Name        string    `json:"name"`
+	SLIType     string    `json:"sli_type"`     // "availability" | "latency" | "error_rate"
+	TargetValue float64   `json:"target_value"` // e.g. 0.99 for 99% availability
+	WindowDays  int       `json:"window_days"`  // rolling window, e.g. 30
+	ThresholdMs int64     `json:"threshold_ms"` // for latency SLIs: max acceptable ms
+	Enabled     bool      `gorm:"default:true" json:"enabled"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+// TraceSnapshot captures the full serialized state of an agent at a specific span.
+type TraceSnapshot struct {
+	ID         string    `gorm:"primaryKey" json:"id"`
+	TraceID    string    `gorm:"index;not null" json:"trace_id"`
+	SpanID     string    `gorm:"index;not null" json:"span_id"`
+	AgentID    string    `gorm:"index" json:"agent_id"`
+	RunID      string    `gorm:"index" json:"run_id"`
+	SeqNum     int       `json:"seq_num"`               // ordering within trace
+	SpanName   string    `json:"span_name"`
+	State      string    `gorm:"type:jsonb" json:"state"` // full agent state JSON
+	TokensUsed int64     `json:"tokens_used"`
+	CostUSD    float64   `json:"cost_usd"`
+	DurationMs int64     `json:"duration_ms"`
+	Status     string    `json:"status"`                  // ok | error | running
+	RecordedAt time.Time `gorm:"index" json:"recorded_at"`
+}
+
+// TimelineFork records a user-initiated branch from a specific snapshot.
+type TimelineFork struct {
+	ID              string    `gorm:"primaryKey" json:"id"`
+	OriginalTraceID string    `gorm:"index" json:"original_trace_id"`
+	ForkSnapshotID  string    `json:"fork_snapshot_id"` // which snapshot we branched from
+	ForkSeqNum      int       `json:"fork_seq_num"`
+	Label           string    `json:"label"`
+	Notes           string    `gorm:"type:text" json:"notes"`
+	CreatedBy       string    `json:"created_by"` // user_id
+	CreatedAt       time.Time `json:"created_at"`
+}
+
 // Migrate runs database migrations
 func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -286,5 +328,10 @@ func Migrate(db *gorm.DB) error {
 		&HealthScoreHistory{},
 		&HealthPrediction{},
 		&TopologyEdge{},
+		// SLO
+		&SLODefinition{},
+		// Time-Travel Debugger
+		&TraceSnapshot{},
+		&TimelineFork{},
 	)
 }

@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Bot, GitBranch, Siren, Layers, Brain, Settings,
   ChevronLeft, ChevronRight, Bell, Circle, BellRing, BellOff,
   CheckCircle2, AlertTriangle, FlaskConical, BarChart3, Rocket, ScrollText, Cpu,
-  LogOut, User, Shield,
+  LogOut, User, Shield, Target, Rewind,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
@@ -25,6 +25,8 @@ const navItems = [
   { path: '/playground', label: 'Playground', icon: FlaskConical },
   { path: '/deployments', label: 'Deployments', icon: Rocket },
   { path: '/audit', label: 'Audit Log', icon: ScrollText },
+  { path: '/slo', label: 'SLO', icon: Target },
+  { path: '/timetravel', label: 'Time-Travel', icon: Rewind },
   { path: '/settings', label: 'Settings', icon: Settings },
 ]
 

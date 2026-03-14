@@ -254,6 +254,19 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 
 		// Audit log
 		v1.GET("/audit", middleware.RequireRole("audit", "read"), h.ListAuditEntries)
+
+		// SLO / Error Budget Engine
+		v1.GET("/slo", h.ListSLOs)
+		v1.GET("/slo/status", h.GetSLOStatuses)
+		v1.POST("/slo", middleware.RequireRole("agents", "write"), h.CreateSLO)
+		v1.DELETE("/slo/:id", middleware.RequireRole("agents", "write"), h.DeleteSLO)
+		v1.GET("/slo/:id/history", h.GetSLOHistory)
+
+		// Time-Travel Debugger
+		v1.GET("/timetravel/timelines", h.ListTimelines)
+		v1.GET("/timetravel/timelines/:traceID", h.GetTimeline)
+		v1.GET("/timetravel/compare", h.CompareTimelines)
+		v1.POST("/timetravel/fork", h.CreateTimelineFork)
 	}
 
 	return router

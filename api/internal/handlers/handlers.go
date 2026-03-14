@@ -35,6 +35,10 @@ type Handlers struct {
 	// Auth
 	authService  *services.AuthService
 	auditService *services.AuditService
+	// SLO
+	sloService *services.SLOService
+	// Time-Travel Debugger
+	timeTravelService *services.TimeTravelService
 }
 
 func NewHandlers(
@@ -64,6 +68,8 @@ func NewHandlers(
 		topology:             services.NewTopologyService(db, logger),
 		authService:          authService,
 		auditService:         services.NewAuditService(db),
+		sloService:           services.NewSLOService(db, logger, hub),
+		timeTravelService:    services.NewTimeTravelService(db, logger),
 	}
 }
 

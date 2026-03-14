@@ -14,6 +14,8 @@ import Analytics from './pages/Analytics'
 import Playground from './pages/Playground'
 import Deployments from './pages/Deployments'
 import AuditLog from './pages/AuditLog'
+import SLO from './pages/SLO'
+import TimeTravelDebugger from './pages/TimeTravelDebugger'
 import Settings from './pages/Settings'
 
 function App() {
@@ -39,6 +41,8 @@ function App() {
                     <Route path="/playground" element={<Playground />} />
                     <Route path="/deployments" element={<Deployments />} />
                     <Route path="/audit" element={<AuditLog />} />
+                    <Route path="/slo" element={<SLO />} />
+                    <Route path="/timetravel" element={<TimeTravelDebugger />} />
                     <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </Layout>
