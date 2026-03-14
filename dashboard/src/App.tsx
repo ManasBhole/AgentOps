@@ -18,6 +18,12 @@ import SLO from './pages/SLO'
 import TimeTravelDebugger from './pages/TimeTravelDebugger'
 import BlastRadius from './pages/BlastRadius'
 import WarRoom from './pages/WarRoom'
+import NLQ from './pages/NLQ'
+import GenomeDrift from './pages/GenomeDrift'
+import ChaosEngineering from './pages/ChaosEngineering'
+import FlameGraph from './pages/FlameGraph'
+import CostAllocation from './pages/CostAllocation'
+import AlertCorrelation from './pages/AlertCorrelation'
 import Settings from './pages/Settings'
 
 function App() {
@@ -47,6 +53,12 @@ function App() {
                     <Route path="/timetravel" element={<TimeTravelDebugger />} />
                     <Route path="/blast-radius" element={<BlastRadius />} />
                     <Route path="/warroom/:incidentId" element={<WarRoom />} />
+                    <Route path="/nlq" element={<NLQ />} />
+                    <Route path="/genome" element={<GenomeDrift />} />
+                    <Route path="/chaos" element={<ChaosEngineering />} />
+                    <Route path="/flame" element={<FlameGraph />} />
+                    <Route path="/cost" element={<CostAllocation />} />
+                    <Route path="/alerts" element={<AlertCorrelation />} />
                     <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </Layout>

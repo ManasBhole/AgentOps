@@ -360,6 +360,67 @@ type TimelineFork struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
+// NLQQuery stores natural language query history.
+type NLQQuery struct {
+	ID           string    `gorm:"primaryKey" json:"id"`
+	UserID       string    `gorm:"index" json:"user_id"`
+	UserEmail    string    `json:"user_email"`
+	Question     string    `gorm:"type:text" json:"question"`
+	GeneratedSQL string    `gorm:"type:text" json:"generated_sql"`
+	RowCount     int       `json:"row_count"`
+	ChartType    string    `json:"chart_type"`
+	Error        string    `json:"error,omitempty"`
+	DurationMs   int64     `json:"duration_ms"`
+	CreatedAt    time.Time `gorm:"index" json:"created_at"`
+}
+
+// AgentGenome stores a normalized behavioral feature vector for drift detection.
+type AgentGenome struct {
+	ID           string    `gorm:"primaryKey" json:"id"`
+	AgentID      string    `gorm:"index" json:"agent_id"`
+	WindowStart  time.Time `gorm:"index" json:"window_start"`
+	ErrorRate    float64   `json:"error_rate"`
+	AvgLatencyMs float64   `json:"avg_latency_ms"`
+	AvgCostUSD   float64   `json:"avg_cost_usd"`
+	HealthScore  float64   `json:"health_score"`
+	AvgTokens    float64   `json:"avg_tokens"`
+	DriftScore   float64   `json:"drift_score"`
+	IsDrifted    bool      `json:"is_drifted"`
+	ComputedAt   time.Time `gorm:"index" json:"computed_at"`
+}
+
+// ChaosExperiment records a chaos engineering simulation run.
+type ChaosExperiment struct {
+	ID          string     `gorm:"primaryKey" json:"id"`
+	AgentID     string     `gorm:"index" json:"agent_id"`
+	FaultType   string     `json:"fault_type"`
+	Intensity   float64    `json:"intensity"`
+	DurationSec int        `json:"duration_sec"`
+	Status      string     `json:"status"`
+	Results     string     `gorm:"type:jsonb" json:"results"`
+	Notes       string     `gorm:"type:text" json:"notes"`
+	CreatedBy   string     `json:"created_by"`
+	CreatedAt   time.Time  `gorm:"index" json:"created_at"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
+}
+
+// AlertCluster groups correlated incidents and anomalies.
+type AlertCluster struct {
+	ID          string    `gorm:"primaryKey" json:"id"`
+	Label       string    `json:"label"`
+	Pattern     string    `gorm:"type:text" json:"pattern"`
+	IncidentIDs string    `gorm:"type:jsonb" json:"incident_ids"`
+	AnomalyIDs  string    `gorm:"type:jsonb" json:"anomaly_ids"`
+	AgentIDs    string    `gorm:"type:jsonb" json:"agent_ids"`
+	Confidence  float64   `json:"confidence"`
+	Severity    string    `json:"severity"`
+	Count       int       `json:"count"`
+	FirstSeen   time.Time `json:"first_seen"`
+	LastSeen    time.Time `json:"last_seen"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `gorm:"index" json:"created_at"`
+}
+
 // Migrate runs database migrations
 func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -394,5 +455,10 @@ func Migrate(db *gorm.DB) error {
 		// Time-Travel Debugger
 		&TraceSnapshot{},
 		&TimelineFork{},
+		// New features
+		&NLQQuery{},
+		&AgentGenome{},
+		&ChaosExperiment{},
+		&AlertCluster{},
 	)
 }

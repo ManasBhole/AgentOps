@@ -43,6 +43,14 @@ type Handlers struct {
 	blastRadiusService *services.BlastRadiusService
 	// War Room
 	warRoomService *services.WarRoomService
+	// NLQ
+	nlqService *services.NLQService
+	// Genome Drift
+	genomeService *services.GenomeService
+	// Chaos Engineering
+	chaosService *services.ChaosService
+	// Alert Correlation
+	alertCorrelationService *services.AlertCorrelationService
 }
 
 func NewHandlers(
@@ -53,6 +61,7 @@ func NewHandlers(
 	traceService *services.TraceService,
 	hub *services.EventHub,
 	authService *services.AuthService,
+	anthroAPIKey string,
 ) *Handlers {
 	health := services.NewHealthService(db, logger)
 	return &Handlers{
@@ -75,7 +84,11 @@ func NewHandlers(
 		sloService:           services.NewSLOService(db, logger, hub),
 		timeTravelService:    services.NewTimeTravelService(db, logger),
 		blastRadiusService:   services.NewBlastRadiusService(db, logger, hub),
-		warRoomService:       services.NewWarRoomService(db, logger),
+		warRoomService:          services.NewWarRoomService(db, logger),
+		nlqService:              services.NewNLQService(db, logger, anthroAPIKey),
+		genomeService:           services.NewGenomeService(db, logger),
+		chaosService:            services.NewChaosService(db, logger, hub),
+		alertCorrelationService: services.NewAlertCorrelationService(db, logger, hub),
 	}
 }
 

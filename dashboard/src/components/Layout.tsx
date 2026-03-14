@@ -5,6 +5,7 @@ import {
   ChevronLeft, ChevronRight, Bell, Circle, BellRing, BellOff,
   CheckCircle2, AlertTriangle, FlaskConical, BarChart3, Rocket, ScrollText, Cpu,
   LogOut, User, Shield, Target, Rewind, Radiation,
+  Sparkles, Dna, Zap, Flame, DollarSign, GitMerge,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
@@ -28,6 +29,12 @@ const navItems = [
   { path: '/slo', label: 'SLO', icon: Target },
   { path: '/timetravel', label: 'Time-Travel', icon: Rewind },
   { path: '/blast-radius', label: 'Blast Radius', icon: Radiation },
+  { path: '/nlq', label: 'NLQ', icon: Sparkles },
+  { path: '/genome', label: 'Genome Drift', icon: Dna },
+  { path: '/chaos', label: 'Chaos', icon: Zap },
+  { path: '/flame', label: 'Flame Graph', icon: Flame },
+  { path: '/cost', label: 'Cost', icon: DollarSign },
+  { path: '/alerts', label: 'Alert Correlation', icon: GitMerge },
   { path: '/settings', label: 'Settings', icon: Settings },
 ]
 

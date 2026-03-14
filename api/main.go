@@ -62,6 +62,7 @@ func main() {
 		traceService,
 		hub,
 		authSvc,
+		cfg.AnthropicAPIKey,
 	)
 
 	// Start NEXUS background scheduler
@@ -279,6 +280,33 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.GET("/timetravel/timelines/:traceID", h.GetTimeline)
 		v1.GET("/timetravel/compare", h.CompareTimelines)
 		v1.POST("/timetravel/fork", h.CreateTimelineFork)
+
+		// NLQ
+		v1.POST("/nlq/query", h.NLQQuery)
+		v1.GET("/nlq/history", h.NLQHistory)
+
+		// Genome Drift
+		v1.GET("/genome/fleet", h.GetFleetGenomeDrift)
+		v1.GET("/genome/:agentID", h.GetAgentGenome)
+		v1.POST("/genome/:agentID/compute", middleware.RequireRole("nexus", "write"), h.ComputeAgentGenome)
+
+		// Chaos Engineering
+		v1.GET("/chaos/experiments", h.ListChaosExperiments)
+		v1.POST("/chaos/experiments", middleware.RequireRole("agents", "write"), h.CreateChaosExperiment)
+		v1.GET("/chaos/experiments/:id", h.GetChaosExperiment)
+
+		// Flame Graph
+		v1.GET("/flame", h.ListFlameTraces)
+		v1.GET("/flame/:traceID", h.GetFlameGraph)
+
+		// Cost Allocation
+		v1.GET("/cost/breakdown", h.GetCostBreakdown)
+		v1.GET("/cost/daily", h.GetDailyCost)
+
+		// Alert Correlation
+		v1.GET("/alerts/clusters", h.GetAlertClusters)
+		v1.POST("/alerts/correlate", middleware.RequireRole("nexus", "write"), h.CorrelateAlerts)
+		v1.POST("/alerts/clusters/:id/suppress", middleware.RequireRole("nexus", "write"), h.SuppressAlertCluster)
 	}
 
 	return router
