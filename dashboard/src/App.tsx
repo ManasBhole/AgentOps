@@ -16,6 +16,7 @@ import Deployments from './pages/Deployments'
 import AuditLog from './pages/AuditLog'
 import SLO from './pages/SLO'
 import TimeTravelDebugger from './pages/TimeTravelDebugger'
+import BlastRadius from './pages/BlastRadius'
 import Settings from './pages/Settings'
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
                     <Route path="/audit" element={<AuditLog />} />
                     <Route path="/slo" element={<SLO />} />
                     <Route path="/timetravel" element={<TimeTravelDebugger />} />
+                    <Route path="/blast-radius" element={<BlastRadius />} />
                     <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </Layout>

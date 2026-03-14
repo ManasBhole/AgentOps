@@ -262,6 +262,11 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.DELETE("/slo/:id", middleware.RequireRole("agents", "write"), h.DeleteSLO)
 		v1.GET("/slo/:id/history", h.GetSLOHistory)
 
+		// Blast Radius Simulator
+		v1.POST("/blast-radius/simulate", h.RunBlastRadius)
+		v1.GET("/blast-radius/simulations", h.ListBlastRadiusSimulations)
+		v1.GET("/blast-radius/simulations/:id", h.GetBlastRadiusSimulation)
+
 		// Time-Travel Debugger
 		v1.GET("/timetravel/timelines", h.ListTimelines)
 		v1.GET("/timetravel/timelines/:traceID", h.GetTimeline)

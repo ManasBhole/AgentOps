@@ -263,6 +263,20 @@ type AuditEntry struct {
 	CreatedAt  time.Time `gorm:"index" json:"created_at"`
 }
 
+// BlastRadiusSimulation records one what-if simulation run.
+type BlastRadiusSimulation struct {
+	ID           string    `gorm:"primaryKey" json:"id"`
+	SourceAgentID string   `gorm:"index;not null" json:"source_agent_id"`
+	ChangeType   string    `json:"change_type"` // "deploy" | "config" | "scale_down" | "rollback"
+	ChangeDesc   string    `gorm:"type:text" json:"change_desc"`
+	Iterations   int       `json:"iterations"`
+	Results      string    `gorm:"type:jsonb" json:"results"` // []BlastRadiusResult JSON
+	TotalAffected int      `json:"total_affected"`
+	MaxDepth     int       `json:"max_depth"`
+	CreatedBy    string    `json:"created_by"`
+	CreatedAt    time.Time `gorm:"index" json:"created_at"`
+}
+
 // SLODefinition defines a Service Level Objective for one agent.
 type SLODefinition struct {
 	ID          string    `gorm:"primaryKey" json:"id"`
@@ -329,6 +343,7 @@ func Migrate(db *gorm.DB) error {
 		&HealthPrediction{},
 		&TopologyEdge{},
 		// SLO
+		&BlastRadiusSimulation{},
 		&SLODefinition{},
 		// Time-Travel Debugger
 		&TraceSnapshot{},

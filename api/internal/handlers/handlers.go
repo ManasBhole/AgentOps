@@ -39,6 +39,8 @@ type Handlers struct {
 	sloService *services.SLOService
 	// Time-Travel Debugger
 	timeTravelService *services.TimeTravelService
+	// Blast Radius Simulator
+	blastRadiusService *services.BlastRadiusService
 }
 
 func NewHandlers(
@@ -70,6 +72,7 @@ func NewHandlers(
 		auditService:         services.NewAuditService(db),
 		sloService:           services.NewSLOService(db, logger, hub),
 		timeTravelService:    services.NewTimeTravelService(db, logger),
+		blastRadiusService:   services.NewBlastRadiusService(db, logger, hub),
 	}
 }
 
