@@ -9,19 +9,51 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	"github.com/agentops/agentops/api/internal/database"
 )
 
-// POST /api/v1/seed  — idempotent demo-data loader
-func (h *Handlers) SeedDemoData(c *gin.Context) {
-	var existing int64
-	h.db.Model(&database.Agent{}).Count(&existing)
-	if existing >= 5 {
-		c.JSON(http.StatusOK, gin.H{"status": "already_seeded", "message": "Demo data already loaded"})
+
+// SeedIfEmpty is called at startup — silently seeds demo data when the DB has no agents.
+func SeedIfEmpty(db *gorm.DB, logger *zap.Logger) {
+	var count int64
+	db.Model(&database.Agent{}).Count(&count)
+	if count >= 5 {
 		return
 	}
+	logger.Info("seeding demo data...")
+	if err := runSeed(db); err != nil {
+		logger.Error("demo seed failed", zap.Error(err))
+	} else {
+		logger.Info("demo data seeded successfully")
+	}
+}
+
+// POST /api/v1/seed  — force re-seed via API (admin use)
+func (h *Handlers) SeedDemoData(c *gin.Context) {
+	if err := runSeed(h.db); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "seeded"})
+}
+
+// GET /api/v1/seed/status
+func (h *Handlers) SeedStatus(c *gin.Context) {
+	var counts struct{ Agents, Incidents, Traces int64 }
+	h.db.Model(&database.Agent{}).Count(&counts.Agents)
+	h.db.Model(&database.Incident{}).Count(&counts.Incidents)
+	h.db.Model(&database.Trace{}).Count(&counts.Traces)
+	c.JSON(http.StatusOK, gin.H{
+		"seeded": counts.Agents >= 5, "agents": counts.Agents,
+		"incidents": counts.Incidents, "traces": counts.Traces,
+	})
+}
+
+func runSeed(db *gorm.DB) error {
 
 	rng := rand.New(rand.NewSource(42))
 	now := time.Now().UTC()
@@ -49,7 +81,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			CreatedAt: now.Add(-time.Duration(30-i*5) * day), UpdatedAt: now.Add(-time.Duration(i) * day),
 		}
 	}
-	h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&dbAgents)
+	db.Clauses(clause.OnConflict{DoNothing: true}).Create(&dbAgents)
 
 	// ── Traces ───────────────────────────────────────────────────────────────
 	type traceMeta struct{ id, agentID, runID string; durationMs int64; status string; start time.Time }
@@ -76,7 +108,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 				Duration: durMs, Status: st,
 				Attributes: attrs, Events: "[]", CreatedAt: start,
 			}
-			h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&span)
+			db.Clauses(clause.OnConflict{DoNothing: true}).Create(&span)
 
 			// 3 child spans per trace
 			for k := 0; k < 3; k++ {
@@ -91,7 +123,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 					Duration: childDur, Status: st,
 					Attributes: attrs, Events: "[]", CreatedAt: childStart,
 				}
-				h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&child)
+				db.Clauses(clause.OnConflict{DoNothing: true}).Create(&child)
 			}
 
 			traceMetas = append(traceMetas, traceMeta{tid, a.id, rid, durMs, st, start})
@@ -127,7 +159,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			t := created.Add(2 * time.Hour)
 			inc.ResolvedAt = &t
 		}
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&inc)
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&inc)
 	}
 
 	// ── Deployments ──────────────────────────────────────────────────────────
@@ -145,7 +177,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			CreatedAt: now.Add(-time.Duration(20-i*3) * day),
 			UpdatedAt: now.Add(-time.Duration(i) * day),
 		}
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&dep)
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&dep)
 	}
 
 	// ── Router Logs (cost + analytics) ──────────────────────────────────────
@@ -167,7 +199,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			ModelChosen: model, CostEstUSD: float64(tokens) * modelCosts[model],
 			CreatedAt: now.Add(-time.Duration(rng.Intn(30)) * day),
 		}
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&rl)
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&rl)
 	}
 
 	// ── Behavioral Fingerprints (NEXUS) ──────────────────────────────────────
@@ -195,7 +227,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 				HealthScore:  int(75 + rng.Intn(25)),
 				ComputedAt:  wEnd,
 			}
-			h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&fp)
+			db.Clauses(clause.OnConflict{DoNothing: true}).Create(&fp)
 		}
 	}
 
@@ -206,7 +238,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			score := baseScore + rng.Intn(20) - 5
 			if score > 100 { score = 100 }
 			if score < 20 { score = 20 }
-			h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.HealthScoreHistory{
+			db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.HealthScoreHistory{
 				ID: fmt.Sprintf("hsh_%s_%03d", a.id, d), AgentID: a.id,
 				Score: score, ErrorRate: baseError[ai] * (1 + rng.Float64()*0.3),
 				AvgLatencyMs: baseLatency[ai] * (1 + rng.Float64()*0.2),
@@ -221,7 +253,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 	for ai, a := range agents {
 		for _, horizon := range horizons {
 			pred := float64(75 + ai*3 + rng.Intn(15))
-			h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.HealthPrediction{
+			db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.HealthPrediction{
 				ID: fmt.Sprintf("hp_%s_%s", a.id, horizon[1:]), AgentID: a.id,
 				Horizon: horizon, PredictedScore: pred,
 				Slope: (rng.Float64() - 0.5) * 0.5, Intercept: pred,
@@ -256,7 +288,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			t := created.Add(3 * time.Hour)
 			ae.ResolvedAt = &t
 		}
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&ae)
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&ae)
 	}
 
 	// ── Topology Edges ───────────────────────────────────────────────────────
@@ -268,7 +300,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 		{"agt_codeass02", "agt_dataanl05"},
 	}
 	for i, e := range edges {
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.TopologyEdge{
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.TopologyEdge{
 			ID: fmt.Sprintf("topo_%02d", i), ParentAgentID: e[0], ChildAgentID: e[1],
 			EdgeCount: int64(10 + rng.Intn(90)),
 			LastSeenAt: now.Add(-time.Duration(rng.Intn(24)) * time.Hour),
@@ -279,7 +311,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 	// ── Causal Edges ─────────────────────────────────────────────────────────
 	causalPairs := [][2]string{{"inc_001", "inc_006"}, {"inc_002", "inc_008"}, {"inc_003", "inc_007"}}
 	for i, p := range causalPairs {
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.CausalEdge{
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.CausalEdge{
 			ID: fmt.Sprintf("ce_%02d", i), CauseID: p[0], EffectID: p[1],
 			Confidence: 0.75 + rng.Float64()*0.2, LagMs: int64(300000 + rng.Intn(600000)),
 			CorrelationMethod: "pearson", SharedAgentID: agents[i%len(agents)].id,
@@ -294,7 +326,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 	}
 	for i, a := range agents {
 		for j, st := range sloTypes {
-			h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.SLODefinition{
+			db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.SLODefinition{
 				ID: fmt.Sprintf("slo_%s_%d", a.id, j), AgentID: a.id,
 				Name: a.name + " — " + st.name, SLIType: st.sliType,
 				TargetValue: st.target, WindowDays: 30, ThresholdMs: st.threshMs,
@@ -321,7 +353,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			}
 			prevDrift = drift
 			isDrifted := drift > 0.25
-			h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.AgentGenome{
+			db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.AgentGenome{
 				ID: fmt.Sprintf("genome_%s_%02d", a.id, d), AgentID: a.id,
 				WindowStart: wStart, ErrorRate: errRate, AvgLatencyMs: latency,
 				AvgCostUSD: cost, HealthScore: healthScore, AvgTokens: tokens,
@@ -354,7 +386,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			Notes:     fmt.Sprintf("Test %s resilience under %s conditions", a.name, ft),
 			CreatedBy: "system", CreatedAt: created, CompletedAt: &completed,
 		}
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&exp)
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&exp)
 	}
 
 	// ── Alert Clusters ────────────────────────────────────────────────────────
@@ -390,7 +422,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			Status: "suppressed", CreatedAt: now.Add(-36 * time.Hour),
 		},
 	}
-	h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&clusters)
+	db.Clauses(clause.OnConflict{DoNothing: true}).Create(&clusters)
 
 	// ── Agent Memories ────────────────────────────────────────────────────────
 	memories := []struct{ agentID, key, value, scope string }{
@@ -406,7 +438,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 	for i, m := range memories {
 		scope := m.scope
 		if scope == "" { scope = "shared" }
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.AgentMemory{
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.AgentMemory{
 			ID: fmt.Sprintf("mem_%03d", i), AgentID: m.agentID, Scope: scope,
 			Key: m.key, Value: m.value, RunID: "run_seed",
 			CreatedAt: now.Add(-time.Duration(i) * day),
@@ -421,7 +453,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 			snapAt := tm.start.Add(time.Duration(seq) * time.Duration(tm.durationMs/5) * time.Millisecond)
 			st := "ok"
 			if seq == 4 && tm.status == "error" { st = "error" }
-			h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.TraceSnapshot{
+			db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.TraceSnapshot{
 				ID:      fmt.Sprintf("snap_%s_%02d", tm.id, seq),
 				TraceID: tm.id, SpanID: fmt.Sprintf("spn_root_%s", tm.id),
 				AgentID: tm.agentID, RunID: tm.runID, SeqNum: seq,
@@ -447,7 +479,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 		{"List all critical open incidents", "SELECT id, title, agent_id FROM incidents WHERE severity='critical' AND status='open'", "table", 2},
 	}
 	for i, n := range nlqItems {
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.NLQQuery{
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.NLQQuery{
 			ID: fmt.Sprintf("nlq_%03d", i), UserID: "system", UserEmail: "admin@agentops.io",
 			Question: n.q, GeneratedSQL: n.sql, RowCount: n.rows,
 			ChartType: n.chart, DurationMs: int64(120 + rng.Intn(400)),
@@ -473,7 +505,7 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 	for i, aa := range auditActions {
 		for j := 0; j < 2; j++ {
 			idx := i*2 + j
-			h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.AuditEntry{
+			db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.AuditEntry{
 				ID: fmt.Sprintf("audit_%04d", idx), UserID: "usr_admin_01",
 				UserEmail: "admin@agentops.io", UserRole: "owner",
 				Action: aa.action, Resource: aa.resource, ResourceID: uuid.New().String()[:8],
@@ -488,42 +520,12 @@ func (h *Handlers) SeedDemoData(c *gin.Context) {
 	// ── Budget Limits ─────────────────────────────────────────────────────────
 	dailyLimits := []float64{5.0, 3.0, 4.0, 8.0, 2.0}
 	for i, a := range agents {
-		h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.AgentBudget{
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.AgentBudget{
 			AgentID: a.id, DailyLimitUSD: dailyLimits[i],
 			MonthlyLimitUSD: dailyLimits[i] * 30, AlertThresholdPct: 80,
 			Active: true, CreatedAt: now.Add(-20 * day), UpdatedAt: now,
 		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "seeded",
-		"message": "Demo data loaded successfully",
-		"created": map[string]int{
-			"agents": len(agents), "traces": len(agents) * 10 * 4,
-			"incidents": 8, "deployments": len(agents),
-			"router_logs": 80, "fingerprints": len(agents) * 7,
-			"health_history": len(agents) * 30, "anomalies": 6,
-			"slo_definitions": len(agents) * 2, "genomes": len(agents) * 7,
-			"chaos_experiments": 4, "alert_clusters": 3,
-			"audit_entries": len(auditActions) * 2, "memories": len(memories),
-		},
-	})
-}
-
-// GET /api/v1/seed/status
-func (h *Handlers) SeedStatus(c *gin.Context) {
-	var counts struct {
-		Agents    int64
-		Incidents int64
-		Traces    int64
-	}
-	h.db.Model(&database.Agent{}).Count(&counts.Agents)
-	h.db.Model(&database.Incident{}).Count(&counts.Incidents)
-	h.db.Model(&database.Trace{}).Count(&counts.Traces)
-	c.JSON(http.StatusOK, gin.H{
-		"seeded":    counts.Agents >= 5,
-		"agents":    counts.Agents,
-		"incidents": counts.Incidents,
-		"traces":    counts.Traces,
-	})
+	return nil
 }

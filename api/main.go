@@ -47,6 +47,9 @@ func main() {
 	authSvc := services.NewAuthService(db, logger, cfg.JWTSecret)
 	authSvc.EnsureDefaultOwner()
 
+	// Seed demo data if DB is empty (idempotent)
+	handlers.SeedIfEmpty(db, logger)
+
 	// Initialize services
 	hub := services.NewEventHub()
 	incidentEngine := services.NewIncidentEngine(db, logger, hub)
