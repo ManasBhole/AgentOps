@@ -44,8 +44,8 @@ export default function ExportButton({ data, filename, label = 'Export' }: Props
       </button>
       {open && (
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-9 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-20 overflow-hidden min-w-[110px]">
+          <div className="fixed inset-0 z-[998]" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-9 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-[999] overflow-hidden min-w-[110px]">
             <button
               onClick={() => { download(toCSV(data), `${filename}.csv`, 'text/csv'); setOpen(false) }}
               className="w-full px-4 py-2 text-xs text-gray-300 hover:bg-gray-800 hover:text-white text-left transition-colors"

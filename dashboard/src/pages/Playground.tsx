@@ -32,7 +32,7 @@ export default function Playground() {
 
   const { data: agentsRaw } = useQuery<Agent[]>({
     queryKey: ['agents'],
-    queryFn: async () => { const { data } = await api.get('/agents'); return data ?? [] },
+    queryFn: async () => { const { data } = await api.get('/agents'); return data.agents ?? [] },
   })
   const agents: Agent[] = Array.isArray(agentsRaw) ? agentsRaw : []
 

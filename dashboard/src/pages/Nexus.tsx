@@ -758,9 +758,9 @@ export default function Nexus() {
   const { data: summary } = useNexusSummary()
   const { data: agentData } = useQuery<Agent[]>({
     queryKey: ['agents'],
-    queryFn: async () => { const { data } = await api.get('/agents'); return data },
+    queryFn: async () => { const { data } = await api.get('/agents'); return data.agents ?? [] },
   })
-  const agents = agentData ?? []
+  const agents = Array.isArray(agentData) ? agentData : []
 
   return (
     <div className="space-y-5">

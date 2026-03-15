@@ -131,11 +131,11 @@ export default function BlastRadius() {
   const [changeDesc, setChangeDesc] = useState('')
   const [result, setResult] = useState<SimOutput | null>(null)
 
-  const { data: agentsData } = useQuery({
+  const { data: agentsData } = useQuery<Agent[]>({
     queryKey: ['agents'],
-    queryFn: async () => { const { data } = await api.get('/agents'); return data as { agents: Agent[] } },
+    queryFn: async () => { const { data } = await api.get('/agents'); return data.agents ?? [] },
   })
-  const agents: Agent[] = Array.isArray(agentsData?.agents) ? agentsData!.agents : []
+  const agents: Agent[] = Array.isArray(agentsData) ? agentsData : []
 
   const simulateMutation = useMutation({
     mutationFn: async () => {

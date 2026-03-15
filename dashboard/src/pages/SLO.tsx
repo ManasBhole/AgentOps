@@ -106,13 +106,13 @@ export default function SLO() {
     refetchInterval: 30_000,
   })
 
-  const { data: agentsData } = useQuery({
+  const { data: agentsData } = useQuery<Agent[]>({
     queryKey: ['agents'],
-    queryFn: async () => { const { data } = await api.get('/agents'); return data as { agents: Agent[] } },
+    queryFn: async () => { const { data } = await api.get('/agents'); return data.agents ?? [] },
   })
 
   const statuses: SLOStatus[] = Array.isArray(statusData?.statuses) ? statusData!.statuses : []
-  const agents: Agent[] = Array.isArray(agentsData?.agents) ? agentsData!.agents : []
+  const agents: Agent[] = Array.isArray(agentsData) ? agentsData : []
 
   const createMutation = useMutation({
     mutationFn: async () => api.post('/slo', {

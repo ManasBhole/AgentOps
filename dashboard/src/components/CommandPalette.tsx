@@ -69,7 +69,7 @@ export default function CommandPalette({ open, onClose }: Props) {
   const typeLabel: Record<string, string> = { agent: 'Agent', trace: 'Trace', incident: 'Incident' }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
+    <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh]">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-xl mx-4 bg-gray-900 border border-gray-700/60 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden">
 

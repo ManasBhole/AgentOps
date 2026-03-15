@@ -44,7 +44,7 @@ function SpanBar({ node, totalMs, depth }: { node: FlameNode; totalMs: number; d
       <div className="flex items-center gap-1 mb-0.5 hover:bg-gray-800/60 rounded px-1 py-0.5 cursor-pointer"
         onClick={() => setOpen(o => !o)}>
         <div style={{ width: depth * 16 }} className="flex-shrink-0" />
-        {node.children.length > 0 ? (
+        {(node.children ?? []).length > 0 ? (
           open ? <ChevronDown className="h-3 w-3 text-gray-500 flex-shrink-0" /> : <ChevronRight className="h-3 w-3 text-gray-500 flex-shrink-0" />
         ) : <div className="w-3" />}
         <div className="flex-1 min-w-0">
@@ -60,7 +60,7 @@ function SpanBar({ node, totalMs, depth }: { node: FlameNode; totalMs: number; d
         </div>
         <div className="text-gray-600 flex-shrink-0 ml-2">{node.agent_id.slice(0, 12)}</div>
       </div>
-      {open && node.children.map(child => (
+      {open && (node.children ?? []).map(child => (
         <SpanBar key={child.id} node={child} totalMs={totalMs} depth={depth + 1} />
       ))}
     </div>
@@ -133,11 +133,11 @@ export default function FlameGraph() {
             </div>
           </div>
           <div className="p-4 overflow-x-auto">
-            {flame.roots.length === 0 ? (
+            {(flame.roots ?? []).length === 0 ? (
               <div className="text-center text-gray-500 text-sm py-8">No span data for this trace</div>
             ) : (
               <div className="min-w-[600px]">
-                {flame.roots.map(root => (
+                {(flame.roots ?? []).map(root => (
                   <SpanBar key={root.id} node={root} totalMs={flame.total_dur_ms} depth={0} />
                 ))}
               </div>
