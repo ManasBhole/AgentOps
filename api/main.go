@@ -281,6 +281,10 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.GET("/timetravel/compare", h.CompareTimelines)
 		v1.POST("/timetravel/fork", h.CreateTimelineFork)
 
+		// Demo seed
+		v1.POST("/seed", h.SeedDemoData)
+		v1.GET("/seed/status", h.SeedStatus)
+
 		// Search
 		v1.GET("/search", h.Search)
 

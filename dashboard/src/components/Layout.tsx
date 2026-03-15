@@ -14,6 +14,7 @@ import { useNotifications } from '../hooks/useNotifications'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import CommandPalette from './CommandPalette'
+import SeedBanner from './SeedBanner'
 
 interface LayoutProps { children: ReactNode }
 
@@ -450,6 +451,9 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </div>
         </header>
+
+        {/* Demo data banner */}
+        <SeedBanner />
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto bg-gray-950">
