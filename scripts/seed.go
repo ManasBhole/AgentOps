@@ -202,7 +202,7 @@ func main() {
 			endTime := startTime.Add(time.Duration(durMs) * time.Millisecond)
 
 			status := "ok"
-			attrs := fmt.Sprintf(`{"agent.type":%q,"model":"claude-3-5-sonnet","tokens":%d}`,
+			attrs := fmt.Sprintf(`{"agent.type":%q,"model":"ai-model-balanced","tokens":%d}`,
 				agent.Type, 500+rng.Intn(3500))
 			events := `[]`
 

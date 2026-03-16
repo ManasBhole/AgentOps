@@ -65,7 +65,7 @@ func main() {
 		traceService,
 		hub,
 		authSvc,
-		cfg.AnthropicAPIKey,
+		cfg.LLMAPIKey,
 	)
 
 	// Start NEXUS background scheduler

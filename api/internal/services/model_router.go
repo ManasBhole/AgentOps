@@ -46,12 +46,12 @@ type RouterStats struct {
 var tiers = []ModelTier{
 	// Fast / cheap — simple tasks
 	{Model: "gpt-4o-mini", Provider: "openai", CostPer1kIn: 0.00015, CostPer1kOut: 0.00060, ContextWindow: 128000, Capability: "fast"},
-	{Model: "claude-haiku-4-5-20251001", Provider: "anthropic", CostPer1kIn: 0.00025, CostPer1kOut: 0.00125, ContextWindow: 200000, Capability: "fast"},
+	{Model: "ai-model-fast", Provider: "ai-labs", CostPer1kIn: 0.00025, CostPer1kOut: 0.00125, ContextWindow: 200000, Capability: "fast"},
 	// Balanced — moderate tasks
-	{Model: "claude-sonnet-4-6", Provider: "anthropic", CostPer1kIn: 0.003, CostPer1kOut: 0.015, ContextWindow: 200000, Capability: "balanced"},
+	{Model: "ai-model-balanced", Provider: "ai-labs", CostPer1kIn: 0.003, CostPer1kOut: 0.015, ContextWindow: 200000, Capability: "balanced"},
 	{Model: "gpt-4o", Provider: "openai", CostPer1kIn: 0.005, CostPer1kOut: 0.015, ContextWindow: 128000, Capability: "balanced"},
 	// Powerful — complex tasks
-	{Model: "claude-opus-4-6", Provider: "anthropic", CostPer1kIn: 0.015, CostPer1kOut: 0.075, ContextWindow: 200000, Capability: "powerful"},
+	{Model: "ai-model-pro", Provider: "ai-labs", CostPer1kIn: 0.015, CostPer1kOut: 0.075, ContextWindow: 200000, Capability: "powerful"},
 	{Model: "gpt-4-turbo", Provider: "openai", CostPer1kIn: 0.010, CostPer1kOut: 0.030, ContextWindow: 128000, Capability: "powerful"},
 }
 

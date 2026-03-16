@@ -43,7 +43,7 @@ const COMPLEXITY_STYLE: Record<string, string> = {
 }
 
 const PROVIDER_LOGO: Record<string, string> = {
-  openai: '⚡', anthropic: '◆',
+  openai: '⚡', 'ai-labs': '◆',
 }
 
 export default function Intelligence() {
@@ -197,7 +197,7 @@ export default function Intelligence() {
                 onChange={e => setProvider(e.target.value)}>
                 <option value="">Any provider</option>
                 <option value="openai">OpenAI only</option>
-                <option value="anthropic">Anthropic only</option>
+                <option value="ai-labs">AI Labs only</option>
               </select>
               <button
                 onClick={() => routeMutation.mutate()}

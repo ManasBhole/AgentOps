@@ -29,11 +29,11 @@ const COMPLEXITY_COLOR: Record<string, string> = {
 
 const MODEL_COLOR: Record<string, string> = {
   'gpt-4o-mini': 'text-emerald-400',
-  'claude-haiku-3-5': 'text-emerald-400',
+  'ai-model-fast': 'text-emerald-400',
   'gpt-4o': 'text-yellow-400',
-  'claude-sonnet-4-5': 'text-yellow-400',
+  'ai-model-balanced': 'text-yellow-400',
   'o1': 'text-red-400',
-  'claude-opus-4-5': 'text-red-400',
+  'ai-model-pro': 'text-red-400',
 }
 
 function StatCard({ label, value, sub, icon: Icon, color }: {

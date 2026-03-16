@@ -13,7 +13,7 @@ type Config struct {
 	OTLPEndpoint     string
 	K8sConfigPath    string
 	JWTSecret        string
-	AnthropicAPIKey  string
+	LLMAPIKey  string
 }
 
 func Load() *Config {
@@ -26,7 +26,7 @@ func Load() *Config {
 		OTLPEndpoint:  getEnv("OTLP_ENDPOINT", "localhost:4317"),
 		K8sConfigPath: getEnv("K8S_CONFIG_PATH", ""),
 		JWTSecret:        getEnv("JWT_SECRET", "change-me-in-production-use-32-chars-min"),
-		AnthropicAPIKey:  getEnv("ANTHROPIC_API_KEY", ""),
+		LLMAPIKey:  getEnv("LLM_API_KEY", ""),
 	}
 }
 

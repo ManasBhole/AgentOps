@@ -163,7 +163,7 @@ export default function NLQ() {
         <Sparkles className="h-5 w-5 text-indigo-400" />
         <div>
           <h1 className="text-xl font-semibold text-white">Natural Language Query</h1>
-          <p className="text-sm text-gray-500">Ask questions in plain English — Claude generates SQL and charts the results</p>
+          <p className="text-sm text-gray-500">Ask questions in plain English — AI generates SQL and charts the results</p>
         </div>
       </div>
 
@@ -185,7 +185,7 @@ export default function NLQ() {
             className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
           >
             {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            {mutation.isPending ? 'Querying…' : 'Ask Claude'}
+            {mutation.isPending ? 'Querying…' : 'Ask AI'}
           </button>
         </div>
 

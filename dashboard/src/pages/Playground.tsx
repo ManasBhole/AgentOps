@@ -59,7 +59,7 @@ export default function Playground() {
           'playground': true,
           'task': task,
           'agent.id': agentId,
-          'llm.model': 'claude-sonnet-4-6',
+          'llm.model': 'ai-model-balanced',
           'llm.prompt_tokens': Math.floor(Math.random() * 400 + 100),
           'llm.completion_tokens': Math.floor(Math.random() * 200 + 50),
           'llm.cost_usd': parseFloat((Math.random() * 0.002).toFixed(6)),

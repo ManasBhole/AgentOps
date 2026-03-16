@@ -113,19 +113,19 @@ func (s *NLQService) Query(question string) (*NLQResult, error) {
 	}, nil
 }
 
-type anthropicRequest struct {
-	Model     string             `json:"model"`
-	MaxTokens int                `json:"max_tokens"`
-	System    string             `json:"system"`
-	Messages  []anthropicMessage `json:"messages"`
+type llmRequest struct {
+	Model     string       `json:"model"`
+	MaxTokens int          `json:"max_tokens"`
+	System    string       `json:"system"`
+	Messages  []llmMessage `json:"messages"`
 }
 
-type anthropicMessage struct {
+type llmMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
-type anthropicResponse struct {
+type llmResponse struct {
 	Content []struct {
 		Text string `json:"text"`
 	} `json:"content"`
@@ -140,20 +140,20 @@ func (s *NLQService) generateSQL(question string) (string, error) {
 		return "SELECT id, name, status, created_at FROM agents ORDER BY created_at DESC LIMIT 20 -- chart:table", nil
 	}
 
-	reqBody := anthropicRequest{
-		Model:     "claude-haiku-4-5-20251001",
+	reqBody := llmRequest{
+		Model:     "ai-model-fast",
 		MaxTokens: 512,
 		System:    nlqSchemaContext,
-		Messages: []anthropicMessage{
+		Messages: []llmMessage{
 			{Role: "user", Content: question},
 		},
 	}
 	b, _ := json.Marshal(reqBody)
 
-	req, _ := http.NewRequest("POST", "https://api.anthropic.com/v1/messages", bytes.NewReader(b))
+	req, _ := http.NewRequest("POST", "https://api.agentops.io/v1/messages", bytes.NewReader(b))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", s.apiKey)
-	req.Header.Set("anthropic-version", "2023-06-01")
+	req.Header.Set("api-version", "2023-06-01")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -162,15 +162,15 @@ func (s *NLQService) generateSQL(question string) (string, error) {
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 
-	var ar anthropicResponse
+	var ar llmResponse
 	if err := json.Unmarshal(body, &ar); err != nil {
 		return "", fmt.Errorf("parse error: %w", err)
 	}
 	if ar.Error != nil {
-		return "", fmt.Errorf("anthropic error: %s", ar.Error.Message)
+		return "", fmt.Errorf("llm error: %s", ar.Error.Message)
 	}
 	if len(ar.Content) == 0 {
-		return "", fmt.Errorf("empty response from Claude")
+		return "", fmt.Errorf("empty response from AI")
 	}
 	return strings.TrimSpace(ar.Content[0].Text), nil
 }

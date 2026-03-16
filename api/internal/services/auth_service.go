@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -92,14 +93,25 @@ func (s *AuthService) Register(email, name, password, role string) (*database.Us
 }
 
 // Login validates credentials and returns (accessToken, refreshToken, user).
+// If the email is not registered yet, the account is created automatically (open registration).
 func (s *AuthService) Login(email, password, userAgent, ip string) (string, string, *database.User, error) {
 	var user database.User
-	if err := s.db.Where("email = ? AND is_active = true", email).First(&user).Error; err != nil {
-		return "", "", nil, errors.New("invalid credentials")
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return "", "", nil, errors.New("invalid credentials")
+	err := s.db.Where("email = ? AND is_active = true", email).First(&user).Error
+	if err != nil {
+		// Auto-register: new email gets an account on first login
+		name := email
+		if idx := strings.Index(email, "@"); idx > 0 {
+			name = email[:idx]
+		}
+		newUser, regErr := s.Register(email, name, password, "admin")
+		if regErr != nil {
+			return "", "", nil, errors.New("invalid credentials")
+		}
+		user = *newUser
+	} else {
+		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+			return "", "", nil, errors.New("invalid credentials")
+		}
 	}
 
 	access, err := s.signAccessToken(&user)

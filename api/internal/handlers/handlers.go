@@ -715,7 +715,7 @@ func (h *Handlers) DeleteMemory(c *gin.Context) {
 type RouteRequest struct {
 	AgentID        string `json:"agent_id"`
 	Task           string `json:"task"            binding:"required"`
-	PreferProvider string `json:"prefer_provider"` // "openai" | "anthropic" | ""
+	PreferProvider string `json:"prefer_provider"` // "openai" | "ai-labs" | ""
 }
 
 func (h *Handlers) RouteModel(c *gin.Context) {

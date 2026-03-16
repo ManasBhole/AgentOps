@@ -77,7 +77,7 @@ func runSeed(db *gorm.DB) error {
 	for i, a := range agents {
 		dbAgents[i] = database.Agent{
 			ID: a.id, Name: a.name, Type: a.typ, Version: "1.0." + fmt.Sprint(i),
-			Status: statuses[i], Config: mustJSON(map[string]string{"model": "claude-sonnet-4-6"}),
+			Status: statuses[i], Config: mustJSON(map[string]string{"model": "ai-model-balanced"}),
 			CreatedAt: now.Add(-time.Duration(30-i*5) * day), UpdatedAt: now.Add(-time.Duration(i) * day),
 		}
 	}
@@ -99,7 +99,7 @@ func runSeed(db *gorm.DB) error {
 			cost := float64(tokens) * 0.000003
 			attrs := mustJSON(map[string]any{
 				"tokens_used": tokens, "cost_usd": cost,
-				"model": "claude-sonnet-4-6", "agent_name": a.name,
+				"model": "ai-model-balanced", "agent_name": a.name,
 			})
 			span := database.Trace{
 				ID: tid, AgentID: a.id, RunID: rid, TraceID: tid,
@@ -181,9 +181,9 @@ func runSeed(db *gorm.DB) error {
 	}
 
 	// ── Router Logs (cost + analytics) ──────────────────────────────────────
-	models := []string{"claude-haiku-4-5-20251001", "claude-sonnet-4-6", "claude-opus-4-6"}
+	models := []string{"ai-model-fast", "ai-model-balanced", "ai-model-pro"}
 	complexities := []string{"simple", "moderate", "complex"}
-	modelCosts := map[string]float64{"claude-haiku-4-5-20251001": 0.000001, "claude-sonnet-4-6": 0.000003, "claude-opus-4-6": 0.000015}
+	modelCosts := map[string]float64{"ai-model-fast": 0.000001, "ai-model-balanced": 0.000003, "ai-model-pro": 0.000015}
 	tasks := []string{
 		"Summarize research paper", "Generate unit tests", "Retrieve relevant documents",
 		"Coordinate sub-agents", "Analyze dataset", "Write documentation",
