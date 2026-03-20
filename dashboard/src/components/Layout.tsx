@@ -7,6 +7,7 @@ import {
   LogOut, Shield, Target, Rewind, Radiation,
   Sparkles, Dna, Zap, Flame, DollarSign, GitMerge,
   ChevronDown, ChevronRight, Sun, Moon, Search, PanelLeftClose, PanelLeftOpen,
+  FileText,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
@@ -28,6 +29,7 @@ const navSections: NavSection[] = [
       { path: '/agents', label: 'Agents', icon: Bot },
       { path: '/traces', label: 'Traces', icon: GitBranch },
       { path: '/incidents', label: 'Incidents', icon: Siren, badge: 'incidents' },
+      { path: '/security', label: 'Security', icon: Shield },
     ],
   },
   {
@@ -69,6 +71,8 @@ const navSections: NavSection[] = [
     label: 'Dev',
     items: [
       { path: '/playground', label: 'Playground', icon: FlaskConical },
+      { path: '/prompts', label: 'Prompts', icon: FileText },
+      { path: '/evals', label: 'Evals', icon: FlaskConical },
     ],
   },
 ]

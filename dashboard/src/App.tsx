@@ -26,6 +26,9 @@ import FlameGraph from './pages/FlameGraph'
 import CostAllocation from './pages/CostAllocation'
 import AlertCorrelation from './pages/AlertCorrelation'
 import Settings from './pages/Settings'
+import PromptManagement from './pages/PromptManagement'
+import EvalFramework from './pages/EvalFramework'
+import SecurityLayer from './pages/SecurityLayer'
 
 function App() {
   return (
@@ -62,6 +65,9 @@ function App() {
                     <Route path="/cost" element={<CostAllocation />} />
                     <Route path="/alerts" element={<AlertCorrelation />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/prompts" element={<PromptManagement />} />
+                    <Route path="/evals" element={<EvalFramework />} />
+                    <Route path="/security" element={<SecurityLayer />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>

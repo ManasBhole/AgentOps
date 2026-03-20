@@ -421,6 +421,89 @@ type AlertCluster struct {
 	CreatedAt   time.Time `gorm:"index" json:"created_at"`
 }
 
+// PromptTemplate stores versioned prompt templates with full change history.
+type PromptTemplate struct {
+	ID          string    `gorm:"primaryKey" json:"id"`
+	Name        string    `gorm:"index;not null" json:"name"`
+	Description string    `gorm:"type:text" json:"description"`
+	Content     string    `gorm:"type:text;not null" json:"content"`
+	Version     int       `json:"version"`
+	AgentID     string    `gorm:"index" json:"agent_id"`  // optional – scope to one agent
+	Tags        string    `gorm:"type:jsonb" json:"tags"` // []string
+	IsActive    bool      `gorm:"default:true" json:"is_active"`
+	CreatedBy   string    `json:"created_by"`
+	CreatedAt   time.Time `gorm:"index" json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// EvalSuite is a named collection of test cases for one agent.
+type EvalSuite struct {
+	ID          string    `gorm:"primaryKey" json:"id"`
+	Name        string    `gorm:"not null" json:"name"`
+	Description string    `gorm:"type:text" json:"description"`
+	AgentID     string    `gorm:"index" json:"agent_id"`
+	CreatedBy   string    `json:"created_by"`
+	CreatedAt   time.Time `gorm:"index" json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// EvalCase is a single test input + expected output within a suite.
+type EvalCase struct {
+	ID             string    `gorm:"primaryKey" json:"id"`
+	SuiteID        string    `gorm:"index;not null" json:"suite_id"`
+	Input          string    `gorm:"type:text;not null" json:"input"`
+	ExpectedOutput string    `gorm:"type:text" json:"expected_output"`
+	Tags           string    `gorm:"type:jsonb" json:"tags"`
+	CreatedAt      time.Time `json:"created_at"`
+}
+
+// EvalRun records one execution of a full EvalSuite.
+type EvalRun struct {
+	ID           string     `gorm:"primaryKey" json:"id"`
+	SuiteID      string     `gorm:"index;not null" json:"suite_id"`
+	Status       string     `json:"status"` // "pending" | "running" | "completed" | "failed"
+	TotalCases   int        `json:"total_cases"`
+	Passed       int        `json:"passed"`
+	Failed       int        `json:"failed"`
+	AvgScore     float64    `json:"avg_score"`
+	TotalCostUSD float64    `json:"total_cost_usd"`
+	AvgLatencyMs float64    `json:"avg_latency_ms"`
+	CreatedBy    string     `json:"created_by"`
+	StartedAt    time.Time  `gorm:"index" json:"started_at"`
+	CompletedAt  *time.Time `json:"completed_at,omitempty"`
+}
+
+// EvalResult is the per-case outcome of one EvalRun.
+type EvalResult struct {
+	ID            string    `gorm:"primaryKey" json:"id"`
+	RunID         string    `gorm:"index;not null" json:"run_id"`
+	CaseID        string    `gorm:"index;not null" json:"case_id"`
+	ActualOutput  string    `gorm:"type:text" json:"actual_output"`
+	Score         float64   `json:"score"`           // 0.0 – 1.0
+	Passed        bool      `json:"passed"`          // score >= 0.7
+	LatencyMs     int64     `json:"latency_ms"`
+	CostUSD       float64   `json:"cost_usd"`
+	Error         string    `json:"error,omitempty"`
+	CreatedAt     time.Time `json:"created_at"`
+}
+
+// SecurityEvent records a detected threat in agent input or output.
+type SecurityEvent struct {
+	ID             string     `gorm:"primaryKey" json:"id"`
+	AgentID        string     `gorm:"index" json:"agent_id"`
+	TraceID        string     `gorm:"index" json:"trace_id"`
+	EventType      string     `gorm:"index" json:"event_type"` // "prompt_injection" | "pii_detected" | "jailbreak" | "policy_violation"
+	Severity       string     `json:"severity"`                // "low" | "medium" | "high" | "critical"
+	Direction      string     `json:"direction"`               // "input" | "output"
+	PatternMatched string     `json:"pattern_matched"`
+	InputPreview   string     `gorm:"type:text" json:"input_preview"` // truncated, redacted
+	Remediation    string     `json:"remediation"`
+	Resolved       bool       `gorm:"default:false" json:"resolved"`
+	ResolvedBy     string     `json:"resolved_by,omitempty"`
+	ResolvedAt     *time.Time `json:"resolved_at,omitempty"`
+	CreatedAt      time.Time  `gorm:"index" json:"created_at"`
+}
+
 // Migrate runs database migrations
 func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -460,5 +543,14 @@ func Migrate(db *gorm.DB) error {
 		&AgentGenome{},
 		&ChaosExperiment{},
 		&AlertCluster{},
+		// Prompt Management
+		&PromptTemplate{},
+		// Eval Framework
+		&EvalSuite{},
+		&EvalCase{},
+		&EvalRun{},
+		&EvalResult{},
+		// Security & Safety
+		&SecurityEvent{},
 	)
 }

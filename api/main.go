@@ -317,6 +317,32 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.GET("/alerts/clusters", h.GetAlertClusters)
 		v1.POST("/alerts/correlate", middleware.RequireRole("nexus", "write"), h.CorrelateAlerts)
 		v1.POST("/alerts/clusters/:id/suppress", middleware.RequireRole("nexus", "write"), h.SuppressAlertCluster)
+
+		// Prompt Management
+		v1.GET("/prompts", h.ListPrompts)
+		v1.GET("/prompts/search", h.SearchPrompts)
+		v1.GET("/prompts/:id", h.GetPrompt)
+		v1.GET("/prompts/:id/versions", h.GetPromptVersions)
+		v1.POST("/prompts", middleware.RequireRole("agents", "write"), h.CreatePrompt)
+		v1.PUT("/prompts/:id", middleware.RequireRole("agents", "write"), h.UpdatePrompt)
+		v1.DELETE("/prompts/:id", middleware.RequireRole("agents", "write"), h.DeletePrompt)
+
+		// Eval Framework
+		v1.GET("/evals/suites", h.ListEvalSuites)
+		v1.POST("/evals/suites", middleware.RequireRole("agents", "write"), h.CreateEvalSuite)
+		v1.GET("/evals/suites/:id", h.GetEvalSuite)
+		v1.DELETE("/evals/suites/:id", middleware.RequireRole("agents", "write"), h.DeleteEvalSuite)
+		v1.POST("/evals/suites/:id/cases", middleware.RequireRole("agents", "write"), h.AddEvalCase)
+		v1.DELETE("/evals/suites/:id/cases/:caseID", middleware.RequireRole("agents", "write"), h.DeleteEvalCase)
+		v1.POST("/evals/suites/:id/run", middleware.RequireRole("agents", "write"), h.RunEvalSuite)
+		v1.GET("/evals/suites/:id/runs", h.ListEvalRuns)
+		v1.GET("/evals/runs/:runID", h.GetEvalRun)
+
+		// Security & Safety
+		v1.POST("/security/scan", h.SecurityScan)
+		v1.GET("/security/events", h.ListSecurityEvents)
+		v1.POST("/security/events/:id/resolve", middleware.RequireRole("nexus", "write"), h.ResolveSecurityEvent)
+		v1.GET("/security/stats", h.GetSecurityStats)
 	}
 
 	return router
