@@ -14,11 +14,12 @@ interface RouterLog {
 
 interface BudgetStatus {
   agent_id: string
-  daily_spend: number
-  daily_limit: number
-  monthly_spend: number
-  monthly_limit: number
-  status: string
+  daily_spend_usd: number
+  daily_limit_usd: number
+  monthly_spend_usd: number
+  monthly_limit_usd: number
+  daily_status: string
+  monthly_status: string
 }
 
 const COMPLEXITY_COLOR: Record<string, string> = {
@@ -63,7 +64,7 @@ export default function Analytics() {
 
   const { data: budgetsRaw } = useQuery<BudgetStatus[]>({
     queryKey: ['budgets'],
-    queryFn: async () => { const { data } = await api.get('/budgets'); return data ?? [] },
+    queryFn: async () => { const { data } = await api.get('/budgets'); return data.budgets ?? [] },
     refetchInterval: 30_000,
   })
   const budgets: BudgetStatus[] = Array.isArray(budgetsRaw) ? budgetsRaw : []
@@ -94,8 +95,8 @@ export default function Analytics() {
   const complexityBreakdown: Record<string, number> = { simple: 0, moderate: 0, complex: 0 }
   for (const log of logs) complexityBreakdown[log.complexity] = (complexityBreakdown[log.complexity] ?? 0) + 1
 
-  const totalBudgetSpend = budgets.reduce((s, b) => s + b.monthly_spend, 0)
-  const overBudget = budgets.filter(b => b.status === 'exceeded').length
+  const totalBudgetSpend = budgets.reduce((s, b) => s + b.monthly_spend_usd, 0)
+  const overBudget = budgets.filter(b => b.monthly_status === 'exceeded').length
 
   return (
     <div className="space-y-6">
@@ -196,14 +197,14 @@ export default function Analytics() {
                 {budgets.map(b => (
                   <tr key={b.agent_id} className="text-gray-300">
                     <td className="py-2.5 text-xs font-mono text-gray-400">{(b.agent_id ?? '').slice(0, 12)}…</td>
-                    <td className="py-2.5 text-xs">${b.daily_spend.toFixed(4)} / ${b.daily_limit.toFixed(2)}</td>
-                    <td className="py-2.5 text-xs">${b.monthly_spend.toFixed(4)} / ${b.monthly_limit.toFixed(2)}</td>
+                    <td className="py-2.5 text-xs">${b.daily_spend_usd.toFixed(4)} / ${b.daily_limit_usd.toFixed(2)}</td>
+                    <td className="py-2.5 text-xs">${b.monthly_spend_usd.toFixed(4)} / ${b.monthly_limit_usd.toFixed(2)}</td>
                     <td className="py-2.5">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        b.status === 'exceeded' ? 'bg-red-950 text-red-400 border border-red-900' :
-                        b.status === 'warning' ? 'bg-yellow-950 text-yellow-400 border border-yellow-900' :
+                        b.monthly_status === 'exceeded' ? 'bg-red-950 text-red-400 border border-red-900' :
+                        b.monthly_status === 'warning' ? 'bg-yellow-950 text-yellow-400 border border-yellow-900' :
                         'bg-emerald-950 text-emerald-400 border border-emerald-900'
-                      }`}>{b.status}</span>
+                      }`}>{b.monthly_status}</span>
                     </td>
                   </tr>
                 ))}
