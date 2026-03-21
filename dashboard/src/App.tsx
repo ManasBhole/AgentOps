@@ -29,6 +29,7 @@ import Settings from './pages/Settings'
 import PromptManagement from './pages/PromptManagement'
 import EvalFramework from './pages/EvalFramework'
 import SecurityLayer from './pages/SecurityLayer'
+import Register from './pages/Register'
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route
             path="/*"
             element={

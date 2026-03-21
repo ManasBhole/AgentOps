@@ -10,6 +10,44 @@ import (
 )
 
 
+// POST /auth/register — public self-service sign-up
+func (h *Handlers) PublicRegister(c *gin.Context) {
+	var req struct {
+		Name     string `json:"name" binding:"required"`
+		Email    string `json:"email" binding:"required,email"`
+		Password string `json:"password" binding:"required,min=8"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := h.authService.Register(req.Email, req.Name, req.Password, "admin")
+	if err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "email already registered"})
+		return
+	}
+
+	// Issue tokens so the client is logged in immediately after registering
+	access, refresh, _, err := h.authService.Login(req.Email, req.Password, c.Request.UserAgent(), c.ClientIP())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "account created but login failed"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"access_token":  access,
+		"refresh_token": refresh,
+		"token_type":    "Bearer",
+		"user": gin.H{
+			"id":    user.ID,
+			"email": user.Email,
+			"name":  user.Name,
+			"role":  user.Role,
+		},
+	})
+}
+
 // POST /auth/login
 func (h *Handlers) Login(c *gin.Context) {
 	var req struct {

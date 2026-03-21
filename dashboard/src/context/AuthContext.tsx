@@ -20,6 +20,7 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>
+  register: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   checkAccess: (resource: string, action: string) => boolean
 }
@@ -91,8 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const login = useCallback(async (email: string, password: string) => {
-    const { data } = await authApi.post('/auth/login', { email, password })
+  const storeSession = useCallback((data: { access_token: string; refresh_token: string; user: AuthUser }) => {
     localStorage.setItem(ACCESS_TOKEN_KEY, data.access_token)
     localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh_token)
     localStorage.setItem(USER_KEY, JSON.stringify(data.user))
@@ -100,6 +100,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authApi.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`
     setState({ user: data.user, accessToken: data.access_token, isLoading: false, isAuthenticated: true })
   }, [])
+
+  const login = useCallback(async (email: string, password: string) => {
+    const { data } = await authApi.post('/auth/login', { email, password })
+    storeSession(data)
+  }, [storeSession])
+
+  const register = useCallback(async (name: string, email: string, password: string) => {
+    const { data } = await authApi.post('/auth/register', { name, email, password })
+    storeSession(data)
+  }, [storeSession])
 
   const logout = useCallback(async () => {
     const refresh = localStorage.getItem(REFRESH_TOKEN_KEY)
@@ -116,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state.user])
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, checkAccess }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, checkAccess }}>
       {children}
     </AuthContext.Provider>
   )

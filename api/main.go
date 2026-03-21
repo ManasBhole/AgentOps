@@ -139,6 +139,7 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 	// ── Auth routes — public ─────────────────────────────────────────────────
 	auth := router.Group("/auth")
 	{
+		auth.POST("/register", h.PublicRegister)
 		auth.POST("/login", h.Login)
 		auth.POST("/logout", h.Logout)
 		auth.POST("/refresh", h.RefreshToken)
