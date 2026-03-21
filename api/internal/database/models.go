@@ -13,7 +13,7 @@ type Agent struct {
 	Type      string    `json:"type"`
 	Version   string    `json:"version"`
 	Status    string    `json:"status"` // active, paused, error
-	Config    string    `gorm:"type:jsonb" json:"config"`
+	Config    string    `gorm:"type:text" json:"config"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -31,8 +31,8 @@ type Trace struct {
 	EndTime    *time.Time `json:"end_time"`
 	Duration   int64      `json:"duration_ms"`
 	Status     string     `json:"status"` // ok, error
-	Attributes string     `gorm:"type:jsonb" json:"attributes"`
-	Events     string     `gorm:"type:jsonb" json:"events"`
+	Attributes string     `gorm:"type:text" json:"attributes"`
+	Events     string     `gorm:"type:text" json:"events"`
 	CreatedAt  time.Time  `json:"created_at"`
 }
 
@@ -47,8 +47,8 @@ type Incident struct {
 	RootCause        string     `gorm:"type:text" json:"root_cause"`
 	SuggestedFix     string     `gorm:"type:text" json:"suggested_fix"`
 	Confidence       float64    `json:"confidence"`
-	CorrelatedTraces string     `gorm:"type:jsonb" json:"correlated_traces"`
-	InfraMetrics     string     `gorm:"type:jsonb" json:"infra_metrics"`
+	CorrelatedTraces string     `gorm:"type:text" json:"correlated_traces"`
+	InfraMetrics     string     `gorm:"type:text" json:"infra_metrics"`
 	ResolvedAt       *time.Time `json:"resolved_at"`
 	CreatedAt        time.Time  `json:"created_at"`
 	UpdatedAt        time.Time  `json:"updated_at"`
@@ -61,7 +61,7 @@ type Deployment struct {
 	Namespace string    `json:"namespace"`
 	Replicas  int       `json:"replicas"`
 	Status    string    `json:"status"`
-	Config    string    `gorm:"type:jsonb" json:"config"`
+	Config    string    `gorm:"type:text" json:"config"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -96,7 +96,7 @@ type Webhook struct {
 	ID        string     `gorm:"primaryKey" json:"id"`
 	Name      string     `json:"name"`
 	URL       string     `gorm:"type:text" json:"url"`
-	Events    string     `gorm:"type:jsonb" json:"events"` // ["incident.created","incident.resolved","trace.error"]
+	Events    string     `gorm:"type:text" json:"events"` // ["incident.created","incident.resolved","trace.error"]
 	Secret    string     `json:"-"`                        // HMAC-SHA256 signing secret, never returned
 	Active    bool       `gorm:"default:true" json:"active"`
 	LastFired *time.Time `json:"last_fired,omitempty"`
@@ -259,7 +259,7 @@ type AuditEntry struct {
 	StatusCode int       `json:"status_code"`
 	IPAddress  string    `json:"ip_address"`
 	UserAgent  string    `json:"user_agent"`
-	Detail     string    `gorm:"type:jsonb" json:"detail"` // extra JSON payload
+	Detail     string    `gorm:"type:text" json:"detail"` // extra JSON payload
 	CreatedAt  time.Time `gorm:"index" json:"created_at"`
 }
 
@@ -272,7 +272,7 @@ type WarRoom struct {
 	Title        string     `json:"title"`
 	Status       string     `json:"status"`      // "active" | "resolved"
 	Commander    string     `json:"commander"`   // user_id of incident commander
-	Participants string     `gorm:"type:jsonb" json:"participants"` // []ParticipantInfo JSON
+	Participants string     `gorm:"type:text" json:"participants"` // []ParticipantInfo JSON
 	CreatedBy    string     `json:"created_by"`
 	CreatedAt    time.Time  `json:"created_at"`
 	ResolvedAt   *time.Time `json:"resolved_at,omitempty"`
@@ -311,7 +311,7 @@ type BlastRadiusSimulation struct {
 	ChangeType   string    `json:"change_type"` // "deploy" | "config" | "scale_down" | "rollback"
 	ChangeDesc   string    `gorm:"type:text" json:"change_desc"`
 	Iterations   int       `json:"iterations"`
-	Results      string    `gorm:"type:jsonb" json:"results"` // []BlastRadiusResult JSON
+	Results      string    `gorm:"type:text" json:"results"` // []BlastRadiusResult JSON
 	TotalAffected int      `json:"total_affected"`
 	MaxDepth     int       `json:"max_depth"`
 	CreatedBy    string    `json:"created_by"`
@@ -340,7 +340,7 @@ type TraceSnapshot struct {
 	RunID      string    `gorm:"index" json:"run_id"`
 	SeqNum     int       `json:"seq_num"`               // ordering within trace
 	SpanName   string    `json:"span_name"`
-	State      string    `gorm:"type:jsonb" json:"state"` // full agent state JSON
+	State      string    `gorm:"type:text" json:"state"` // full agent state JSON
 	TokensUsed int64     `json:"tokens_used"`
 	CostUSD    float64   `json:"cost_usd"`
 	DurationMs int64     `json:"duration_ms"`
@@ -397,7 +397,7 @@ type ChaosExperiment struct {
 	Intensity   float64    `json:"intensity"`
 	DurationSec int        `json:"duration_sec"`
 	Status      string     `json:"status"`
-	Results     string     `gorm:"type:jsonb" json:"results"`
+	Results     string     `gorm:"type:text" json:"results"`
 	Notes       string     `gorm:"type:text" json:"notes"`
 	CreatedBy   string     `json:"created_by"`
 	CreatedAt   time.Time  `gorm:"index" json:"created_at"`
@@ -409,9 +409,9 @@ type AlertCluster struct {
 	ID          string    `gorm:"primaryKey" json:"id"`
 	Label       string    `json:"label"`
 	Pattern     string    `gorm:"type:text" json:"pattern"`
-	IncidentIDs string    `gorm:"type:jsonb" json:"incident_ids"`
-	AnomalyIDs  string    `gorm:"type:jsonb" json:"anomaly_ids"`
-	AgentIDs    string    `gorm:"type:jsonb" json:"agent_ids"`
+	IncidentIDs string    `gorm:"type:text" json:"incident_ids"`
+	AnomalyIDs  string    `gorm:"type:text" json:"anomaly_ids"`
+	AgentIDs    string    `gorm:"type:text" json:"agent_ids"`
 	Confidence  float64   `json:"confidence"`
 	Severity    string    `json:"severity"`
 	Count       int       `json:"count"`
@@ -429,7 +429,7 @@ type PromptTemplate struct {
 	Content     string    `gorm:"type:text;not null" json:"content"`
 	Version     int       `json:"version"`
 	AgentID     string    `gorm:"index" json:"agent_id"`  // optional – scope to one agent
-	Tags        string    `gorm:"type:jsonb" json:"tags"` // []string
+	Tags        string    `gorm:"type:text" json:"tags"` // []string
 	IsActive    bool      `gorm:"default:true" json:"is_active"`
 	CreatedBy   string    `json:"created_by"`
 	CreatedAt   time.Time `gorm:"index" json:"created_at"`
@@ -453,7 +453,7 @@ type EvalCase struct {
 	SuiteID        string    `gorm:"index;not null" json:"suite_id"`
 	Input          string    `gorm:"type:text;not null" json:"input"`
 	ExpectedOutput string    `gorm:"type:text" json:"expected_output"`
-	Tags           string    `gorm:"type:jsonb" json:"tags"`
+	Tags           string    `gorm:"type:text" json:"tags"`
 	CreatedAt      time.Time `json:"created_at"`
 }
 

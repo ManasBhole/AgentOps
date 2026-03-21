@@ -41,6 +41,7 @@ func (s *ChaosService) RunExperiment(agentID, faultType, notes, createdBy string
 		Intensity:   intensity,
 		DurationSec: durationSec,
 		Status:      "running",
+		Results:     "null",
 		Notes:       notes,
 		CreatedBy:   createdBy,
 		CreatedAt:   time.Now().UTC(),
