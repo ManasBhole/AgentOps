@@ -23,6 +23,7 @@ export default function PromptManagement() {
   const [isNew, setIsNew] = useState(false)
   const [copied, setCopied] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [mutationError, setMutationError] = useState('')
 
   const { data: promptsData, isFetching, refetch } = useQuery({
     queryKey: ['prompts'],
@@ -44,28 +45,32 @@ export default function PromptManagement() {
   const versions: Prompt[] = versionsData?.versions ?? []
 
   const createMutation = useMutation({
-    mutationFn: async () => api.post('/prompts', {
+    mutationFn: async () => { const { data } = await api.post('/prompts', {
       name: form.name, description: form.description, content: form.content,
       agent_id: form.agent_id || undefined,
       tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-    }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['prompts'] }); setIsNew(false) },
+    }); return data },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['prompts'] }); setIsNew(false); setMutationError('') },
+    onError: (e: any) => setMutationError(e?.response?.data?.error ?? 'Failed to create prompt'),
   })
 
   const updateMutation = useMutation({
-    mutationFn: async () => api.put(`/prompts/${selected!.id}`, {
+    mutationFn: async () => { const { data } = await api.put(`/prompts/${selected!.id}`, {
       description: form.description, content: form.content,
       tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-    }),
-    onSuccess: (res) => {
+    }); return data },
+    onSuccess: (newVersion) => {
       qc.invalidateQueries({ queryKey: ['prompts'] })
-      setSelected(res.data)
+      setSelected(newVersion)
+      setMutationError('')
     },
+    onError: (e: any) => setMutationError(e?.response?.data?.error ?? 'Failed to save prompt'),
   })
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => api.delete(`/prompts/${id}`),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['prompts'] }); setSelected(null); setDeleteConfirm(null) },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['prompts'] }); setSelected(null); setDeleteConfirm(null); setMutationError('') },
+    onError: (e: any) => setMutationError(e?.response?.data?.error ?? 'Failed to delete prompt'),
   })
 
   // Deduplicate by name (show latest version only in list)
@@ -170,6 +175,12 @@ export default function PromptManagement() {
 
       {/* Right: Editor */}
       <div className="flex-1 flex flex-col gap-3 overflow-hidden">
+        {mutationError && (
+          <div className="flex items-center justify-between gap-2 bg-red-950 border border-red-900 rounded-lg px-4 py-2.5 text-sm text-red-400 flex-shrink-0">
+            <span>{mutationError}</span>
+            <button onClick={() => setMutationError('')} className="text-red-500 hover:text-red-300 flex-shrink-0 text-xs">✕</button>
+          </div>
+        )}
         {!selected && !isNew ? (
           <div className="flex-1 flex items-center justify-center bg-gray-900 border border-gray-800 rounded-xl">
             <div className="text-center">

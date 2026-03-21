@@ -43,9 +43,11 @@ export default function Incidents() {
     refetchInterval: 15_000,
   })
 
+  const [resolveError, setResolveError] = useState('')
   const resolveMutation = useMutation({
     mutationFn: (id: string) => api.post(`/incidents/${id}/resolve`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['incidents'] }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['incidents'] }); setResolveError('') },
+    onError: (e: any) => setResolveError(e?.response?.data?.error ?? 'Failed to resolve incident'),
   })
 
   const data = all.filter(i => {
@@ -59,6 +61,12 @@ export default function Incidents() {
 
   return (
     <div className="space-y-4">
+      {resolveError && (
+        <div className="flex items-center justify-between gap-2 bg-red-950 border border-red-900 rounded-lg px-4 py-2.5 text-sm text-red-400">
+          <span>{resolveError}</span>
+          <button onClick={() => setResolveError('')} className="text-red-500 hover:text-red-300 text-xs">✕</button>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-white">Incidents</h1>

@@ -73,14 +73,17 @@ export default function Settings() {
     enabled: canManageUsers,
   })
 
+  const [createUserError, setCreateUserError] = useState('')
   const createUserMutation = useMutation({
     mutationFn: async () => authApi.post('/auth/users', {
       email: newUserEmail, name: newUserName, password: newUserPass, role: newUserRole,
     }),
     onSuccess: () => {
       setNewUserEmail(''); setNewUserName(''); setNewUserPass(''); setNewUserRole('viewer')
+      setCreateUserError('')
       refetchUsers()
     },
+    onError: (e: any) => setCreateUserError(e?.response?.data?.error ?? 'Failed to create user'),
   })
 
   // API Keys
@@ -278,6 +281,9 @@ export default function Settings() {
                 </select>
               </div>
             </div>
+            {createUserError && (
+              <p className="text-xs text-red-400">{createUserError}</p>
+            )}
             <button
               onClick={() => createUserMutation.mutate()}
               disabled={!newUserEmail || !newUserName || !newUserPass || createUserMutation.isPending}

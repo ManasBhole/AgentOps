@@ -128,6 +128,7 @@ export default function ChaosEngineering() {
     refetchInterval: 5000,
   })
 
+  const [chaosError, setChaosError] = useState('')
   const runMutation = useMutation({
     mutationFn: async () => {
       const { data } = await api.post('/chaos/experiments', {
@@ -137,7 +138,9 @@ export default function ChaosEngineering() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['chaos-experiments'] })
+      setChaosError('')
     },
+    onError: (e: any) => setChaosError(e?.response?.data?.error ?? 'Failed to run experiment'),
   })
 
   const fetchResult = async (exp: ChaosExperiment) => {
@@ -160,6 +163,12 @@ export default function ChaosEngineering() {
 
   return (
     <div className="space-y-4">
+      {chaosError && (
+        <div className="flex items-center justify-between gap-2 bg-red-950 border border-red-900 rounded-lg px-4 py-2.5 text-sm text-red-400">
+          <span>{chaosError}</span>
+          <button onClick={() => setChaosError('')} className="text-red-500 hover:text-red-300 text-xs">✕</button>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Zap className="h-5 w-5 text-yellow-400" />

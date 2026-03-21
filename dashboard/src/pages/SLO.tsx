@@ -96,6 +96,7 @@ export default function SLO() {
     agent_id: '', name: '', sli_type: 'availability', target_value: '99.9',
     window_days: '30', threshold_ms: '2000',
   })
+  const [createError, setCreateError] = useState('')
 
   const { data: statusData, isFetching, refetch } = useQuery({
     queryKey: ['slo-statuses'],
@@ -123,12 +124,14 @@ export default function SLO() {
       window_days: parseInt(form.window_days),
       threshold_ms: parseInt(form.threshold_ms),
     }),
-    onSuccess: () => { setShowCreate(false); qc.invalidateQueries({ queryKey: ['slo-statuses'] }) },
+    onSuccess: () => { setShowCreate(false); setCreateError(''); qc.invalidateQueries({ queryKey: ['slo-statuses'] }) },
+    onError: (e: any) => setCreateError(e?.response?.data?.error ?? 'Failed to create SLO'),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/slo/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['slo-statuses'] }),
+    onError: (e: any) => setCreateError(e?.response?.data?.error ?? 'Failed to delete SLO'),
   })
 
   const critical = statuses.filter(s => s.alert === 'critical').length
@@ -154,6 +157,14 @@ export default function SLO() {
           </button>
         </div>
       </div>
+
+      {/* Error banner */}
+      {createError && (
+        <div className="flex items-center justify-between gap-2 bg-red-950 border border-red-900 rounded-lg px-4 py-2.5 text-sm text-red-400">
+          <span>{createError}</span>
+          <button onClick={() => setCreateError('')} className="text-red-500 hover:text-red-300 text-xs">✕</button>
+        </div>
+      )}
 
       {/* Fleet summary */}
       <div className="grid grid-cols-3 gap-3">

@@ -48,6 +48,7 @@ export default function EvalFramework() {
   const [newCaseExpected, setNewCaseExpected] = useState('')
   const [showAddCase, setShowAddCase] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [mutationError, setMutationError] = useState('')
 
   // Suites list
   const { data: suitesData, isFetching: suitesFetching, refetch: refetchSuites } = useQuery({
@@ -85,7 +86,8 @@ export default function EvalFramework() {
 
   const createSuiteMutation = useMutation({
     mutationFn: async () => api.post('/evals/suites', { name: newSuiteName, description: newSuiteDesc }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['eval-suites'] }); setShowNewSuite(false); setNewSuiteName(''); setNewSuiteDesc('') },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['eval-suites'] }); setShowNewSuite(false); setNewSuiteName(''); setNewSuiteDesc(''); setMutationError('') },
+    onError: (e: any) => setMutationError(e?.response?.data?.error ?? 'Failed to create suite'),
   })
 
   const deleteSuiteMutation = useMutation({
@@ -95,7 +97,8 @@ export default function EvalFramework() {
 
   const addCaseMutation = useMutation({
     mutationFn: async () => api.post(`/evals/suites/${selectedSuite!.id}/cases`, { input: newCaseInput, expected_output: newCaseExpected }),
-    onSuccess: () => { refetchDetail(); setNewCaseInput(''); setNewCaseExpected(''); setShowAddCase(false) },
+    onSuccess: () => { refetchDetail(); setNewCaseInput(''); setNewCaseExpected(''); setShowAddCase(false); setMutationError('') },
+    onError: (e: any) => setMutationError(e?.response?.data?.error ?? 'Failed to add case'),
   })
 
   const deleteCaseMutation = useMutation({
@@ -105,7 +108,8 @@ export default function EvalFramework() {
 
   const runMutation = useMutation({
     mutationFn: async () => { const { data } = await api.post(`/evals/suites/${selectedSuite!.id}/run`); return data },
-    onSuccess: (run) => { setSelectedRun(run); refetchRuns() },
+    onSuccess: (run) => { setSelectedRun(run); refetchRuns(); setMutationError('') },
+    onError: (e: any) => setMutationError(e?.response?.data?.error ?? 'Failed to start run'),
   })
 
   return (
@@ -128,6 +132,14 @@ export default function EvalFramework() {
           </button>
         </div>
       </div>
+
+      {/* Error banner */}
+      {mutationError && (
+        <div className="flex items-center justify-between gap-2 bg-red-950 border border-red-900 rounded-lg px-4 py-2.5 text-sm text-red-400">
+          <span>{mutationError}</span>
+          <button onClick={() => setMutationError('')} className="text-red-500 hover:text-red-300 flex-shrink-0 text-xs">✕</button>
+        </div>
+      )}
 
       {/* New suite form */}
       {showNewSuite && (

@@ -53,6 +53,7 @@ export default function Agents() {
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', type: 'llm', version: '1.0.0' })
+  const [agentError, setAgentError] = useState('')
 
   const { data: agents, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['agents'],
@@ -66,17 +67,21 @@ export default function Agents() {
       queryClient.invalidateQueries({ queryKey: ['agents'] })
       setShowForm(false)
       setForm({ name: '', type: 'llm', version: '1.0.0' })
+      setAgentError('')
     },
+    onError: (e: any) => setAgentError(e?.response?.data?.error ?? 'Failed to create agent'),
   })
 
   const toggleMutation = useMutation({
     mutationFn: toggleAgent,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['agents'] }),
+    onError: (e: any) => setAgentError(e?.response?.data?.error ?? 'Failed to update agent'),
   })
 
   const deleteMutation = useMutation({
     mutationFn: deleteAgent,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['agents'] }),
+    onError: (e: any) => setAgentError(e?.response?.data?.error ?? 'Failed to delete agent'),
   })
 
   const handleCreate = (e: React.FormEvent) => {
@@ -94,6 +99,12 @@ export default function Agents() {
 
   return (
     <div className="space-y-4">
+      {agentError && (
+        <div className="flex items-center justify-between gap-2 bg-red-950 border border-red-900 rounded-lg px-4 py-2.5 text-sm text-red-400">
+          <span>{agentError}</span>
+          <button onClick={() => setAgentError('')} className="text-red-500 hover:text-red-300 text-xs">✕</button>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

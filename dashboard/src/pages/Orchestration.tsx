@@ -84,6 +84,7 @@ export default function Orchestration() {
   const [cbTarget, setCbTarget] = useState('')
   const [cbSettings, setCbSettings] = useState({ enabled: true, threshold: 5, timeout_s: 30 })
   const [showCb, setShowCb] = useState(false)
+  const [orchError, setOrchError] = useState('')
 
   const deployMutation = useMutation({
     mutationFn: deployAgent,
@@ -91,7 +92,9 @@ export default function Orchestration() {
       queryClient.invalidateQueries({ queryKey: ['deployments'] })
       setShowDeploy(false)
       setDeployForm({ agent_id: '', namespace: 'production', replicas: 1 })
+      setOrchError('')
     },
+    onError: (e: any) => setOrchError(e?.response?.data?.error ?? 'Deploy failed'),
   })
 
   const scaleMutation = useMutation({
@@ -99,7 +102,9 @@ export default function Orchestration() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deployments'] })
       setScaleTarget(null)
+      setOrchError('')
     },
+    onError: (e: any) => setOrchError(e?.response?.data?.error ?? 'Scale failed'),
   })
 
   const cbMutation = useMutation({
@@ -107,7 +112,9 @@ export default function Orchestration() {
     onSuccess: () => {
       setShowCb(false)
       setCbTarget('')
+      setOrchError('')
     },
+    onError: (e: any) => setOrchError(e?.response?.data?.error ?? 'Circuit breaker update failed'),
   })
 
   const activeCount  = deployments?.filter(d => d.status === 'active').length  ?? 0
@@ -115,6 +122,12 @@ export default function Orchestration() {
 
   return (
     <div className="space-y-4">
+      {orchError && (
+        <div className="flex items-center justify-between gap-2 bg-red-950 border border-red-900 rounded-lg px-4 py-2.5 text-sm text-red-400">
+          <span>{orchError}</span>
+          <button onClick={() => setOrchError('')} className="text-red-500 hover:text-red-300 text-xs">✕</button>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
