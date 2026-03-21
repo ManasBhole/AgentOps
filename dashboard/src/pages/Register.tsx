@@ -31,7 +31,8 @@ export default function Register() {
     try {
       await register(name, email, password)
     } catch (err: any) {
-      setError(err?.response?.data?.error ?? 'Registration failed. Please try again.')
+      const body = err?.response?.data
+      setError(body?.error ?? body?.message ?? `Registration failed (${err?.response?.status ?? 'network error'})`)
     } finally {
       setLoading(false)
     }
