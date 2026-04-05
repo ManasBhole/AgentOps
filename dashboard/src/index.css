@@ -2,27 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Inter font ─────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-/* ── Light mode overrides ──────────────────────────────────────────────────── */
-html.light { color-scheme: light; }
+/* ── Design tokens — dark (default) ─────────────────────────────────────────── */
+:root {
+  --bg-page:       #070C1A;
+  --bg-sidebar:    #0A1020;
+  --bg-header:     rgba(10, 16, 32, 0.92);
+  --bg-card:       #0D1526;
+  --bg-input:      #111827;
+  --bg-popover:    #0D1526;
+  --bg-kbd:        #1a2236;
 
-/* ── Base grays ── */
-html.light .bg-gray-950   { background-color: #f1f5f9 !important; }
+  --border-subtle:  rgba(255, 255, 255, 0.05);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong:  rgba(255, 255, 255, 0.14);
+
+  --text-primary:  #e2e8f0;
+  --text-secondary:#94a3b8;
+  --text-muted:    #64748b;
+  --text-faint:    #3d4f6a;
+
+  --accent:        #6366f1;
+  --accent-glow:   rgba(99, 102, 241, 0.3);
+
+  --shadow-lg:     0 20px 60px -10px rgba(0, 0, 0, 0.7), 0 4px 16px -4px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Design tokens — light ───────────────────────────────────────────────────── */
+html.light {
+  color-scheme: light;
+
+  --bg-page:       #f4f6fb;
+  --bg-sidebar:    #ffffff;
+  --bg-header:     rgba(255, 255, 255, 0.92);
+  --bg-card:       #ffffff;
+  --bg-input:      #f8fafc;
+  --bg-popover:    #ffffff;
+  --bg-kbd:        #f1f5f9;
+
+  --border-subtle:  rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.10);
+  --border-strong:  rgba(0, 0, 0, 0.16);
+
+  --text-primary:  #0f172a;
+  --text-secondary:#334155;
+  --text-muted:    #64748b;
+  --text-faint:    #94a3b8;
+
+  --accent:        #6366f1;
+  --accent-glow:   rgba(99, 102, 241, 0.12);
+
+  --shadow-lg:     0 10px 40px -8px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* ── Light mode — Tailwind class overrides ───────────────────────────────────── */
+html.light .bg-gray-950   { background-color: #f4f6fb !important; }
 html.light .bg-gray-900   { background-color: #ffffff !important; }
-html.light .bg-gray-900\/80 { background-color: rgba(255,255,255,0.9) !important; }
+html.light .bg-gray-900\/80 { background-color: rgba(255,255,255,0.92) !important; }
 html.light .bg-gray-900\/50 { background-color: rgba(255,255,255,0.6) !important; }
 html.light .bg-gray-900\/40 { background-color: rgba(255,255,255,0.5) !important; }
 html.light .bg-gray-800   { background-color: #f1f5f9 !important; }
@@ -31,7 +86,6 @@ html.light .bg-gray-800\/60 { background-color: rgba(241,245,249,0.7) !important
 html.light .bg-gray-800\/70 { background-color: rgba(241,245,249,0.8) !important; }
 html.light .bg-gray-700   { background-color: #e2e8f0 !important; }
 
-/* ── Text ── */
 html.light .text-white    { color: #0f172a !important; }
 html.light .text-gray-100 { color: #1e293b !important; }
 html.light .text-gray-200 { color: #1e293b !important; }
@@ -40,20 +94,17 @@ html.light .text-gray-400 { color: #475569 !important; }
 html.light .text-gray-500 { color: #64748b !important; }
 html.light .text-gray-600 { color: #94a3b8 !important; }
 
-/* ── Borders ── */
-html.light .border-gray-800    { border-color: #e2e8f0 !important; }
+html.light .border-gray-800     { border-color: #e2e8f0 !important; }
 html.light .border-gray-800\/60 { border-color: rgba(226,232,240,0.7) !important; }
-html.light .border-gray-700    { border-color: #cbd5e1 !important; }
+html.light .border-gray-700     { border-color: #cbd5e1 !important; }
 html.light .border-gray-700\/60 { border-color: rgba(203,213,225,0.6) !important; }
 
-/* ── Hovers & dividers ── */
 html.light .hover\:bg-gray-800:hover     { background-color: #e2e8f0 !important; }
 html.light .hover\:bg-gray-800\/50:hover { background-color: rgba(226,232,240,0.6) !important; }
 html.light .divide-gray-800 > * + *      { border-color: #e2e8f0 !important; }
-html.light .shadow-black\/40 { box-shadow: 0 4px 12px -2px rgba(0,0,0,0.08), 0 2px 6px -1px rgba(0,0,0,0.04) !important; }
-html.light .shadow-black\/60 { box-shadow: 0 8px 24px -4px rgba(0,0,0,0.12) !important; }
+html.light .shadow-black\/40 { box-shadow: 0 4px 12px -2px rgba(0,0,0,0.08) !important; }
+html.light .shadow-black\/60 { box-shadow: 0 8px 24px -4px rgba(0,0,0,0.10) !important; }
 
-/* ── Form inputs & selects ── */
 html.light input,
 html.light textarea,
 html.light select {
@@ -68,25 +119,23 @@ html.light textarea:focus,
 html.light select:focus { border-color: #6366f1 !important; }
 html.light select option { background-color: #ffffff; color: #0f172a; }
 
-/* ── Semantic "tinted dark" backgrounds → light equivalents ── */
-html.light .bg-indigo-950    { background-color: #eef2ff !important; }
-html.light .bg-indigo-950\/40 { background-color: rgba(238,242,255,0.7) !important; }
-html.light .bg-indigo-950\/50 { background-color: rgba(238,242,255,0.8) !important; }
-html.light .bg-red-950       { background-color: #fff1f2 !important; }
-html.light .bg-red-950\/30   { background-color: rgba(255,241,242,0.5) !important; }
-html.light .bg-orange-950    { background-color: #fff7ed !important; }
-html.light .bg-orange-950\/20 { background-color: rgba(255,247,237,0.5) !important; }
-html.light .bg-yellow-950    { background-color: #fefce8 !important; }
-html.light .bg-yellow-950\/30 { background-color: rgba(254,252,232,0.5) !important; }
-html.light .bg-purple-950    { background-color: #faf5ff !important; }
-html.light .bg-purple-950\/40 { background-color: rgba(250,245,255,0.7) !important; }
-html.light .bg-emerald-950   { background-color: #f0fdf4 !important; }
+html.light .bg-indigo-950      { background-color: #eef2ff !important; }
+html.light .bg-indigo-950\/40  { background-color: rgba(238,242,255,0.7) !important; }
+html.light .bg-indigo-950\/50  { background-color: rgba(238,242,255,0.8) !important; }
+html.light .bg-red-950         { background-color: #fff1f2 !important; }
+html.light .bg-red-950\/30     { background-color: rgba(255,241,242,0.5) !important; }
+html.light .bg-orange-950      { background-color: #fff7ed !important; }
+html.light .bg-orange-950\/20  { background-color: rgba(255,247,237,0.5) !important; }
+html.light .bg-yellow-950      { background-color: #fefce8 !important; }
+html.light .bg-yellow-950\/30  { background-color: rgba(254,252,232,0.5) !important; }
+html.light .bg-purple-950      { background-color: #faf5ff !important; }
+html.light .bg-purple-950\/40  { background-color: rgba(250,245,255,0.7) !important; }
+html.light .bg-emerald-950     { background-color: #f0fdf4 !important; }
 html.light .bg-emerald-950\/30 { background-color: rgba(240,253,244,0.5) !important; }
-html.light .bg-cyan-950      { background-color: #ecfeff !important; }
-html.light .bg-teal-950      { background-color: #f0fdfa !important; }
-html.light .bg-blue-950      { background-color: #eff6ff !important; }
+html.light .bg-cyan-950        { background-color: #ecfeff !important; }
+html.light .bg-teal-950        { background-color: #f0fdfa !important; }
+html.light .bg-blue-950        { background-color: #eff6ff !important; }
 
-/* ── Semantic dark borders ── */
 html.light .border-indigo-900  { border-color: #a5b4fc !important; }
 html.light .border-indigo-800  { border-color: #c7d2fe !important; }
 html.light .border-red-900     { border-color: #fca5a5 !important; }
@@ -97,7 +146,6 @@ html.light .border-purple-900\/40 { border-color: rgba(216,180,254,0.5) !importa
 html.light .border-emerald-900 { border-color: #6ee7b7 !important; }
 html.light .border-cyan-900    { border-color: #67e8f9 !important; }
 
-/* ── Semantic bright badge/accent text ── */
 html.light .text-indigo-300    { color: #4338ca !important; }
 html.light .text-indigo-400    { color: #4f46e5 !important; }
 html.light .text-red-300       { color: #dc2626 !important; }
@@ -116,7 +164,6 @@ html.light .text-cyan-400      { color: #06b6d4 !important; }
 html.light .text-teal-300      { color: #0f766e !important; }
 html.light .text-blue-300      { color: #1d4ed8 !important; }
 
-/* ── Badge/chip backgrounds that use dark shades ── */
 html.light .bg-indigo-900\/60  { background-color: rgba(199,210,254,0.5) !important; }
 html.light .bg-yellow-900\/60  { background-color: rgba(253,230,138,0.5) !important; }
 html.light .bg-red-900         { background-color: #fee2e2 !important; }
@@ -125,7 +172,6 @@ html.light .bg-orange-900      { background-color: #ffedd5 !important; }
 html.light .bg-emerald-900\/60 { background-color: rgba(167,243,208,0.5) !important; }
 html.light .bg-gray-900\/60    { background-color: rgba(241,245,249,0.6) !important; }
 
-/* ── SVG and chart axes ── */
 html.light .recharts-text { fill: #475569 !important; }
 html.light .recharts-cartesian-grid-horizontal line,
 html.light .recharts-cartesian-grid-vertical line { stroke: #e2e8f0 !important; }
@@ -134,8 +180,3 @@ html.light .recharts-tooltip-wrapper .recharts-default-tooltip {
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
-
-/* ── Scrollbar (light) ── */
-html.light ::-webkit-scrollbar-track { background: #f1f5f9; }
-html.light ::-webkit-scrollbar-thumb { background: #cbd5e1; }
-html.light ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
