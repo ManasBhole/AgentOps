@@ -1,7 +1,7 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://concerns-commitments-likely-meyer.trycloudflare.com/api/:path*" },
-    { "source": "/auth/:path*", "destination": "https://concerns-commitments-likely-meyer.trycloudflare.com/auth/:path*" },
+    { "source": "/api/:path*", "destination": "https://tue-programming-executed-ahead.trycloudflare.com/api/:path*" },
+    { "source": "/auth/:path*", "destination": "https://tue-programming-executed-ahead.trycloudflare.com/auth/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
