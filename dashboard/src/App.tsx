@@ -31,6 +31,8 @@ import EvalFramework from './pages/EvalFramework'
 import SecurityLayer from './pages/SecurityLayer'
 import Register from './pages/Register'
 import Integrations from './pages/Integrations'
+import ABTesting from './pages/ABTesting'
+import RedTeam from './pages/RedTeam'
 
 function App() {
   return (
@@ -72,6 +74,8 @@ function App() {
                     <Route path="/evals" element={<EvalFramework />} />
                     <Route path="/security" element={<SecurityLayer />} />
                     <Route path="/integrations" element={<Integrations />} />
+                    <Route path="/redteam" element={<RedTeam />} />
+                    <Route path="/abtesting" element={<ABTesting />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>

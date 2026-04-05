@@ -554,5 +554,12 @@ func Migrate(db *gorm.DB) error {
 		&SecurityEvent{},
 		// AI Analysis
 		&AIIncidentAnalysis{},
+		// A/B Testing
+		&ABTest{},
+		&ABTestResult{},
+		// Red Team Engine
+		&RedTeamVector{},
+		&RedTeamScan{},
+		&RedTeamFinding{},
 	)
 }

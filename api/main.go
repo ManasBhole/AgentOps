@@ -56,6 +56,9 @@ func main() {
 	orchestrationService := services.NewOrchestrationService(db, logger, cfg)
 	traceService := services.NewTraceService(db, logger)
 
+	// Seed red team attack vectors (idempotent)
+	services.NewRedTeamService(db, logger, cfg.LLMAPIKey).SeedVectors()
+
 	// Initialize handlers
 	h := handlers.NewHandlers(
 		db,
@@ -320,6 +323,14 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.POST("/alerts/correlate", middleware.RequireRole("nexus", "write"), h.CorrelateAlerts)
 		v1.POST("/alerts/clusters/:id/suppress", middleware.RequireRole("nexus", "write"), h.SuppressAlertCluster)
 
+		// Prompt A/B Testing
+		v1.GET("/prompts/ab-tests", h.ListABTests)
+		v1.POST("/prompts/ab-tests", middleware.RequireRole("agents", "write"), h.CreateABTest)
+		v1.GET("/prompts/ab-tests/:id", h.GetABTest)
+		v1.POST("/prompts/ab-tests/:id/record", middleware.RequireRole("agents", "write"), h.RecordABResult)
+		v1.POST("/prompts/ab-tests/:id/simulate", middleware.RequireRole("agents", "write"), h.SimulateABResults)
+		v1.POST("/prompts/ab-tests/:id/conclude", middleware.RequireRole("agents", "write"), h.ConcludeABTest)
+
 		// Prompt Management
 		v1.GET("/prompts", h.ListPrompts)
 		v1.GET("/prompts/search", h.SearchPrompts)
@@ -339,6 +350,13 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.POST("/evals/suites/:id/run", middleware.RequireRole("agents", "write"), h.RunEvalSuite)
 		v1.GET("/evals/suites/:id/runs", h.ListEvalRuns)
 		v1.GET("/evals/runs/:runID", h.GetEvalRun)
+
+		// Red Team Engine
+		v1.GET("/redteam/vectors", h.ListRedTeamVectors)
+		v1.GET("/redteam/scores", h.FleetSecurityScores)
+		v1.POST("/redteam/scan", middleware.RequireRole("nexus", "write"), h.RunRedTeamScan)
+		v1.GET("/redteam/scans", h.ListRedTeamScans)
+		v1.GET("/redteam/scans/:id", h.GetRedTeamScan)
 
 		// SDK Ingest
 		v1.POST("/ingest", h.IngestEvent)

@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Bot, GitBranch, Siren, Layers, Brain, Settings,
   Bell, BellRing, BellOff, CheckCircle2, AlertTriangle,
   FlaskConical, BarChart3, Rocket, ScrollText, Cpu,
-  LogOut, Shield, Target, Rewind, Radiation,
+  LogOut, Shield, ShieldAlert, Target, Rewind, Radiation,
   Sparkles, Dna, Zap, Flame, DollarSign, GitMerge,
   Sun, Moon, Search, PanelLeftClose, PanelLeftOpen,
   FileText, ChevronDown,
@@ -87,9 +87,11 @@ const navSections: NavSection[] = [
     colorHex: '#fb923c',
     items: [
       { path: '/playground',   label: 'Playground',   icon: FlaskConical },
-      { path: '/prompts',      label: 'Prompts',       icon: FileText },
-      { path: '/evals',        label: 'Evals',         icon: FlaskConical },
-      { path: '/integrations', label: 'Integrations',  icon: Zap },
+      { path: '/prompts',      label: 'Prompts',      icon: FileText },
+      { path: '/evals',        label: 'Evals',        icon: FlaskConical },
+      { path: '/abtesting',    label: 'A/B Testing',  icon: GitBranch },
+      { path: '/integrations', label: 'Integrations', icon: Zap },
+      { path: '/redteam',      label: 'Red Team',     icon: ShieldAlert },
     ],
   },
 ]
