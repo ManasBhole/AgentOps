@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import OrionIllustration from '../components/OrionIllustration'
 
 export default function Register() {
   const { isAuthenticated, register } = useAuth()
@@ -34,7 +35,24 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12" style={{ background: 'var(--bg-page)' }}>
+    <div className="min-h-screen flex" style={{ background: 'var(--bg-page)' }}>
+      {/* Left panel — illustration */}
+      <div className="hidden lg:flex flex-col w-[460px] flex-shrink-0 relative overflow-hidden"
+        style={{ borderRight: '1px solid var(--border-subtle)' }}>
+        <OrionIllustration />
+        <div className="absolute bottom-0 left-0 right-0 p-8"
+          style={{ background: 'linear-gradient(to top, rgba(6,11,24,0.95) 0%, rgba(6,11,24,0.6) 60%, transparent 100%)' }}>
+          <h2 className="text-2xl font-bold leading-snug mb-2" style={{ color: '#e2e8f0' }}>
+            Join the mission.<br />Control your agents.
+          </h2>
+          <p className="text-xs leading-relaxed" style={{ color: '#64748b' }}>
+            Set up in minutes. Monitor every trace, every cost, every anomaly.
+          </p>
+        </div>
+      </div>
+
+      {/* Right panel — form */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
@@ -133,6 +151,7 @@ export default function Register() {
           Already have an account?{' '}
           <Link to="/login" className="font-semibold" style={{ color: '#818cf8' }}>Sign in</Link>
         </p>
+      </div>
       </div>
     </div>
   )

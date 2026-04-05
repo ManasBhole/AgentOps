@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import OrionIllustration from '../components/OrionIllustration'
 
 export default function Login() {
   const { isAuthenticated, login } = useAuth()
@@ -27,44 +28,32 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--bg-page)' }}>
-      {/* Left panel — branding */}
-      <div className="hidden lg:flex flex-col justify-between w-[420px] flex-shrink-0 p-10"
-        style={{ background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border-subtle)' }}>
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 12px rgba(99,102,241,0.4)' }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="3" r="1.5" fill="white" fillOpacity="0.95" />
-              <circle cx="4" cy="9" r="1.2" fill="white" fillOpacity="0.75" />
-              <circle cx="12" cy="9" r="1.2" fill="white" fillOpacity="0.75" />
-              <circle cx="6" cy="13" r="0.9" fill="white" fillOpacity="0.5" />
-              <circle cx="10" cy="13" r="0.9" fill="white" fillOpacity="0.5" />
-              <line x1="8" y1="3" x2="4" y2="9" stroke="white" strokeOpacity="0.3" strokeWidth="0.7" />
-              <line x1="8" y1="3" x2="12" y2="9" stroke="white" strokeOpacity="0.3" strokeWidth="0.7" />
-            </svg>
-          </div>
-          <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Orion</span>
-        </div>
+      {/* Left panel — illustration */}
+      <div className="hidden lg:flex flex-col w-[460px] flex-shrink-0 relative overflow-hidden"
+        style={{ borderRight: '1px solid var(--border-subtle)' }}>
+        <OrionIllustration />
 
-        <div>
-          <h2 className="text-3xl font-bold leading-snug mb-4" style={{ color: 'var(--text-primary)' }}>
+        {/* Overlay text at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-8"
+          style={{ background: 'linear-gradient(to top, rgba(6,11,24,0.95) 0%, rgba(6,11,24,0.6) 60%, transparent 100%)' }}>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="3" r="1.5" fill="white" />
+                <circle cx="4" cy="9" r="1.2" fill="white" fillOpacity="0.8" />
+                <circle cx="12" cy="9" r="1.2" fill="white" fillOpacity="0.8" />
+              </svg>
+            </div>
+            <span className="text-xs font-bold tracking-wide" style={{ color: 'var(--text-muted)' }}>ORION</span>
+          </div>
+          <h2 className="text-2xl font-bold leading-snug mb-2" style={{ color: '#e2e8f0' }}>
             Your AI operations<br />command center.
           </h2>
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            Observe, debug, and optimize every AI agent in production — with real-time traces, SLO tracking, and intelligent anomaly detection.
+          <p className="text-xs leading-relaxed" style={{ color: '#64748b' }}>
+            Observe every agent, debug in real-time, and ship with confidence.
           </p>
-
-          <div className="mt-10 space-y-3">
-            {['Real-time agent observability', 'Chaos engineering & resilience testing', 'Intelligent cost optimization'].map(f => (
-              <div key={f} className="flex items-center gap-2.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#6366f1' }} />
-                {f}
-              </div>
-            ))}
-          </div>
         </div>
-
-        <p className="text-xs" style={{ color: 'var(--text-faint)' }}>© 2026 Orion · AI Agent Observability</p>
       </div>
 
       {/* Right panel — form */}
