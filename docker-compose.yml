@@ -31,7 +31,7 @@ services:
 
   api:
     build:
-      context: .
+      context: ./api
       dockerfile: Dockerfile
     environment:
       PORT: 8080

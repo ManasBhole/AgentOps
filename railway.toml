@@ -1,0 +1,13 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "api/Dockerfile"
+buildCommand = ""
+
+[deploy]
+startCommand = "./orion-api"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[environments.production]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
