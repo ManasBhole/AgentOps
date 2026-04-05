@@ -141,8 +141,6 @@ export default function Layout({ children }: LayoutProps) {
   const isActive = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)
 
-  // Find accent color for current active section
-  const activeSection = navSections.find(s => s.items.some(i => isActive(i.path)))
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}>
