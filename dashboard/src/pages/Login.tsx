@@ -22,7 +22,15 @@ export default function Login() {
     if (!email || !password) return
     setLoading(true); setError('')
     try { await login(email, password) }
-    catch (err: any) { setError(err?.response?.data?.error ?? 'Invalid email or password') }
+    catch (err: any) {
+      if (err?.response?.data?.error) {
+        setError(err.response.data.error)
+      } else if (err?.code === 'ERR_NETWORK' || !err?.response) {
+        setError('Cannot reach server — check your connection or try again in a moment')
+      } else {
+        setError(`Error ${err?.response?.status ?? ''}: ${err?.message ?? 'Login failed'}`)
+      }
+    }
     finally { setLoading(false) }
   }
 
