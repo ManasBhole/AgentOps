@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/database"
 )
 
 // TopologyGraph is the response DTO for the force-directed graph renderer.

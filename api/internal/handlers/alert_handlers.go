@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/agentops/agentops/api/internal/services"
+	"github.com/manasbhole/orion/api/internal/services"
 )
 
 // GET /api/v1/alerts/clusters

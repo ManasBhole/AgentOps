@@ -1,4 +1,4 @@
-module github.com/agentops/agentops/api
+module github.com/manasbhole/orion/api
 
 go 1.21
 

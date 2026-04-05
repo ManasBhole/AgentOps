@@ -219,7 +219,7 @@ type TopologyEdge struct {
 	WindowStart   time.Time `gorm:"index" json:"window_start"`
 }
 
-// User represents a human operator of the AgentOps platform.
+// User represents a human operator of the Orion platform.
 // Roles: owner | admin | viewer | agent-runner
 type User struct {
 	ID           string    `gorm:"primaryKey" json:"id"`

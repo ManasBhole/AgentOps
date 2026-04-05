@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/database"
 )
 
 type WebhookService struct {
@@ -107,7 +107,7 @@ func (s *WebhookService) Test(id string) (int, string, error) {
 	body, _ := json.Marshal(map[string]interface{}{
 		"event":     "webhook.test",
 		"timestamp": time.Now().UTC(),
-		"payload":   map[string]string{"message": "Test ping from AgentOps"},
+		"payload":   map[string]string{"message": "Test ping from Orion"},
 	})
 	status, msg := s.doRequest(hook, body)
 	return status, msg, nil
@@ -135,12 +135,12 @@ func (s *WebhookService) doRequest(hook database.Webhook, body []byte) (int, str
 		return 0, err.Error()
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "AgentOps-Webhook/1.0")
-	req.Header.Set("X-AgentOps-Event", "webhook")
+	req.Header.Set("User-Agent", "Orion-Webhook/1.0")
+	req.Header.Set("X-Orion-Event", "webhook")
 	// HMAC signature so receiver can verify authenticity
 	if hook.Secret != "" {
 		sig := computeHMAC(body, hook.Secret)
-		req.Header.Set("X-AgentOps-Signature", "sha256="+sig)
+		req.Header.Set("X-Orion-Signature", "sha256="+sig)
 	}
 	resp, err := s.client.Do(req)
 	if err != nil {

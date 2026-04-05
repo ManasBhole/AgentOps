@@ -18,7 +18,7 @@ const SEV_ICON: Record<string, string> = {
   low: '🔵',
 }
 
-const STORAGE_KEY = 'agentops_push_enabled'
+const STORAGE_KEY = 'orion_push_enabled'
 
 export function useNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>(

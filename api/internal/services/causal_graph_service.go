@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/database"
 )
 
 // CausalGraph is the response DTO for the UI's DAG renderer.

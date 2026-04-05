@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/database"
 	"gorm.io/gorm"
 )
 

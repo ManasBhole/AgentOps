@@ -14,7 +14,7 @@ processors:
 exporters:
   logging:
     loglevel: debug
-  otlp/agentops:
+  otlp/orion:
     endpoint: api:8080
     tls:
       insecure: true
@@ -24,7 +24,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, otlp/agentops]
+      exporters: [logging, otlp/orion]
     metrics:
       receivers: [otlp]
       processors: [batch]

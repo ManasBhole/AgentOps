@@ -14,11 +14,11 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/agentops/agentops/api/internal/config"
-	"github.com/agentops/agentops/api/internal/database"
-	"github.com/agentops/agentops/api/internal/handlers"
-	"github.com/agentops/agentops/api/internal/middleware"
-	"github.com/agentops/agentops/api/internal/services"
+	"github.com/manasbhole/orion/api/internal/config"
+	"github.com/manasbhole/orion/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/handlers"
+	"github.com/manasbhole/orion/api/internal/middleware"
+	"github.com/manasbhole/orion/api/internal/services"
 )
 
 func main() {
@@ -132,7 +132,7 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  "healthy",
-			"service": "agentops-api",
+			"service": "orion-api",
 		})
 	})
 

@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/agentops/agentops/api/internal/database"
-	"github.com/agentops/agentops/api/internal/middleware"
+	"github.com/manasbhole/orion/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/middleware"
 )
 
 // POST /api/v1/nlq/query

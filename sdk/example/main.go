@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	agentops "github.com/ManasBhole/AgentOps/sdk"
+	orion "github.com/ManasBhole/AgentOps/sdk"
 )
 
 func main() {
 	// Initialize tracer
-	tracer, err := agentops.NewAgentTracer(agentops.Config{
+	tracer, err := orion.NewAgentTracer(orion.Config{
 		ServiceName:         "example-agent",
 		Endpoint:            "localhost:4317",
 		CollectInfraMetrics: true,

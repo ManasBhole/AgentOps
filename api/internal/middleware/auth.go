@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/agentops/agentops/api/internal/services"
+	"github.com/manasbhole/orion/api/internal/services"
 )
 
 const claimsKey = "auth_claims"

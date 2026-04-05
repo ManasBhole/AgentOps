@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: agentops
+      POSTGRES_DB: orion
     ports:
       - "5432:5432"
     volumes:
@@ -36,7 +36,7 @@ services:
     environment:
       PORT: 8080
       ENVIRONMENT: development
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/agentops?sslmode=disable
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/orion?sslmode=disable
       REDIS_URL: redis://redis:6379
       OTLP_ENDPOINT: otel-collector:4317
       CORS_ORIGINS: "*"

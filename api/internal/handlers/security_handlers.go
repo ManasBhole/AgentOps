@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/database"
 )
 
 // ── Threat patterns ──────────────────────────────────────────────────────────

@@ -47,7 +47,7 @@ export default function Register() {
           <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-indigo-900/50">
             <Bot className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">AgentOps</h1>
+          <h1 className="text-2xl font-bold text-white">Orion</h1>
           <p className="text-sm text-gray-400 mt-1">Create your account</p>
         </div>
 
@@ -166,7 +166,7 @@ export default function Register() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-700 mt-6">AgentOps · AI Agent Observability</p>
+        <p className="text-center text-xs text-gray-700 mt-6">Orion · AI Agent Observability</p>
       </div>
     </div>
   )

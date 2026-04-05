@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 
-	"github.com/agentops/agentops/api/internal/middleware"
+	"github.com/manasbhole/orion/api/internal/middleware"
 )
 
 var wsUpgrader = websocket.Upgrader{

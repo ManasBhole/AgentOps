@@ -373,7 +373,7 @@ export default function Settings() {
               </button>
             </div>
             <p className="text-xs text-gray-600 mt-2">
-              Pass the key in the <code className="text-gray-400">X-AgentOps-Key</code> header when calling the API.
+              Pass the key in the <code className="text-gray-400">X-Orion-Key</code> header when calling the API.
             </p>
           </div>
 
@@ -519,7 +519,7 @@ export default function Settings() {
 
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
             <p className="text-xs text-gray-500 leading-relaxed">
-              Every webhook is signed with <code className="text-gray-400">X-AgentOps-Signature: sha256=…</code> so you can verify authenticity.
+              Every webhook is signed with <code className="text-gray-400">X-Orion-Signature: sha256=…</code> so you can verify authenticity.
               The raw key is shown once on creation. Common destinations: Slack incoming webhooks, PagerDuty Events API v2, Discord, or any custom HTTP endpoint.
             </p>
           </div>

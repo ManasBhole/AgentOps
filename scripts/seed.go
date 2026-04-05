@@ -148,7 +148,7 @@ var rootCauses = []struct{ cause, fix, severity string; confidence float64 }{
 }
 
 func main() {
-	dsn := "postgres://manasbhole@localhost:5432/agentops?sslmode=disable"
+	dsn := "postgres://manasbhole@localhost:5432/orion?sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
@@ -293,7 +293,7 @@ func main() {
 			Namespace: "production",
 			Replicas:  1 + rng.Intn(4),
 			Status:    "active",
-			Config:    `{"image":"agentops/runtime:latest","resources":{"cpu":"500m","memory":"512Mi"}}`,
+			Config:    `{"image":"orion/runtime:latest","resources":{"cpu":"500m","memory":"512Mi"}}`,
 			CreatedAt: agent.CreatedAt,
 			UpdatedAt: agent.UpdatedAt,
 		}

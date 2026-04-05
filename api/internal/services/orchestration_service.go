@@ -10,8 +10,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
-	"github.com/agentops/agentops/api/internal/config"
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/config"
+	"github.com/manasbhole/orion/api/internal/database"
 )
 
 type OrchestrationService struct {

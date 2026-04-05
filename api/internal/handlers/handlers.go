@@ -12,8 +12,8 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
-	"github.com/agentops/agentops/api/internal/database"
-	"github.com/agentops/agentops/api/internal/services"
+	"github.com/manasbhole/orion/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/services"
 )
 
 type Handlers struct {

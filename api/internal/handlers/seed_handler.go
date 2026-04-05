@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/database"
 )
 
 
@@ -171,7 +171,7 @@ func runSeed(db *gorm.DB) error {
 			Namespace: namespaces[i], Replicas: 1 + i%3,
 			Status: depStatuses[i],
 			Config: mustJSON(map[string]any{
-				"image": "ghcr.io/agentops/agentops-api:main-abc123",
+				"image": "ghcr.io/orion/orion-api:main-abc123",
 				"resources": map[string]string{"cpu": "500m", "memory": "512Mi"},
 			}),
 			CreatedAt: now.Add(-time.Duration(20-i*3) * day),
@@ -480,7 +480,7 @@ func runSeed(db *gorm.DB) error {
 	}
 	for i, n := range nlqItems {
 		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.NLQQuery{
-			ID: fmt.Sprintf("nlq_%03d", i), UserID: "system", UserEmail: "admin@agentops.io",
+			ID: fmt.Sprintf("nlq_%03d", i), UserID: "system", UserEmail: "admin@orion.ai",
 			Question: n.q, GeneratedSQL: n.sql, RowCount: n.rows,
 			ChartType: n.chart, DurationMs: int64(120 + rng.Intn(400)),
 			CreatedAt: now.Add(-time.Duration(i*3+1) * time.Hour),
@@ -507,10 +507,10 @@ func runSeed(db *gorm.DB) error {
 			idx := i*2 + j
 			db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.AuditEntry{
 				ID: fmt.Sprintf("audit_%04d", idx), UserID: "usr_admin_01",
-				UserEmail: "admin@agentops.io", UserRole: "owner",
+				UserEmail: "admin@orion.ai", UserRole: "owner",
 				Action: aa.action, Resource: aa.resource, ResourceID: uuid.New().String()[:8],
 				Method: aa.method, Path: aa.path, StatusCode: aa.code,
-				IPAddress: "192.168.1.100", UserAgent: "AgentOps-Dashboard/1.0",
+				IPAddress: "192.168.1.100", UserAgent: "Orion-Dashboard/1.0",
 				Detail:    mustJSON(map[string]string{"note": "demo seed"}),
 				CreatedAt: now.Add(-time.Duration(idx*2+1) * time.Hour),
 			})
@@ -539,7 +539,7 @@ func runSeed(db *gorm.DB) error {
 				{"agent_id": "agt_codeass02", "agent_name": "code-assistant", "depth": 1, "impact_score": 0.58, "failure_probability": 0.07, "estimated_latency_increase_ms": 150, "risk_level": "medium"},
 				{"agent_id": "agt_ragpipe03", "agent_name": "rag-pipeline", "depth": 2, "impact_score": 0.31, "failure_probability": 0.03, "estimated_latency_increase_ms": 60, "risk_level": "low"},
 			}),
-			CreatedBy: "admin@agentops.io",
+			CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-6 * time.Hour),
 		},
 		{
@@ -550,7 +550,7 @@ func runSeed(db *gorm.DB) error {
 				{"agent_id": "agt_ragpipe03", "agent_name": "rag-pipeline", "depth": 0, "impact_score": 0.74, "failure_probability": 0.09, "estimated_latency_increase_ms": 540, "risk_level": "high"},
 				{"agent_id": "agt_research01", "agent_name": "research-agent", "depth": 1, "impact_score": 0.44, "failure_probability": 0.05, "estimated_latency_increase_ms": 200, "risk_level": "medium"},
 			}),
-			CreatedBy: "admin@agentops.io",
+			CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-18 * time.Hour),
 		},
 		{
@@ -561,7 +561,7 @@ func runSeed(db *gorm.DB) error {
 				{"agent_id": "agt_codeass02", "agent_name": "code-assistant", "depth": 0, "impact_score": 0.90, "failure_probability": 0.22, "estimated_latency_increase_ms": 1200, "risk_level": "critical"},
 				{"agent_id": "agt_dataanl05", "agent_name": "data-analyzer", "depth": 1, "impact_score": 0.55, "failure_probability": 0.11, "estimated_latency_increase_ms": 400, "risk_level": "medium"},
 			}),
-			CreatedBy: "admin@agentops.io",
+			CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-2 * day),
 		},
 		{
@@ -573,7 +573,7 @@ func runSeed(db *gorm.DB) error {
 				{"agent_id": "agt_ragpipe03", "agent_name": "rag-pipeline", "depth": 1, "impact_score": 0.25, "failure_probability": 0.01, "estimated_latency_increase_ms": 30, "risk_level": "low"},
 				{"agent_id": "agt_orchest04", "agent_name": "orchestrator", "depth": 1, "impact_score": 0.20, "failure_probability": 0.01, "estimated_latency_increase_ms": 20, "risk_level": "low"},
 			}),
-			CreatedBy: "admin@agentops.io",
+			CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-3 * day),
 		},
 	}
@@ -596,7 +596,7 @@ func runSeed(db *gorm.DB) error {
 			ID: wr.id, IncidentID: wr.incidentID, Title: wr.title,
 			Status: wr.status, Commander: wr.commander,
 			Participants: mustJSON([]map[string]string{
-				{"user_id": "usr_admin_01", "email": "admin@agentops.io", "role": "owner"},
+				{"user_id": "usr_admin_01", "email": "admin@orion.ai", "role": "owner"},
 			}),
 			CreatedBy: "usr_admin_01", CreatedAt: created,
 		})
@@ -621,7 +621,7 @@ func runSeed(db *gorm.DB) error {
 		created := now.Add(-time.Duration(m.hoursAgo)*time.Hour - time.Duration(i)*time.Minute)
 		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.WarRoomMessage{
 			ID: fmt.Sprintf("wrm_%03d", i), RoomID: m.roomID,
-			UserID: "usr_admin_01", UserEmail: "admin@agentops.io", UserRole: "owner",
+			UserID: "usr_admin_01", UserEmail: "admin@orion.ai", UserRole: "owner",
 			Kind: m.kind, Body: m.body, TraceID: m.traceID, CreatedAt: created,
 		})
 	}
@@ -629,15 +629,15 @@ func runSeed(db *gorm.DB) error {
 	// War room tasks
 	type taskSpec struct{ roomID, title, assignee string; done bool; hoursAgo int }
 	wrTasks := []taskSpec{
-		{"wr_001", "Confirm token budget threshold config", "admin@agentops.io", true, 1},
-		{"wr_001", "Deploy hard token cap hotfix", "admin@agentops.io", false, 0},
-		{"wr_001", "Add graceful degradation fallback", "admin@agentops.io", false, 0},
-		{"wr_002", "Trigger vector index re-compaction", "admin@agentops.io", true, 3},
-		{"wr_002", "Add cross-reference validation layer", "admin@agentops.io", false, 1},
-		{"wr_002", "Set confidence threshold to 0.75", "admin@agentops.io", true, 2},
-		{"wr_003", "Configure circuit breaker (max 3 retries, 2s backoff)", "admin@agentops.io", true, 5},
-		{"wr_003", "Scale replicas from 1 → 3", "admin@agentops.io", true, 4},
-		{"wr_003", "Set up latency alerting at p99 > 3s", "admin@agentops.io", false, 0},
+		{"wr_001", "Confirm token budget threshold config", "admin@orion.ai", true, 1},
+		{"wr_001", "Deploy hard token cap hotfix", "admin@orion.ai", false, 0},
+		{"wr_001", "Add graceful degradation fallback", "admin@orion.ai", false, 0},
+		{"wr_002", "Trigger vector index re-compaction", "admin@orion.ai", true, 3},
+		{"wr_002", "Add cross-reference validation layer", "admin@orion.ai", false, 1},
+		{"wr_002", "Set confidence threshold to 0.75", "admin@orion.ai", true, 2},
+		{"wr_003", "Configure circuit breaker (max 3 retries, 2s backoff)", "admin@orion.ai", true, 5},
+		{"wr_003", "Scale replicas from 1 → 3", "admin@orion.ai", true, 4},
+		{"wr_003", "Set up latency alerting at p99 > 3s", "admin@orion.ai", false, 0},
 	}
 	for i, t := range wrTasks {
 		created := now.Add(-time.Duration(t.hoursAgo) * time.Hour)
@@ -725,7 +725,7 @@ func runSeed(db *gorm.DB) error {
 ## Question
 {{question}}`,
 			Tags: mustJSON([]string{"research", "summarization"}),
-			IsActive: true, CreatedBy: "admin@agentops.io",
+			IsActive: true, CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-20 * day), UpdatedAt: now.Add(-20 * day),
 		},
 		{
@@ -749,7 +749,7 @@ func runSeed(db *gorm.DB) error {
 
 Confidence: `,
 			Tags: mustJSON([]string{"research", "summarization", "confidence"}),
-			IsActive: true, CreatedBy: "admin@agentops.io",
+			IsActive: true, CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-10 * day), UpdatedAt: now.Add(-10 * day),
 		},
 		{
@@ -758,7 +758,7 @@ Confidence: `,
 			Description: "Reviews code for bugs, security issues, and style",
 			Content: "You are a senior software engineer conducting a code review.\n\nAnalyze the following code for:\n1. **Bugs** — logic errors, null pointer risks, off-by-one\n2. **Security** — injection, XSS, credential exposure\n3. **Performance** — O(n²) loops, unnecessary allocations\n4. **Style** — naming, complexity, readability\n\nFormat your response as:\n## Findings\n[list issues with severity: CRITICAL / HIGH / MEDIUM / LOW]\n\n## Suggestions\n[actionable improvements]\n\n## Code\n```\n{{code}}\n```",
 			Tags: mustJSON([]string{"code-review", "security", "quality"}),
-			IsActive: true, CreatedBy: "admin@agentops.io",
+			IsActive: true, CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-25 * day), UpdatedAt: now.Add(-25 * day),
 		},
 		{
@@ -786,7 +786,7 @@ Agent: {{agent_name}}
 
 Provide a structured RCA report.`,
 			Tags: mustJSON([]string{"sre", "incident", "rca"}),
-			IsActive: true, CreatedBy: "admin@agentops.io",
+			IsActive: true, CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-18 * day), UpdatedAt: now.Add(-18 * day),
 		},
 		{
@@ -804,7 +804,7 @@ Provide a structured RCA report.`,
 ## Output Format
 Return a JSON object matching the schema exactly. Use null for missing fields. Do not include explanations.`,
 			Tags: mustJSON([]string{"extraction", "structured-output", "json"}),
-			IsActive: true, CreatedBy: "admin@agentops.io",
+			IsActive: true, CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-12 * day), UpdatedAt: now.Add(-5 * day),
 		},
 		{
@@ -821,7 +821,7 @@ Reformulate the following user question into 3 search queries optimized for sema
 ## Output
 Return exactly 3 reformulated queries, one per line. No numbering or labels.`,
 			Tags: mustJSON([]string{"rag", "retrieval", "query-expansion"}),
-			IsActive: true, CreatedBy: "admin@agentops.io",
+			IsActive: true, CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-8 * day), UpdatedAt: now.Add(-8 * day),
 		},
 	}
@@ -834,19 +834,19 @@ Return exactly 3 reformulated queries, one per line. No numbering or labels.`,
 		{
 			ID: "es_001", Name: "Research Summary Quality",
 			Description: "Tests the research-agent summarization output for accuracy and citation quality",
-			AgentID: "agt_research01", CreatedBy: "admin@agentops.io",
+			AgentID: "agt_research01", CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-10 * day), UpdatedAt: now.Add(-10 * day),
 		},
 		{
 			ID: "es_002", Name: "Code Review Accuracy",
 			Description: "Validates code-assistant identifies known bugs and security issues",
-			AgentID: "agt_codeass02", CreatedBy: "admin@agentops.io",
+			AgentID: "agt_codeass02", CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-8 * day), UpdatedAt: now.Add(-8 * day),
 		},
 		{
 			ID: "es_003", Name: "Data Extraction Precision",
 			Description: "Checks structured output quality for the data-analyzer agent",
-			AgentID: "agt_dataanl05", CreatedBy: "admin@agentops.io",
+			AgentID: "agt_dataanl05", CreatedBy: "admin@orion.ai",
 			CreatedAt: now.Add(-5 * day), UpdatedAt: now.Add(-5 * day),
 		},
 	}
@@ -890,21 +890,21 @@ Return exactly 3 reformulated queries, one per line. No numbering or labels.`,
 			ID: "er_001", SuiteID: "es_001", Status: "completed",
 			TotalCases: 4, Passed: 3, Failed: 1, AvgScore: 0.81,
 			TotalCostUSD: 0.00024, AvgLatencyMs: 420,
-			CreatedBy: "admin@agentops.io",
+			CreatedBy: "admin@orion.ai",
 			StartedAt: now.Add(-25 * time.Hour), CompletedAt: &runCompletedAt,
 		},
 		{
 			ID: "er_002", SuiteID: "es_002", Status: "completed",
 			TotalCases: 4, Passed: 4, Failed: 0, AvgScore: 0.93,
 			TotalCostUSD: 0.00018, AvgLatencyMs: 380,
-			CreatedBy: "admin@agentops.io",
+			CreatedBy: "admin@orion.ai",
 			StartedAt: now.Add(-23 * time.Hour), CompletedAt: &runCompletedAt,
 		},
 		{
 			ID: "er_003", SuiteID: "es_003", Status: "completed",
 			TotalCases: 4, Passed: 3, Failed: 1, AvgScore: 0.77,
 			TotalCostUSD: 0.00012, AvgLatencyMs: 290,
-			CreatedBy: "admin@agentops.io",
+			CreatedBy: "admin@orion.ai",
 			StartedAt: now.Add(-22 * time.Hour), CompletedAt: &runCompletedAt,
 		},
 	}

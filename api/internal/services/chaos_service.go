@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/database"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

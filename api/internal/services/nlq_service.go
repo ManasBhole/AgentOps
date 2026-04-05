@@ -150,7 +150,7 @@ func (s *NLQService) generateSQL(question string) (string, error) {
 	}
 	b, _ := json.Marshal(reqBody)
 
-	req, _ := http.NewRequest("POST", "https://api.agentops.io/v1/messages", bytes.NewReader(b))
+	req, _ := http.NewRequest("POST", "https://api.orion.io/v1/messages", bytes.NewReader(b))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", s.apiKey)
 	req.Header.Set("api-version", "2023-06-01")

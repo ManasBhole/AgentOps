@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/database"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"gorm.io/gorm"

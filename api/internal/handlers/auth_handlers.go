@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/agentops/agentops/api/internal/middleware"
-	"github.com/agentops/agentops/api/internal/services"
+	"github.com/manasbhole/orion/api/internal/middleware"
+	"github.com/manasbhole/orion/api/internal/services"
 )
 
 

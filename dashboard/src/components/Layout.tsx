@@ -171,7 +171,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center flex-shrink-0">
             <Bot className="h-4 w-4 text-white" />
           </div>
-          {!collapsed && <span className="text-white font-bold text-sm tracking-wide flex-1">AgentOps</span>}
+          {!collapsed && <span className="text-white font-bold text-sm tracking-wide flex-1">Orion</span>}
           <button
             onClick={() => setCollapsed(v => !v)}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}

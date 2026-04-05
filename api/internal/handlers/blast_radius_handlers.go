@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/agentops/agentops/api/internal/middleware"
+	"github.com/manasbhole/orion/api/internal/middleware"
 )
 
 // POST /api/v1/blast-radius/simulate

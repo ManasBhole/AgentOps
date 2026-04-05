@@ -1,5 +1,5 @@
 {
-  "name": "agentops-dashboard",
+  "name": "orion-dashboard",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

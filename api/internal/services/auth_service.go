@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
-	"github.com/agentops/agentops/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/database"
 )
 
 // RBAC permission matrix.
@@ -214,7 +214,7 @@ func (s *AuthService) signAccessToken(user *database.User) (string, error) {
 			Subject:   user.ID,
 			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(accessTokenTTL)),
-			Issuer:    "agentops",
+			Issuer:    "orion",
 		},
 	}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(s.jwtSecret)
@@ -276,10 +276,10 @@ func (s *AuthService) EnsureDefaultOwner() {
 	if count > 0 {
 		return
 	}
-	_, err := s.Register("admin@agentops.io", "Admin", "agentops-admin", "owner")
+	_, err := s.Register("admin@orion.ai", "Admin", "agentops-admin", "owner")
 	if err != nil {
 		s.logger.Warn("failed to create default owner", zap.Error(err))
 		return
 	}
-	s.logger.Info("created default owner: admin@agentops.io / agentops-admin — change this immediately")
+	s.logger.Info("created default owner: admin@orion.ai / agentops-admin — change this immediately")
 }

@@ -43,9 +43,9 @@ function hasAccess(role: UserRole, resource: string, action: string): boolean {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-const ACCESS_TOKEN_KEY = 'agentops_access_token'
-const REFRESH_TOKEN_KEY = 'agentops_refresh_token'
-const USER_KEY = 'agentops_user'
+const ACCESS_TOKEN_KEY = 'orion_access_token'
+const REFRESH_TOKEN_KEY = 'orion_refresh_token'
+const USER_KEY = 'orion_user'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
