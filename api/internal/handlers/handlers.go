@@ -51,6 +51,8 @@ type Handlers struct {
 	chaosService *services.ChaosService
 	// Alert Correlation
 	alertCorrelationService *services.AlertCorrelationService
+	// AI Root Cause Analysis
+	aiAnalysisService *services.AIAnalysisService
 }
 
 func NewHandlers(
@@ -89,6 +91,7 @@ func NewHandlers(
 		genomeService:           services.NewGenomeService(db, logger),
 		chaosService:            services.NewChaosService(db, logger, hub),
 		alertCorrelationService: services.NewAlertCorrelationService(db, logger, hub),
+		aiAnalysisService:       services.NewAIAnalysisService(db, logger, anthroAPIKey),
 	}
 }
 

@@ -171,6 +171,7 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.GET("/incidents/:id", h.GetIncident)
 		v1.POST("/incidents", middleware.RequireRole("incidents", "write"), h.CreateIncident)
 		v1.POST("/incidents/:id/resolve", middleware.RequireRole("incidents", "resolve"), h.ResolveIncident)
+		v1.POST("/incidents/:id/analyze", h.AnalyzeIncident)
 
 		// Agents
 		v1.GET("/agents", h.GetAgents)
@@ -338,6 +339,10 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.POST("/evals/suites/:id/run", middleware.RequireRole("agents", "write"), h.RunEvalSuite)
 		v1.GET("/evals/suites/:id/runs", h.ListEvalRuns)
 		v1.GET("/evals/runs/:runID", h.GetEvalRun)
+
+		// SDK Ingest
+		v1.POST("/ingest", h.IngestEvent)
+		v1.POST("/ingest/batch", h.IngestBatch)
 
 		// Security & Safety
 		v1.POST("/security/scan", h.SecurityScan)

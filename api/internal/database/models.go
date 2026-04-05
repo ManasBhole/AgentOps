@@ -552,5 +552,7 @@ func Migrate(db *gorm.DB) error {
 		&EvalResult{},
 		// Security & Safety
 		&SecurityEvent{},
+		// AI Analysis
+		&AIIncidentAnalysis{},
 	)
 }

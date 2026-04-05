@@ -30,6 +30,7 @@ import PromptManagement from './pages/PromptManagement'
 import EvalFramework from './pages/EvalFramework'
 import SecurityLayer from './pages/SecurityLayer'
 import Register from './pages/Register'
+import Integrations from './pages/Integrations'
 
 function App() {
   return (
@@ -70,6 +71,7 @@ function App() {
                     <Route path="/prompts" element={<PromptManagement />} />
                     <Route path="/evals" element={<EvalFramework />} />
                     <Route path="/security" element={<SecurityLayer />} />
+                    <Route path="/integrations" element={<Integrations />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>

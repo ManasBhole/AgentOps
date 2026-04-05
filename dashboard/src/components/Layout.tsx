@@ -86,9 +86,10 @@ const navSections: NavSection[] = [
     color: 'text-orange-400',
     colorHex: '#fb923c',
     items: [
-      { path: '/playground', label: 'Playground', icon: FlaskConical },
-      { path: '/prompts',    label: 'Prompts',    icon: FileText },
-      { path: '/evals',      label: 'Evals',      icon: FlaskConical },
+      { path: '/playground',   label: 'Playground',   icon: FlaskConical },
+      { path: '/prompts',      label: 'Prompts',       icon: FileText },
+      { path: '/evals',        label: 'Evals',         icon: FlaskConical },
+      { path: '/integrations', label: 'Integrations',  icon: Zap },
     ],
   },
 ]

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Siren, CheckCircle2, ChevronDown, ChevronRight,
   Lightbulb, Filter, RefreshCw, ShieldCheck, Radio,
+  Sparkles, AlertTriangle, Clock, Layers, CheckSquare, Loader2,
 } from 'lucide-react'
 import api from '../services/api'
 import ExportButton from '../components/ExportButton'
@@ -12,6 +13,20 @@ type Incident = {
   id: string; title: string; severity: string; status: string
   agent_id: string; trace_id: string; root_cause: string
   suggested_fix: string; confidence: number; created_at: string; resolved_at?: string
+}
+
+type AIAnalysis = {
+  summary: string
+  root_cause: string
+  fix_steps: string[]
+  impacted_systems: string[]
+  time_to_fix: string
+  priority: string
+  confidence: number
+  model_used: string
+  tokens_used: number
+  cached: boolean
+  cached_at?: string
 }
 
 const SEV: Record<string, { border: string; bg: string; badge: string; dot: string }> = {
@@ -28,11 +43,20 @@ const STATUS: Record<string, string> = {
   resolved:      'bg-emerald-900/60 text-emerald-300',
 }
 
+const PRIORITY_STYLE: Record<string, string> = {
+  immediate:  'bg-red-900/70 text-red-300 border-red-800',
+  today:      'bg-orange-900/70 text-orange-300 border-orange-800',
+  'this-week': 'bg-yellow-900/70 text-yellow-300 border-yellow-800',
+}
+
 export default function Incidents() {
   const queryClient = useQueryClient()
   const [statusFilter, setStatusFilter] = useState('')
   const [sevFilter, setSevFilter] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [analysisMap, setAnalysisMap] = useState<Record<string, AIAnalysis>>({})
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null)
+  const [analyzeError, setAnalyzeError] = useState<Record<string, string>>({})
 
   const { data: all = [], isLoading, refetch, isFetching } = useQuery<Incident[]>({
     queryKey: ['incidents'],
@@ -49,6 +73,20 @@ export default function Incidents() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['incidents'] }); setResolveError('') },
     onError: (e: any) => setResolveError(e?.response?.data?.error ?? 'Failed to resolve incident'),
   })
+
+  async function runAnalysis(incidentId: string) {
+    setAnalyzingId(incidentId)
+    setAnalyzeError(prev => ({ ...prev, [incidentId]: '' }))
+    try {
+      const { data } = await api.post<AIAnalysis>(`/incidents/${incidentId}/analyze`)
+      setAnalysisMap(prev => ({ ...prev, [incidentId]: data }))
+    } catch (e: any) {
+      const msg = e?.response?.data?.error ?? 'AI analysis failed'
+      setAnalyzeError(prev => ({ ...prev, [incidentId]: msg }))
+    } finally {
+      setAnalyzingId(null)
+    }
+  }
 
   const data = all.filter(i => {
     if (statusFilter && i.status !== statusFilter) return false
@@ -135,6 +173,9 @@ export default function Incidents() {
         {data.map(inc => {
           const s = SEV[inc.severity] ?? fallbackSev
           const isOpen = expanded === inc.id
+          const analysis = analysisMap[inc.id]
+          const isAnalyzing = analyzingId === inc.id
+          const aError = analyzeError[inc.id]
           return (
             <div key={inc.id} className={`border rounded-xl overflow-hidden transition-all ${s.border} ${s.bg}`}>
               {/* Row header */}
@@ -148,6 +189,11 @@ export default function Incidents() {
                     <span className="text-sm font-medium text-gray-100 truncate">{inc.title}</span>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.badge}`}>{inc.severity}</span>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS[inc.status] ?? 'bg-gray-800 text-gray-300'}`}>{inc.status}</span>
+                    {analysis && (
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-violet-900/60 text-violet-300 border border-violet-800">
+                        AI Analyzed
+                      </span>
+                    )}
                   </div>
                   <div className="text-xs text-gray-500 mt-0.5">{inc.agent_id} · {new Date(inc.created_at).toLocaleString()}</div>
                 </div>
@@ -206,6 +252,124 @@ export default function Incidents() {
                       <p className="text-sm text-emerald-200/80">{inc.suggested_fix}</p>
                     </div>
                   )}
+
+                  {/* ── AI Deep Analysis ─────────────────────────────────── */}
+                  <div className="pt-1">
+                    {!analysis && !isAnalyzing && (
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => runAnalysis(inc.id)}
+                          className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-medium
+                            bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500
+                            text-white shadow-lg shadow-violet-900/30 transition-all"
+                        >
+                          <Sparkles className="h-4 w-4" />
+                          Analyze with AI
+                        </button>
+                        {aError && (
+                          <span className="text-xs text-red-400">{aError}</span>
+                        )}
+                      </div>
+                    )}
+
+                    {isAnalyzing && (
+                      <div className="flex items-center gap-3 text-sm text-violet-300">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Claude is analyzing this incident…
+                      </div>
+                    )}
+
+                    {analysis && (
+                      <div className="rounded-xl border border-violet-800/60 bg-violet-950/30 overflow-hidden">
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-violet-800/40 bg-violet-900/20">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-violet-400" />
+                            <span className="text-sm font-semibold text-violet-200">AI Root Cause Analysis</span>
+                            {analysis.cached && (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400 border border-gray-700">cached</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-gray-500">
+                            <span className={`px-2 py-0.5 rounded-full border text-xs font-medium ${PRIORITY_STYLE[analysis.priority] ?? 'bg-gray-800 text-gray-300 border-gray-700'}`}>
+                              {analysis.priority}
+                            </span>
+                            <span>{analysis.model_used}</span>
+                            <span>{analysis.tokens_used} tokens</span>
+                            <button
+                              onClick={() => setAnalysisMap(prev => { const n = {...prev}; delete n[inc.id]; return n })}
+                              className="text-gray-600 hover:text-gray-400 ml-1"
+                            >✕</button>
+                          </div>
+                        </div>
+
+                        <div className="p-4 space-y-4">
+                          {/* Summary */}
+                          <div>
+                            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Summary</div>
+                            <p className="text-sm text-gray-200 leading-relaxed">{analysis.summary}</p>
+                          </div>
+
+                          {/* Deep root cause */}
+                          <div className="p-3 bg-red-950/30 rounded-lg border border-red-900/40">
+                            <div className="flex items-center gap-2 mb-2">
+                              <AlertTriangle className="h-3.5 w-3.5 text-red-400" />
+                              <span className="text-xs font-semibold text-red-300 uppercase tracking-wider">Root Cause</span>
+                              <span className="ml-auto text-xs text-gray-500">{Math.round(analysis.confidence * 100)}% confidence</span>
+                            </div>
+                            <div className="w-full bg-gray-800 rounded-full h-1 mb-2">
+                              <div className="bg-red-500 h-1 rounded-full transition-all" style={{ width: `${analysis.confidence * 100}%` }} />
+                            </div>
+                            <p className="text-sm text-gray-200">{analysis.root_cause}</p>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Fix steps */}
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <CheckSquare className="h-3.5 w-3.5 text-emerald-400" />
+                                <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Fix Steps</span>
+                              </div>
+                              <ol className="space-y-1.5">
+                                {(analysis.fix_steps ?? []).map((step, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
+                                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-900/60 border border-emerald-800 text-emerald-300 text-xs flex items-center justify-center font-mono">
+                                      {i + 1}
+                                    </span>
+                                    {step.replace(/^Step \d+:\s*/i, '')}
+                                  </li>
+                                ))}
+                              </ol>
+                            </div>
+
+                            {/* Impacted systems + time */}
+                            <div className="space-y-3">
+                              <div>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Layers className="h-3.5 w-3.5 text-sky-400" />
+                                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Impacted Systems</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {(analysis.impacted_systems ?? []).map(sys => (
+                                    <span key={sys} className="text-xs px-2 py-0.5 rounded bg-sky-900/40 border border-sky-800/60 text-sky-300">
+                                      {sys}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <Clock className="h-3.5 w-3.5 text-amber-400" />
+                                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Estimated Time to Fix</span>
+                                </div>
+                                <span className="text-sm font-medium text-amber-300">{analysis.time_to_fix}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {inc.status === 'resolved' && (
                     <div className="flex items-center gap-2 text-xs text-emerald-400">
