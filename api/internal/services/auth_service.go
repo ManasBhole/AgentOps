@@ -74,6 +74,9 @@ func NewAuthService(db *gorm.DB, logger *zap.Logger, jwtSecret string) *AuthServ
 
 // Register creates a new user. Only owners can create non-viewer accounts (enforced at handler level).
 func (s *AuthService) Register(email, name, password, role string) (*database.User, error) {
+	if len(password) > 72 {
+		return nil, errors.New("password must be 72 characters or fewer")
+	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
