@@ -4,8 +4,6 @@
 
 🌐 **Live Demo:** [orion-ai-dashboard.vercel.app](https://orion-ai-dashboard.vercel.app)
 
-**Login:** `manasbhole2000@gmail.com` / `Usa@2021`
-
 ---
 
 ## What is Orion?
