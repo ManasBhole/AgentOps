@@ -70,7 +70,7 @@ func SecurityHeaders() gin.HandlerFunc {
 func CORS(origins []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
-		
+
 		// Allow all origins if "*" is specified
 		allowOrigin := ""
 		if len(origins) > 0 && origins[0] == "*" {

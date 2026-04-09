@@ -9,7 +9,6 @@ import (
 	"github.com/manasbhole/orion/api/internal/services"
 )
 
-
 // POST /auth/register — public self-service sign-up
 func (h *Handlers) PublicRegister(c *gin.Context) {
 	var req struct {
@@ -70,16 +69,16 @@ func (h *Handlers) Login(c *gin.Context) {
 	}
 
 	h.auditService.Log(services.LogParams{
-		UserID:    user.ID,
-		UserEmail: user.Email,
-		UserRole:  user.Role,
-		Action:    "auth.login",
-		Resource:  "auth",
-		Method:    "POST",
-		Path:      "/auth/login",
+		UserID:     user.ID,
+		UserEmail:  user.Email,
+		UserRole:   user.Role,
+		Action:     "auth.login",
+		Resource:   "auth",
+		Method:     "POST",
+		Path:       "/auth/login",
 		StatusCode: 200,
-		IPAddress: c.ClientIP(),
-		UserAgent: c.Request.UserAgent(),
+		IPAddress:  c.ClientIP(),
+		UserAgent:  c.Request.UserAgent(),
 	})
 
 	c.JSON(http.StatusOK, gin.H{

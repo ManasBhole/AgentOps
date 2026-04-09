@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"github.com/manasbhole/orion/api/internal/services"
 	"github.com/gin-gonic/gin"
+	"github.com/manasbhole/orion/api/internal/services"
 )
 
 // AuditLogger emits one audit entry per request AFTER the handler runs,

@@ -10,9 +10,9 @@ import (
 func InstrumentAgent(tracer *AgentTracer, agentID, agentType string, fn func(context.Context, map[string]interface{}) (interface{}, error)) func(context.Context, map[string]interface{}) (interface{}, error) {
 	return func(ctx context.Context, input map[string]interface{}) (interface{}, error) {
 		runID, ctx := tracer.StartAgentRun(ctx, agentID, agentType, input)
-		
+
 		result, err := fn(ctx, input)
-		
+
 		tracer.EndAgentRun(runID, err == nil, result, err)
 		return result, err
 	}
@@ -50,7 +50,7 @@ func InstrumentLLM(tracer *AgentTracer, provider string, fn func(context.Context
 		}
 
 		tracer.TraceLLMCall(ctx, provider, model, prompt, responseStr, tokensUsed, cost, &latencyMs, err)
-		
+
 		return result, err
 	}
 }

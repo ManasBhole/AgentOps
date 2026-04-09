@@ -5,15 +5,15 @@ import (
 )
 
 type Config struct {
-	Port             string
-	Environment      string
-	DatabaseURL      string
-	RedisURL         string
-	CORSOrigins      []string
-	OTLPEndpoint     string
-	K8sConfigPath    string
-	JWTSecret        string
-	LLMAPIKey  string
+	Port          string
+	Environment   string
+	DatabaseURL   string
+	RedisURL      string
+	CORSOrigins   []string
+	OTLPEndpoint  string
+	K8sConfigPath string
+	JWTSecret     string
+	LLMAPIKey     string
 }
 
 func Load() *Config {
@@ -25,8 +25,8 @@ func Load() *Config {
 		CORSOrigins:   getEnvSlice("CORS_ORIGINS", []string{"*"}),
 		OTLPEndpoint:  getEnv("OTLP_ENDPOINT", "localhost:4317"),
 		K8sConfigPath: getEnv("K8S_CONFIG_PATH", ""),
-		JWTSecret:        getEnv("JWT_SECRET", "change-me-in-production-use-32-chars-min"),
-		LLMAPIKey:  getEnv("LLM_API_KEY", ""),
+		JWTSecret:     getEnv("JWT_SECRET", "change-me-in-production-use-32-chars-min"),
+		LLMAPIKey:     getEnv("LLM_API_KEY", ""),
 	}
 }
 

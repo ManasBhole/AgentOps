@@ -339,7 +339,9 @@ Respond with ONLY valid JSON:
 	}
 
 	var apiResp struct {
-		Content []struct{ Text string `json:"text"` } `json:"content"`
+		Content []struct {
+			Text string `json:"text"`
+		} `json:"content"`
 	}
 	if err := json.Unmarshal(respBytes, &apiResp); err != nil || len(apiResp.Content) == 0 {
 		return s.heuristicEval(v, errRate), nil

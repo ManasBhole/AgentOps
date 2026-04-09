@@ -4,14 +4,14 @@ FROM golang:1.21-alpine AS builder
 WORKDIR /build
 
 # Copy go mod files
-COPY go.mod go.sum ./
+COPY api/go.mod api/go.sum ./
 RUN go mod download
 
 # Copy source
-COPY . .
+COPY api/ .
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o agentops-api ./api/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o agentops-api .
 
 # Runtime stage
 FROM alpine:latest

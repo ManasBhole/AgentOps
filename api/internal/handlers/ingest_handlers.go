@@ -12,14 +12,14 @@ import (
 
 // IngestPayload is the SDK event format sent by agent instrumentation libraries.
 type IngestPayload struct {
-	AgentID    string            `json:"agent_id" binding:"required"`
-	RunID      string            `json:"run_id"`
-	Name       string            `json:"name" binding:"required"`
-	Status     string            `json:"status"` // ok | error
-	DurationMS int64             `json:"duration_ms"`
-	Attributes map[string]any    `json:"attributes"`
-	Events     []map[string]any  `json:"events"`
-	Error      string            `json:"error"`
+	AgentID    string           `json:"agent_id" binding:"required"`
+	RunID      string           `json:"run_id"`
+	Name       string           `json:"name" binding:"required"`
+	Status     string           `json:"status"` // ok | error
+	DurationMS int64            `json:"duration_ms"`
+	Attributes map[string]any   `json:"attributes"`
+	Events     []map[string]any `json:"events"`
+	Error      string           `json:"error"`
 }
 
 // IngestEvent accepts a single SDK event and persists it as a Trace.

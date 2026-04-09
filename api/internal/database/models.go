@@ -97,7 +97,7 @@ type Webhook struct {
 	Name      string     `json:"name"`
 	URL       string     `gorm:"type:text" json:"url"`
 	Events    string     `gorm:"type:text" json:"events"` // ["incident.created","incident.resolved","trace.error"]
-	Secret    string     `json:"-"`                        // HMAC-SHA256 signing secret, never returned
+	Secret    string     `json:"-"`                       // HMAC-SHA256 signing secret, never returned
 	Active    bool       `gorm:"default:true" json:"active"`
 	LastFired *time.Time `json:"last_fired,omitempty"`
 	CreatedAt time.Time  `json:"created_at"`
@@ -222,16 +222,16 @@ type TopologyEdge struct {
 // User represents a human operator of the Orion platform.
 // Roles: owner | admin | viewer | agent-runner
 type User struct {
-	ID           string    `gorm:"primaryKey" json:"id"`
-	Email        string    `gorm:"uniqueIndex;not null" json:"email"`
-	Name         string    `json:"name"`
-	Role         string    `gorm:"not null;default:'viewer'" json:"role"`
-	PasswordHash string    `gorm:"not null" json:"-"`
-	AvatarURL    string    `json:"avatar_url"`
-	IsActive     bool      `gorm:"default:true" json:"is_active"`
+	ID           string     `gorm:"primaryKey" json:"id"`
+	Email        string     `gorm:"uniqueIndex;not null" json:"email"`
+	Name         string     `json:"name"`
+	Role         string     `gorm:"not null;default:'viewer'" json:"role"`
+	PasswordHash string     `gorm:"not null" json:"-"`
+	AvatarURL    string     `json:"avatar_url"`
+	IsActive     bool       `gorm:"default:true" json:"is_active"`
 	LastLoginAt  *time.Time `json:"last_login_at"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
 }
 
 // Session tracks active JWT refresh tokens per user.
@@ -251,11 +251,11 @@ type AuditEntry struct {
 	UserID     string    `gorm:"index" json:"user_id"`
 	UserEmail  string    `json:"user_email"`
 	UserRole   string    `json:"user_role"`
-	Action     string    `gorm:"index" json:"action"`   // e.g. "login", "agent.create", "trace.ingest"
-	Resource   string    `json:"resource"`               // e.g. "agent", "trace", "incident"
+	Action     string    `gorm:"index" json:"action"` // e.g. "login", "agent.create", "trace.ingest"
+	Resource   string    `json:"resource"`            // e.g. "agent", "trace", "incident"
 	ResourceID string    `json:"resource_id"`
-	Method     string    `json:"method"`                 // HTTP method
-	Path       string    `json:"path"`                   // request path
+	Method     string    `json:"method"` // HTTP method
+	Path       string    `json:"path"`   // request path
 	StatusCode int       `json:"status_code"`
 	IPAddress  string    `json:"ip_address"`
 	UserAgent  string    `json:"user_agent"`
@@ -270,8 +270,8 @@ type WarRoom struct {
 	ID           string     `gorm:"primaryKey" json:"id"`
 	IncidentID   string     `gorm:"uniqueIndex;not null" json:"incident_id"`
 	Title        string     `json:"title"`
-	Status       string     `json:"status"`      // "active" | "resolved"
-	Commander    string     `json:"commander"`   // user_id of incident commander
+	Status       string     `json:"status"`                        // "active" | "resolved"
+	Commander    string     `json:"commander"`                     // user_id of incident commander
 	Participants string     `gorm:"type:text" json:"participants"` // []ParticipantInfo JSON
 	CreatedBy    string     `json:"created_by"`
 	CreatedAt    time.Time  `json:"created_at"`
@@ -280,42 +280,42 @@ type WarRoom struct {
 
 // WarRoomMessage is a chat/annotation message in a war room.
 type WarRoomMessage struct {
-	ID         string    `gorm:"primaryKey" json:"id"`
-	RoomID     string    `gorm:"index;not null" json:"room_id"`
-	UserID     string    `json:"user_id"`
-	UserEmail  string    `json:"user_email"`
-	UserRole   string    `json:"user_role"`
-	Kind       string    `json:"kind"`    // "chat" | "annotation" | "system"
-	Body       string    `gorm:"type:text" json:"body"`
-	TraceID    string    `json:"trace_id,omitempty"`  // optional linked trace
-	CreatedAt  time.Time `gorm:"index" json:"created_at"`
+	ID        string    `gorm:"primaryKey" json:"id"`
+	RoomID    string    `gorm:"index;not null" json:"room_id"`
+	UserID    string    `json:"user_id"`
+	UserEmail string    `json:"user_email"`
+	UserRole  string    `json:"user_role"`
+	Kind      string    `json:"kind"` // "chat" | "annotation" | "system"
+	Body      string    `gorm:"type:text" json:"body"`
+	TraceID   string    `json:"trace_id,omitempty"` // optional linked trace
+	CreatedAt time.Time `gorm:"index" json:"created_at"`
 }
 
 // WarRoomTask is a checklist item in a war room.
 type WarRoomTask struct {
-	ID          string     `gorm:"primaryKey" json:"id"`
-	RoomID      string     `gorm:"index;not null" json:"room_id"`
-	Title       string     `json:"title"`
-	AssignedTo  string     `json:"assigned_to"`   // user_id
-	AssigneeName string    `json:"assignee_name"`
-	Done        bool       `json:"done"`
-	CreatedBy   string     `json:"created_by"`
-	CreatedAt   time.Time  `json:"created_at"`
-	DoneAt      *time.Time `json:"done_at,omitempty"`
+	ID           string     `gorm:"primaryKey" json:"id"`
+	RoomID       string     `gorm:"index;not null" json:"room_id"`
+	Title        string     `json:"title"`
+	AssignedTo   string     `json:"assigned_to"` // user_id
+	AssigneeName string     `json:"assignee_name"`
+	Done         bool       `json:"done"`
+	CreatedBy    string     `json:"created_by"`
+	CreatedAt    time.Time  `json:"created_at"`
+	DoneAt       *time.Time `json:"done_at,omitempty"`
 }
 
 // BlastRadiusSimulation records one what-if simulation run.
 type BlastRadiusSimulation struct {
-	ID           string    `gorm:"primaryKey" json:"id"`
-	SourceAgentID string   `gorm:"index;not null" json:"source_agent_id"`
-	ChangeType   string    `json:"change_type"` // "deploy" | "config" | "scale_down" | "rollback"
-	ChangeDesc   string    `gorm:"type:text" json:"change_desc"`
-	Iterations   int       `json:"iterations"`
-	Results      string    `gorm:"type:text" json:"results"` // []BlastRadiusResult JSON
-	TotalAffected int      `json:"total_affected"`
-	MaxDepth     int       `json:"max_depth"`
-	CreatedBy    string    `json:"created_by"`
-	CreatedAt    time.Time `gorm:"index" json:"created_at"`
+	ID            string    `gorm:"primaryKey" json:"id"`
+	SourceAgentID string    `gorm:"index;not null" json:"source_agent_id"`
+	ChangeType    string    `json:"change_type"` // "deploy" | "config" | "scale_down" | "rollback"
+	ChangeDesc    string    `gorm:"type:text" json:"change_desc"`
+	Iterations    int       `json:"iterations"`
+	Results       string    `gorm:"type:text" json:"results"` // []BlastRadiusResult JSON
+	TotalAffected int       `json:"total_affected"`
+	MaxDepth      int       `json:"max_depth"`
+	CreatedBy     string    `json:"created_by"`
+	CreatedAt     time.Time `gorm:"index" json:"created_at"`
 }
 
 // SLODefinition defines a Service Level Objective for one agent.
@@ -338,13 +338,13 @@ type TraceSnapshot struct {
 	SpanID     string    `gorm:"index;not null" json:"span_id"`
 	AgentID    string    `gorm:"index" json:"agent_id"`
 	RunID      string    `gorm:"index" json:"run_id"`
-	SeqNum     int       `json:"seq_num"`               // ordering within trace
+	SeqNum     int       `json:"seq_num"` // ordering within trace
 	SpanName   string    `json:"span_name"`
 	State      string    `gorm:"type:text" json:"state"` // full agent state JSON
 	TokensUsed int64     `json:"tokens_used"`
 	CostUSD    float64   `json:"cost_usd"`
 	DurationMs int64     `json:"duration_ms"`
-	Status     string    `json:"status"`                  // ok | error | running
+	Status     string    `json:"status"` // ok | error | running
 	RecordedAt time.Time `gorm:"index" json:"recorded_at"`
 }
 
@@ -428,7 +428,7 @@ type PromptTemplate struct {
 	Description string    `gorm:"type:text" json:"description"`
 	Content     string    `gorm:"type:text;not null" json:"content"`
 	Version     int       `json:"version"`
-	AgentID     string    `gorm:"index" json:"agent_id"`  // optional – scope to one agent
+	AgentID     string    `gorm:"index" json:"agent_id"` // optional – scope to one agent
 	Tags        string    `gorm:"type:text" json:"tags"` // []string
 	IsActive    bool      `gorm:"default:true" json:"is_active"`
 	CreatedBy   string    `json:"created_by"`
@@ -475,16 +475,16 @@ type EvalRun struct {
 
 // EvalResult is the per-case outcome of one EvalRun.
 type EvalResult struct {
-	ID            string    `gorm:"primaryKey" json:"id"`
-	RunID         string    `gorm:"index;not null" json:"run_id"`
-	CaseID        string    `gorm:"index;not null" json:"case_id"`
-	ActualOutput  string    `gorm:"type:text" json:"actual_output"`
-	Score         float64   `json:"score"`           // 0.0 – 1.0
-	Passed        bool      `json:"passed"`          // score >= 0.7
-	LatencyMs     int64     `json:"latency_ms"`
-	CostUSD       float64   `json:"cost_usd"`
-	Error         string    `json:"error,omitempty"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID           string    `gorm:"primaryKey" json:"id"`
+	RunID        string    `gorm:"index;not null" json:"run_id"`
+	CaseID       string    `gorm:"index;not null" json:"case_id"`
+	ActualOutput string    `gorm:"type:text" json:"actual_output"`
+	Score        float64   `json:"score"`  // 0.0 – 1.0
+	Passed       bool      `json:"passed"` // score >= 0.7
+	LatencyMs    int64     `json:"latency_ms"`
+	CostUSD      float64   `json:"cost_usd"`
+	Error        string    `json:"error,omitempty"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 // SecurityEvent records a detected threat in agent input or output.

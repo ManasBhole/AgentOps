@@ -32,15 +32,15 @@ func NewBlastRadiusService(db *gorm.DB, logger *zap.Logger, hub *EventHub) *Blas
 type BlastRadiusResult struct {
 	AgentID           string  `json:"agent_id"`
 	AgentName         string  `json:"agent_name"`
-	Depth             int     `json:"depth"`           // hops from source
-	ImpactProbability float64 `json:"impact_prob"`     // 0–1, Monte Carlo estimate
-	ExpectedErrDelta  float64 `json:"err_rate_delta"`  // expected Δ error rate
-	ExpectedLatDelta  float64 `json:"lat_delta_ms"`    // expected Δ p95 latency ms
+	Depth             int     `json:"depth"`          // hops from source
+	ImpactProbability float64 `json:"impact_prob"`    // 0–1, Monte Carlo estimate
+	ExpectedErrDelta  float64 `json:"err_rate_delta"` // expected Δ error rate
+	ExpectedLatDelta  float64 `json:"lat_delta_ms"`   // expected Δ p95 latency ms
 	CurrentErrRate    float64 `json:"current_err_rate"`
 	CurrentP95LatMs   float64 `json:"current_p95_lat_ms"`
 	CurrentHealth     int     `json:"current_health"`
 	CallFrequency     int64   `json:"call_frequency"` // observed topology edge count
-	Severity          string  `json:"severity"`        // "critical" | "high" | "medium" | "low"
+	Severity          string  `json:"severity"`       // "critical" | "high" | "medium" | "low"
 }
 
 type SimulationOutput struct {

@@ -216,7 +216,7 @@ Return ONLY the JSON object, no markdown, no explanation.`
 
 func fromCached(c *database.AIIncidentAnalysis) *IncidentAnalysis {
 	var steps, systems []string
-	json.Unmarshal([]byte(c.FixSteps), &steps)         //nolint
+	json.Unmarshal([]byte(c.FixSteps), &steps)          //nolint
 	json.Unmarshal([]byte(c.ImpactedSystems), &systems) //nolint
 	ts := c.CreatedAt.Format(time.RFC3339)
 	return &IncidentAnalysis{

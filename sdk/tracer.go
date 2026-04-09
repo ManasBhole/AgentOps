@@ -17,27 +17,27 @@ import (
 
 // AgentTracer provides OpenTelemetry-native tracing for AI agents
 type AgentTracer struct {
-	tracer          trace.Tracer
-	serviceName     string
-	endpoint        string
-	apiKey          string
-	collectInfra    bool
-	runContexts     map[string]*RunContext
+	tracer       trace.Tracer
+	serviceName  string
+	endpoint     string
+	apiKey       string
+	collectInfra bool
+	runContexts  map[string]*RunContext
 }
 
 // RunContext holds context for an agent run
 type RunContext struct {
-	RunID    string
-	AgentID  string
-	Span     trace.Span
+	RunID     string
+	AgentID   string
+	Span      trace.Span
 	StartTime time.Time
 }
 
 // Config for AgentTracer
 type Config struct {
-	ServiceName      string
-	Endpoint         string
-	APIKey           string
+	ServiceName         string
+	Endpoint            string
+	APIKey              string
 	CollectInfraMetrics bool
 }
 
@@ -103,9 +103,9 @@ func (at *AgentTracer) StartAgentRun(ctx context.Context, agentID, agentType str
 	)
 
 	at.runContexts[runID] = &RunContext{
-		RunID:    runID,
-		AgentID:  agentID,
-		Span:     span,
+		RunID:     runID,
+		AgentID:   agentID,
+		Span:      span,
 		StartTime: time.Now(),
 	}
 

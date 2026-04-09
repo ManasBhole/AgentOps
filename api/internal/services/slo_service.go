@@ -93,8 +93,8 @@ func (s *SLOService) ComputeStatus(slo database.SLODefinition) SLOStatus {
 	budgetRemaining := math.Max(0, 100-budgetConsumed)
 
 	// Burn rates: how fast are we consuming the error budget vs sustainable rate
-	burnRate1h  := s.burnRate(slo, now, 1*time.Hour, slo.TargetValue)
-	burnRate6h  := s.burnRate(slo, now, 6*time.Hour, slo.TargetValue)
+	burnRate1h := s.burnRate(slo, now, 1*time.Hour, slo.TargetValue)
+	burnRate6h := s.burnRate(slo, now, 6*time.Hour, slo.TargetValue)
 	burnRate24h := s.burnRate(slo, now, 24*time.Hour, slo.TargetValue)
 
 	// Alert tier: fast burn (1h > 14x) = critical; slow burn (6h > 6x) = warning

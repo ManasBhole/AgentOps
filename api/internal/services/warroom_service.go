@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/manasbhole/orion/api/internal/database"
 	"github.com/gorilla/websocket"
+	"github.com/manasbhole/orion/api/internal/database"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

@@ -8,13 +8,13 @@ import (
 )
 
 type CostBreakdownItem struct {
-	AgentID     string  `json:"agent_id"`
-	AgentName   string  `json:"agent_name"`
-	TotalCostUSD float64 `json:"total_cost_usd"`
-	TraceCount  int64   `json:"trace_count"`
-	TokensUsed  int64   `json:"tokens_used"`
+	AgentID        string  `json:"agent_id"`
+	AgentName      string  `json:"agent_name"`
+	TotalCostUSD   float64 `json:"total_cost_usd"`
+	TraceCount     int64   `json:"trace_count"`
+	TokensUsed     int64   `json:"tokens_used"`
 	AvgCostPerCall float64 `json:"avg_cost_per_call"`
-	PctOfTotal  float64 `json:"pct_of_total"`
+	PctOfTotal     float64 `json:"pct_of_total"`
 }
 
 type DailyCostRow struct {
@@ -60,9 +60,9 @@ func (h *Handlers) GetCostBreakdown(c *gin.Context) {
 	costMap := make(map[string]*CostBreakdownItem)
 	for _, rc := range routerCosts {
 		costMap[rc.AgentID] = &CostBreakdownItem{
-			AgentID:     rc.AgentID,
+			AgentID:      rc.AgentID,
 			TotalCostUSD: rc.TotalCostUSD,
-			TraceCount:  rc.CallCount,
+			TraceCount:   rc.CallCount,
 		}
 	}
 	for _, fc := range fpCosts {
@@ -73,9 +73,9 @@ func (h *Handlers) GetCostBreakdown(c *gin.Context) {
 			item.TokensUsed = fc.SampleCount
 		} else {
 			costMap[fc.AgentID] = &CostBreakdownItem{
-				AgentID:     fc.AgentID,
+				AgentID:      fc.AgentID,
 				TotalCostUSD: fc.TotalCostUSD,
-				TokensUsed:  fc.SampleCount,
+				TokensUsed:   fc.SampleCount,
 			}
 		}
 	}
@@ -118,9 +118,9 @@ func (h *Handlers) GetCostBreakdown(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"items":           items,
-		"total_cost_usd":  total,
-		"period_days":     days,
+		"items":          items,
+		"total_cost_usd": total,
+		"period_days":    days,
 	})
 }
 

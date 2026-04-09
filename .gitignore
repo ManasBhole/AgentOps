@@ -37,7 +37,6 @@ Thumbs.db
 node_modules/
 dashboard/dist/
 dashboard/.vite/
-dashboard/package-lock.json
 
 # Go build output
 api/bin/
