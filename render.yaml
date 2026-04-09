@@ -10,7 +10,7 @@ services:
     runtime: docker
     dockerfilePath: ./api/Dockerfile
     dockerContext: ./api
-    plan: free
+    plan: starter
     healthCheckPath: /health
     envVars:
       - key: PORT
@@ -27,20 +27,3 @@ services:
         value: https://orion-ai-dashboard.vercel.app
       - key: LLM_API_KEY
         sync: false
-
-  - type: web
-    name: orion-dashboard
-    runtime: static
-    buildCommand: cd dashboard && npm install && npm run build
-    staticPublishPath: ./dashboard/dist
-    plan: free
-    routes:
-      - type: rewrite
-        source: /api/*
-        destination: https://orion-api.onrender.com/api/$1
-      - type: rewrite
-        source: /auth/*
-        destination: https://orion-api.onrender.com/auth/$1
-      - type: rewrite
-        source: /*
-        destination: /index.html
