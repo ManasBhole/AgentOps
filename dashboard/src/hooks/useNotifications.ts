@@ -81,7 +81,8 @@ export function useNotifications() {
   useEffect(() => {
     const connect = () => {
       if (esRef.current) esRef.current.close()
-      const es = new EventSource('/api/v1/events')
+      const token = localStorage.getItem('orion_access_token') ?? ''
+      const es = new EventSource(`/api/v1/events?token=${encodeURIComponent(token)}`)
       esRef.current = es
       es.onmessage = (e) => {
         try { fire(JSON.parse(e.data) as PushEvent) } catch { /* heartbeat */ }

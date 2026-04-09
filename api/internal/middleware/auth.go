@@ -14,13 +14,17 @@ const claimsKey = "auth_claims"
 // RequireAuth validates the Bearer JWT and sets auth claims in the gin context.
 func RequireAuth(authSvc *services.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var tokenStr string
 		header := c.GetHeader("Authorization")
-		if header == "" || !strings.HasPrefix(header, "Bearer ") {
+		if header != "" && strings.HasPrefix(header, "Bearer ") {
+			tokenStr = strings.TrimPrefix(header, "Bearer ")
+		} else if q := c.Query("token"); q != "" {
+			// Allow token via query param for SSE (EventSource can't set headers)
+			tokenStr = q
+		} else {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing authorization header"})
 			return
 		}
-
-		tokenStr := strings.TrimPrefix(header, "Bearer ")
 		claims, err := authSvc.ValidateAccessToken(tokenStr)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
