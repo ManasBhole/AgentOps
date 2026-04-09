@@ -57,7 +57,7 @@ func (os *OrchestrationService) DeployAgent(ctx context.Context, agentID string,
 
 	// Create deployment record
 	deployment := &database.Deployment{
-		ID:        fmt.Sprintf("deploy_%d", agentID),
+		ID:        fmt.Sprintf("deploy_%s", agentID),
 		AgentID:   agentID,
 		Namespace: "default",
 		Replicas:  1,
