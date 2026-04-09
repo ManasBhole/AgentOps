@@ -22,7 +22,7 @@ Available tables and columns:
 - incidents: id, title, severity (critical/high/medium/low), status (open/investigating/resolved), agent_id, trace_id, root_cause, confidence (float), created_at, resolved_at
 - deployments: id, agent_id, namespace, replicas, status, created_at
 - router_logs: id, agent_id, task, complexity (simple/moderate/complex), model_chosen, cost_est_usd (float), created_at
-- behavioral_fingerprints: id, agent_id, window, window_start, p50_latency_ms, p95_latency_ms, error_rate, total_cost_usd, health_score, computed_at
+- behavioral_fingerprints: id, agent_id, time_window, window_start, p50_latency_ms, p95_latency_ms, error_rate, total_cost_usd, health_score, computed_at
 - anomaly_events: id, agent_id, metric, z_score, observed_value, deviation_pct, severity, status, created_at
 - audit_entries: id, user_id, user_email, user_role, action, resource, method, path, status_code, created_at
 - slo_definitions: id, agent_id, name, sli_type, target_value, window_days, enabled, created_at
@@ -141,7 +141,7 @@ func (s *NLQService) generateSQL(question string) (string, error) {
 	}
 
 	reqBody := llmRequest{
-		Model:     "ai-model-fast",
+		Model:     "claude-haiku-4-5-20251001",
 		MaxTokens: 512,
 		System:    nlqSchemaContext,
 		Messages: []llmMessage{
@@ -150,10 +150,10 @@ func (s *NLQService) generateSQL(question string) (string, error) {
 	}
 	b, _ := json.Marshal(reqBody)
 
-	req, _ := http.NewRequest("POST", "https://api.orion.io/v1/messages", bytes.NewReader(b))
+	req, _ := http.NewRequest("POST", "https://api.anthropic.com/v1/messages", bytes.NewReader(b))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", s.apiKey)
-	req.Header.Set("api-version", "2023-06-01")
+	req.Header.Set("anthropic-version", "2023-06-01")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
