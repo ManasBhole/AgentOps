@@ -134,7 +134,7 @@ func (s *BehavioralFingerprintService) GetFingerprint(
 ) (*database.BehavioralFingerprint, error) {
 	var fp database.BehavioralFingerprint
 	err := s.db.WithContext(ctx).
-		Where("agent_id = ? AND window = ?", agentID, windowLabel).
+		Where("agent_id = ? AND time_window = ?", agentID, windowLabel).
 		Order("computed_at DESC").
 		First(&fp).Error
 	if err != nil {
@@ -149,7 +149,7 @@ func (s *BehavioralFingerprintService) GetFingerprintHistory(
 ) ([]database.BehavioralFingerprint, error) {
 	var fps []database.BehavioralFingerprint
 	err := s.db.WithContext(ctx).
-		Where("agent_id = ? AND window = ?", agentID, windowLabel).
+		Where("agent_id = ? AND time_window = ?", agentID, windowLabel).
 		Order("computed_at DESC").
 		Limit(limit).
 		Find(&fps).Error
@@ -164,7 +164,7 @@ func (s *BehavioralFingerprintService) GetFleetFingerprints(
 	subSQL := `
 		SELECT DISTINCT ON (agent_id) *
 		FROM behavioral_fingerprints
-		WHERE window = ?
+		WHERE time_window = ?
 		ORDER BY agent_id, computed_at DESC
 	`
 	var fps []database.BehavioralFingerprint

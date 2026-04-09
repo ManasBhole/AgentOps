@@ -132,7 +132,7 @@ type APIKey struct {
 type BehavioralFingerprint struct {
 	ID               string    `gorm:"primaryKey" json:"id"`
 	AgentID          string    `gorm:"index" json:"agent_id"`
-	Window           string    `json:"window"` // "1h" | "6h" | "24h" | "7d"
+	Window           string    `gorm:"column:time_window" json:"window"` // "1h" | "6h" | "24h" | "7d"
 	WindowStart      time.Time `gorm:"index" json:"window_start"`
 	WindowEnd        time.Time `json:"window_end"`
 	SampleCount      int64     `json:"sample_count"`

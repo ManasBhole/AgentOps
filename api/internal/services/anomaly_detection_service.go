@@ -57,7 +57,7 @@ func (s *AnomalyDetectionService) RunDetection(ctx context.Context, zThreshold f
 		// Get the most recent 24h fingerprint as the "current" snapshot
 		var current database.BehavioralFingerprint
 		if err := s.db.WithContext(ctx).
-			Where("agent_id = ? AND window = ?", agent.ID, "24h").
+			Where("agent_id = ? AND time_window = ?", agent.ID, "24h").
 			Order("computed_at DESC").
 			First(&current).Error; err != nil {
 			continue // no fingerprint yet
@@ -66,7 +66,7 @@ func (s *AnomalyDetectionService) RunDetection(ctx context.Context, zThreshold f
 		// Build the 7d baseline: load last 7 days of 24h fingerprints for stats
 		var history []database.BehavioralFingerprint
 		s.db.WithContext(ctx).
-			Where("agent_id = ? AND window = ? AND computed_at > ?", agent.ID, "24h", now.Add(-7*24*time.Hour)).
+			Where("agent_id = ? AND time_window = ? AND computed_at > ?", agent.ID, "24h", now.Add(-7*24*time.Hour)).
 			Order("computed_at DESC").
 			Limit(168). // 7 * 24 snapshots
 			Find(&history)
