@@ -24,7 +24,9 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
-        value: https://orion-dashboard.vercel.app
+        value: https://orion-ai-dashboard.vercel.app
+      - key: LLM_API_KEY
+        sync: false
 
   - type: web
     name: orion-dashboard
