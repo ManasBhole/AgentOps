@@ -57,6 +57,8 @@ type Handlers struct {
 	abTestService *services.ABTestService
 	// Red Team Engine
 	redTeamService *services.RedTeamService
+	// Alert Rules
+	alertRuleService *services.AlertRuleService
 }
 
 func NewHandlers(
@@ -98,6 +100,7 @@ func NewHandlers(
 		aiAnalysisService:       services.NewAIAnalysisService(db, logger, anthroAPIKey),
 		abTestService:           services.NewABTestService(db, logger),
 		redTeamService:          services.NewRedTeamService(db, logger, anthroAPIKey),
+		alertRuleService:        services.NewAlertRuleService(db, logger),
 	}
 }
 

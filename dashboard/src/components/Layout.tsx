@@ -7,7 +7,7 @@ import {
   LogOut, Shield, ShieldAlert, Target, Rewind, Radiation,
   Sparkles, Dna, Zap, Flame, DollarSign, GitMerge,
   Sun, Moon, Search, PanelLeftClose, PanelLeftOpen,
-  FileText, ChevronDown,
+  FileText, ChevronDown, GitCompare,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import api from '../services/api'
@@ -68,6 +68,7 @@ const navSections: NavSection[] = [
       { path: '/blast-radius',label: 'Blast Radius',    icon: Radiation },
       { path: '/timetravel',  label: 'Time-Travel',     icon: Rewind },
       { path: '/alerts',      label: 'Alert Correlation',icon: GitMerge },
+      { path: '/alert-rules', label: 'Alert Rules',      icon: Bell },
     ],
   },
   {
@@ -90,6 +91,7 @@ const navSections: NavSection[] = [
       { path: '/prompts',      label: 'Prompts',      icon: FileText },
       { path: '/evals',        label: 'Evals',        icon: FlaskConical },
       { path: '/abtesting',    label: 'A/B Testing',  icon: GitBranch },
+      { path: '/compare',      label: 'Compare Agents', icon: GitCompare },
       { path: '/integrations', label: 'Integrations', icon: Zap },
       { path: '/redteam',      label: 'Red Team',     icon: ShieldAlert },
     ],

@@ -74,6 +74,21 @@ func main() {
 	// Start NEXUS background scheduler
 	nexusCtx, nexusCancel := context.WithCancel(context.Background())
 	defer nexusCancel()
+
+	// Start alert rule evaluator (runs every 60 s)
+	alertRuleSvc := services.NewAlertRuleService(db, logger)
+	go func() {
+		ticker := time.NewTicker(60 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				alertRuleSvc.EvaluateAll()
+			case <-nexusCtx.Done():
+				return
+			}
+		}
+	}()
 	nexus := services.NewNEXUSScheduler(
 		services.NewBehavioralFingerprintService(db, logger),
 		services.NewAnomalyDetectionService(db, logger, hub),
@@ -367,6 +382,18 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.GET("/security/events", h.ListSecurityEvents)
 		v1.POST("/security/events/:id/resolve", middleware.RequireRole("nexus", "write"), h.ResolveSecurityEvent)
 		v1.GET("/security/stats", h.GetSecurityStats)
+
+		// Live Stats & Agent Compare
+		v1.GET("/stats/live", h.GetLiveStats)
+		v1.GET("/agents/compare", h.CompareAgents)
+
+		// Alert Rules
+		v1.GET("/alert-rules", h.ListAlertRules)
+		v1.POST("/alert-rules", middleware.RequireRole("agents", "write"), h.CreateAlertRule)
+		v1.PATCH("/alert-rules/:id", middleware.RequireRole("agents", "write"), h.UpdateAlertRule)
+		v1.DELETE("/alert-rules/:id", middleware.RequireRole("agents", "write"), h.DeleteAlertRule)
+		v1.GET("/alert-rules/firings", h.ListAllFirings)
+		v1.GET("/alert-rules/:id/firings", h.ListAlertFirings)
 	}
 
 	return router

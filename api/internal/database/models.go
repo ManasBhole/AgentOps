@@ -561,5 +561,46 @@ func Migrate(db *gorm.DB) error {
 		&RedTeamVector{},
 		&RedTeamScan{},
 		&RedTeamFinding{},
+		// Alert Rules
+		&AlertRule{},
+		&AlertFiring{},
 	)
+}
+
+// AlertRule defines a threshold-based notification rule.
+// metric: "error_rate" | "avg_latency_ms" | "cost_per_hour"
+// operator: "gt" | "lt"
+// channels: JSON array e.g. ["webhook","slack"]
+type AlertRule struct {
+	ID          string     `gorm:"primaryKey" json:"id"`
+	Name        string     `json:"name"`
+	AgentID     string     `gorm:"index" json:"agent_id"` // empty = all agents
+	Metric      string     `json:"metric"`
+	Operator    string     `json:"operator"` // "gt" | "lt"
+	Threshold   float64    `json:"threshold"`
+	Channels    string     `gorm:"type:text" json:"channels"` // JSON []string
+	SlackURL    string     `gorm:"type:text" json:"slack_url,omitempty"`
+	EmailTo     string     `gorm:"type:text" json:"email_to,omitempty"`
+	Enabled     bool       `gorm:"default:true" json:"enabled"`
+	LastEvalAt  *time.Time `json:"last_eval_at,omitempty"`
+	LastFiredAt *time.Time `json:"last_fired_at,omitempty"`
+	CreatedBy   string     `json:"created_by"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+}
+
+// AlertFiring records each time a rule fires or resolves.
+type AlertFiring struct {
+	ID           string     `gorm:"primaryKey" json:"id"`
+	RuleID       string     `gorm:"index" json:"rule_id"`
+	RuleName     string     `json:"rule_name"`
+	AgentID      string     `json:"agent_id"`
+	Metric       string     `json:"metric"`
+	CurrentValue float64    `json:"current_value"`
+	Threshold    float64    `json:"threshold"`
+	Operator     string     `json:"operator"`
+	Message      string     `gorm:"type:text" json:"message"`
+	Status       string     `json:"status"` // "firing" | "resolved"
+	FiredAt      time.Time  `gorm:"index" json:"fired_at"`
+	ResolvedAt   *time.Time `json:"resolved_at,omitempty"`
 }

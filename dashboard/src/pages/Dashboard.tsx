@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import {
   Bot, Siren, GitBranch, TrendingUp, TrendingDown,
   Zap, Clock, CheckCircle2, XCircle, ArrowRight,
+  Coins, Activity, ShieldCheck,
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis,
@@ -14,6 +15,11 @@ type Stats = {
   total_agents: number; active_agents: number
   active_incidents: number; total_traces: number
   error_traces: number; avg_latency_ms: number; error_rate: number
+}
+type LiveStats = {
+  tokens: { last_1h: number; last_24h: number; last_7d: number }
+  cost: { per_hour: number; per_day_projected: number; last_24h_actual: number }
+  uptime: { fleet_pct: number; agents: { agent_id: string; agent_name: string; uptime_pct: number }[] }
 }
 type Trace = { id: string; agent_id: string; name: string; status: string; duration_ms: number; start_time: string }
 type Incident = { id: string; title: string; severity: string; status: string; agent_id: string; created_at: string }
@@ -71,6 +77,11 @@ export default function Dashboard() {
     queryFn: async () => { const { data } = await api.get('/traces', { params: { limit: 8 } }); return data.traces ?? [] },
     refetchInterval: 10_000,
   })
+  const { data: live } = useQuery<LiveStats>({
+    queryKey: ['live-stats'],
+    queryFn: async () => { const { data } = await api.get('/stats/live'); return data },
+    refetchInterval: 10_000,
+  })
 
   const hourly = buildHourlyChart(traces)
   const agentErrors = buildAgentErrorChart(traces)
@@ -119,6 +130,70 @@ export default function Dashboard() {
             <div className="text-xs text-gray-500 mt-1">{card.sub}</div>
           </div>
         ))}
+      </div>
+
+      {/* Live widgets: token usage, cost burn, fleet uptime */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Token usage */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">LLM Calls</span>
+            <Activity className="h-4 w-4 text-indigo-400" />
+          </div>
+          <div className="text-2xl font-bold text-white">{(live?.tokens.last_1h ?? 0).toLocaleString()}</div>
+          <div className="text-xs text-gray-500 mt-1">last hour</div>
+          <div className="mt-3 grid grid-cols-2 gap-2 pt-3 border-t border-gray-800">
+            <div>
+              <div className="text-sm font-semibold text-gray-300">{(live?.tokens.last_24h ?? 0).toLocaleString()}</div>
+              <div className="text-xs text-gray-600">24 h</div>
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-gray-300">{(live?.tokens.last_7d ?? 0).toLocaleString()}</div>
+              <div className="text-xs text-gray-600">7 d</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Cost burn */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Cost Burn</span>
+            <Coins className="h-4 w-4 text-yellow-400" />
+          </div>
+          <div className="text-2xl font-bold text-white">
+            ${(live?.cost.per_hour ?? 0).toFixed(4)}
+            <span className="text-sm font-normal text-gray-500">/hr</span>
+          </div>
+          <div className="text-xs text-gray-500 mt-1">
+            projected ${(live?.cost.per_day_projected ?? 0).toFixed(3)}/day
+          </div>
+          <div className="mt-3 pt-3 border-t border-gray-800">
+            <div className="text-sm font-semibold text-gray-300">${(live?.cost.last_24h_actual ?? 0).toFixed(4)}</div>
+            <div className="text-xs text-gray-600">actual last 24 h</div>
+          </div>
+        </div>
+
+        {/* Fleet uptime */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Fleet Uptime</span>
+            <ShieldCheck className={`h-4 w-4 ${(live?.uptime.fleet_pct ?? 100) >= 99 ? 'text-emerald-400' : (live?.uptime.fleet_pct ?? 100) >= 95 ? 'text-yellow-400' : 'text-red-400'}`} />
+          </div>
+          <div className={`text-2xl font-bold ${(live?.uptime.fleet_pct ?? 100) >= 99 ? 'text-emerald-400' : (live?.uptime.fleet_pct ?? 100) >= 95 ? 'text-yellow-400' : 'text-red-400'}`}>
+            {(live?.uptime.fleet_pct ?? 100).toFixed(1)}%
+          </div>
+          <div className="text-xs text-gray-500 mt-1">30-day rolling average</div>
+          <div className="mt-3 pt-3 border-t border-gray-800 space-y-1 max-h-16 overflow-y-auto">
+            {(live?.uptime.agents ?? []).map(a => (
+              <div key={a.agent_id} className="flex justify-between text-xs">
+                <span className="text-gray-500 truncate max-w-[70%]">{a.agent_name}</span>
+                <span className={a.uptime_pct >= 99 ? 'text-emerald-400' : a.uptime_pct >= 95 ? 'text-yellow-400' : 'text-red-400'}>
+                  {a.uptime_pct.toFixed(1)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Charts row */}

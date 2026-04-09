@@ -33,6 +33,8 @@ import Register from './pages/Register'
 import Integrations from './pages/Integrations'
 import ABTesting from './pages/ABTesting'
 import RedTeam from './pages/RedTeam'
+import AgentComparison from './pages/AgentComparison'
+import AlertRules from './pages/AlertRules'
 
 function App() {
   return (
@@ -76,6 +78,8 @@ function App() {
                     <Route path="/integrations" element={<Integrations />} />
                     <Route path="/redteam" element={<RedTeam />} />
                     <Route path="/abtesting" element={<ABTesting />} />
+                    <Route path="/compare" element={<AgentComparison />} />
+                    <Route path="/alert-rules" element={<AlertRules />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>
