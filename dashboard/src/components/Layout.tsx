@@ -168,11 +168,11 @@ export default function Layout({ children }: LayoutProps) {
             /* Collapsed: full-width toggle button so it's always clickable */
             <button
               onClick={() => setCollapsed(false)}
-              className="flex items-center justify-center w-full h-full transition-colors"
-              style={{ color: 'var(--text-muted)' }}
+              className="flex items-center justify-center w-full h-full rounded-md transition-all hover:bg-indigo-500/20"
+              style={{ color: '#818cf8' }}
               title="Expand sidebar"
             >
-              <PanelLeftOpen className="h-3.5 w-3.5" />
+              <PanelLeftOpen className="h-5 w-5" />
             </button>
           ) : (
             <>
