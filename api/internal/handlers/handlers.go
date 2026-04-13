@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
+	"github.com/manasbhole/orion/api/internal/config"
 	"github.com/manasbhole/orion/api/internal/database"
 	"github.com/manasbhole/orion/api/internal/services"
 )
@@ -59,6 +60,9 @@ type Handlers struct {
 	redTeamService *services.RedTeamService
 	// Alert Rules
 	alertRuleService *services.AlertRuleService
+	// OAuth
+	oauthService *services.OAuthService
+	cfg          *config.Config
 }
 
 func NewHandlers(
@@ -70,6 +74,7 @@ func NewHandlers(
 	hub *services.EventHub,
 	authService *services.AuthService,
 	anthroAPIKey string,
+	cfg *config.Config,
 ) *Handlers {
 	health := services.NewHealthService(db, logger)
 	return &Handlers{
@@ -101,6 +106,8 @@ func NewHandlers(
 		abTestService:           services.NewABTestService(db, logger),
 		redTeamService:          services.NewRedTeamService(db, logger, anthroAPIKey),
 		alertRuleService:        services.NewAlertRuleService(db, logger),
+		oauthService:            services.NewOAuthService(db, logger, cfg),
+		cfg:                     cfg,
 	}
 }
 

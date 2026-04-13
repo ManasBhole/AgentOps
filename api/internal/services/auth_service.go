@@ -223,6 +223,25 @@ func (s *AuthService) signAccessToken(user *database.User) (string, error) {
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(s.jwtSecret)
 }
 
+// IssueTokensForUser generates an access + refresh token pair for an OAuth-authenticated user.
+func (s *AuthService) IssueTokensForUser(user *database.User, userAgent, ip string) (accessToken, refreshToken string, err error) {
+	accessToken, err = s.signAccessToken(user)
+	if err != nil {
+		return
+	}
+	refreshToken = uuid.New().String()
+	session := &database.Session{
+		ID:           "ses_" + uuid.New().String(),
+		UserID:       user.ID,
+		RefreshToken: refreshToken,
+		UserAgent:    userAgent,
+		IPAddress:    ip,
+		ExpiresAt:    time.Now().UTC().Add(refreshTokenTTL),
+	}
+	err = s.db.Create(session).Error
+	return
+}
+
 // GetUser returns a user by ID.
 func (s *AuthService) GetUser(id string) (*database.User, error) {
 	var user database.User

@@ -69,6 +69,7 @@ func main() {
 		hub,
 		authSvc,
 		cfg.LLMAPIKey,
+		cfg,
 	)
 
 	// Start NEXUS background scheduler
@@ -161,6 +162,10 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		auth.POST("/login", h.Login)
 		auth.POST("/logout", h.Logout)
 		auth.POST("/refresh", h.RefreshToken)
+		auth.GET("/oauth/providers", h.ListOAuthProviders)
+		auth.GET("/oauth/:provider", h.OAuthRedirect)
+		auth.GET("/oauth/:provider/callback", h.OAuthCallback)
+		auth.POST("/oauth/:provider/callback", h.OAuthCallback) // Apple uses POST
 
 		// Protected auth routes
 		authProtected := auth.Group("")

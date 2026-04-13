@@ -35,6 +35,7 @@ import ABTesting from './pages/ABTesting'
 import RedTeam from './pages/RedTeam'
 import AgentComparison from './pages/AgentComparison'
 import AlertRules from './pages/AlertRules'
+import OAuthCallback from './pages/OAuthCallback'
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
           <Route
             path="/*"
             element={

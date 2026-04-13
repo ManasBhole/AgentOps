@@ -234,6 +234,19 @@ type User struct {
 	UpdatedAt    time.Time  `json:"updated_at"`
 }
 
+// OAuthAccount links an external OAuth provider identity to a User.
+type OAuthAccount struct {
+	ID             string    `gorm:"primaryKey" json:"id"`
+	UserID         string    `gorm:"index;not null" json:"user_id"`
+	Provider       string    `gorm:"index;not null" json:"provider"` // google|github|linkedin|twitter|apple
+	ProviderUserID string    `gorm:"not null" json:"provider_user_id"`
+	Email          string    `json:"email"`
+	Name           string    `json:"name"`
+	AvatarURL      string    `json:"avatar_url"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
 // Session tracks active JWT refresh tokens per user.
 type Session struct {
 	ID           string    `gorm:"primaryKey" json:"id"`
@@ -518,6 +531,7 @@ func Migrate(db *gorm.DB) error {
 		&APIKey{},
 		// Auth
 		&User{},
+		&OAuthAccount{},
 		&Session{},
 		&AuditEntry{},
 		// NEXUS

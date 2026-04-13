@@ -23,6 +23,7 @@ interface AuthContextValue extends AuthState {
   register: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   checkAccess: (resource: string, action: string) => boolean
+  storeOAuthSession: (data: { access_token: string; refresh_token: string; user: AuthUser }) => void
 }
 
 const RBAC: Record<UserRole, Record<string, string[]>> = {
@@ -126,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state.user])
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, checkAccess }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, checkAccess, storeOAuthSession: storeSession }}>
       {children}
     </AuthContext.Provider>
   )
