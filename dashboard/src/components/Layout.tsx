@@ -161,39 +161,49 @@ export default function Layout({ children }: LayoutProps) {
       >
         {/* Brand */}
         <div
-          className="flex items-center h-14 px-3 gap-2.5 flex-shrink-0 border-b"
-          style={{ borderColor: 'var(--border-subtle)' }}
+          className="flex items-center h-14 flex-shrink-0 border-b"
+          style={{ borderColor: 'var(--border-subtle)', padding: collapsed ? '0' : '0 12px', gap: collapsed ? 0 : 10 }}
         >
-          {/* Orion logo mark — 3-star constellation */}
-          <div className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', boxShadow: '0 0 12px rgba(99,102,241,0.4)' }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="3" r="1.5" fill="white" fillOpacity="0.95" />
-              <circle cx="4" cy="9" r="1.2" fill="white" fillOpacity="0.75" />
-              <circle cx="12" cy="9" r="1.2" fill="white" fillOpacity="0.75" />
-              <circle cx="6" cy="13" r="0.9" fill="white" fillOpacity="0.5" />
-              <circle cx="10" cy="13" r="0.9" fill="white" fillOpacity="0.5" />
-              <line x1="8" y1="3" x2="4" y2="9" stroke="white" strokeOpacity="0.3" strokeWidth="0.7" />
-              <line x1="8" y1="3" x2="12" y2="9" stroke="white" strokeOpacity="0.3" strokeWidth="0.7" />
-              <line x1="4" y1="9" x2="6" y2="13" stroke="white" strokeOpacity="0.2" strokeWidth="0.7" />
-              <line x1="12" y1="9" x2="10" y2="13" stroke="white" strokeOpacity="0.2" strokeWidth="0.7" />
-            </svg>
-          </div>
-          {!collapsed && (
-            <span className="font-bold text-sm tracking-wide flex-1" style={{ color: 'var(--text-primary)' }}>
-              Orion
-            </span>
+          {collapsed ? (
+            /* Collapsed: full-width toggle button so it's always clickable */
+            <button
+              onClick={() => setCollapsed(false)}
+              className="flex items-center justify-center w-full h-full transition-colors"
+              style={{ color: 'var(--text-muted)' }}
+              title="Expand sidebar"
+            >
+              <PanelLeftOpen className="h-3.5 w-3.5" />
+            </button>
+          ) : (
+            <>
+              {/* Orion logo mark */}
+              <div className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', boxShadow: '0 0 12px rgba(99,102,241,0.4)' }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="3" r="1.5" fill="white" fillOpacity="0.95" />
+                  <circle cx="4" cy="9" r="1.2" fill="white" fillOpacity="0.75" />
+                  <circle cx="12" cy="9" r="1.2" fill="white" fillOpacity="0.75" />
+                  <circle cx="6" cy="13" r="0.9" fill="white" fillOpacity="0.5" />
+                  <circle cx="10" cy="13" r="0.9" fill="white" fillOpacity="0.5" />
+                  <line x1="8" y1="3" x2="4" y2="9" stroke="white" strokeOpacity="0.3" strokeWidth="0.7" />
+                  <line x1="8" y1="3" x2="12" y2="9" stroke="white" strokeOpacity="0.3" strokeWidth="0.7" />
+                  <line x1="4" y1="9" x2="6" y2="13" stroke="white" strokeOpacity="0.2" strokeWidth="0.7" />
+                  <line x1="12" y1="9" x2="10" y2="13" stroke="white" strokeOpacity="0.2" strokeWidth="0.7" />
+                </svg>
+              </div>
+              <span className="font-bold text-sm tracking-wide flex-1" style={{ color: 'var(--text-primary)' }}>
+                Orion
+              </span>
+              <button
+                onClick={() => setCollapsed(true)}
+                className="flex-shrink-0 p-1.5 rounded-lg transition-colors"
+                style={{ color: 'var(--text-muted)' }}
+                title="Collapse sidebar"
+              >
+                <PanelLeftClose className="h-3.5 w-3.5" />
+              </button>
+            </>
           )}
-          <button
-            onClick={() => setCollapsed(v => !v)}
-            className="flex-shrink-0 p-1.5 rounded-lg transition-colors"
-            style={{ color: 'var(--text-muted)' }}
-            title={collapsed ? 'Expand' : 'Collapse'}
-          >
-            {collapsed
-              ? <PanelLeftOpen className="h-3.5 w-3.5" />
-              : <PanelLeftClose className="h-3.5 w-3.5" />}
-          </button>
         </div>
 
         {/* Nav */}
