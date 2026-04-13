@@ -1189,5 +1189,72 @@ Return exactly 3 reformulated queries, one per line. No numbering or labels.`,
 		})
 	}
 
+	// ── Timeline Forks (Time-Travel Debugger) ────────────────────────────────
+	type forkMeta struct {
+		id, traceID, snapID, label, notes string
+		seqNum, hoursAgo                  int
+	}
+	forkItems := []forkMeta{
+		{"fork_001", "trc_research01_03", "snap_trc_research01_03_02",
+			"What if token cap was 80k?", "Tested alternative budget ceiling to prevent OOM.", 2, 48},
+		{"fork_002", "trc_ragpipe03_07", "snap_trc_ragpipe03_07_01",
+			"With stricter confidence threshold", "Raised min confidence to 0.85 to reduce hallucinations.", 1, 36},
+		{"fork_003", "trc_orchest04_02", "snap_trc_orchest04_02_03",
+			"Retry with max_retries=1", "Reduced retry budget to prevent infinite loop.", 3, 24},
+		{"fork_004", "trc_research01_08", "snap_trc_research01_08_02",
+			"Memory compression at 20k tokens", "Enabled rolling compression earlier in context.", 2, 12},
+	}
+	for _, f := range forkItems {
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&database.TimelineFork{
+			ID: f.id, OriginalTraceID: f.traceID, ForkSnapshotID: f.snapID,
+			ForkSeqNum: f.seqNum, Label: f.label, Notes: f.notes,
+			CreatedBy: "usr_admin_01",
+			CreatedAt: now.Add(-time.Duration(f.hoursAgo) * time.Hour),
+		})
+	}
+
+	// ── Alert Rules ───────────────────────────────────────────────────────────
+	channels := mustJSON([]string{"webhook"})
+	alertRules := []database.AlertRule{
+		{ID: "ar_001", Name: "High error rate — any agent", AgentID: "", Metric: "error_rate",
+			Operator: "gt", Threshold: 10.0, Channels: channels,
+			Enabled: true, CreatedBy: "admin@orion.ai", CreatedAt: now.Add(-7 * day), UpdatedAt: now.Add(-7 * day)},
+		{ID: "ar_002", Name: "Slow responses — research agent", AgentID: "agt_research01", Metric: "avg_latency_ms",
+			Operator: "gt", Threshold: 8000.0, Channels: channels,
+			Enabled: true, CreatedBy: "admin@orion.ai", CreatedAt: now.Add(-5 * day), UpdatedAt: now.Add(-5 * day)},
+		{ID: "ar_003", Name: "Cost spike — orchestrator", AgentID: "agt_orchest04", Metric: "cost_per_hour",
+			Operator: "gt", Threshold: 0.50, Channels: channels,
+			Enabled: true, CreatedBy: "admin@orion.ai", CreatedAt: now.Add(-3 * day), UpdatedAt: now.Add(-3 * day)},
+		{ID: "ar_004", Name: "Low error rate check (paused)", AgentID: "", Metric: "error_rate",
+			Operator: "lt", Threshold: 0.1, Channels: channels,
+			Enabled: false, CreatedBy: "admin@orion.ai", CreatedAt: now.Add(-2 * day), UpdatedAt: now.Add(-2 * day)},
+	}
+	for _, r := range alertRules {
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&r)
+	}
+
+	// ── Alert Firings ─────────────────────────────────────────────────────────
+	firedAt1 := now.Add(-26 * time.Hour)
+	firedAt2 := now.Add(-14 * time.Hour)
+	firedAt3 := now.Add(-3 * time.Hour)
+	resolvedAt := now.Add(-12 * time.Hour)
+	alertFirings := []database.AlertFiring{
+		{ID: "af_001", RuleID: "ar_001", RuleName: "High error rate — any agent",
+			AgentID: "agt_ragpipe03", Metric: "error_rate", CurrentValue: 23.4, Threshold: 10.0,
+			Operator: "gt", Message: "Alert 'High error rate — any agent': error_rate for agent agt_ragpipe03 is 23.40 (gt 10.00)",
+			Status: "resolved", FiredAt: firedAt1, ResolvedAt: &resolvedAt},
+		{ID: "af_002", RuleID: "ar_002", RuleName: "Slow responses — research agent",
+			AgentID: "agt_research01", Metric: "avg_latency_ms", CurrentValue: 9420.0, Threshold: 8000.0,
+			Operator: "gt", Message: "Alert 'Slow responses — research agent': avg_latency_ms for agent agt_research01 is 9420.00 (gt 8000.00)",
+			Status: "resolved", FiredAt: firedAt2, ResolvedAt: &resolvedAt},
+		{ID: "af_003", RuleID: "ar_001", RuleName: "High error rate — any agent",
+			AgentID: "agt_research01", Metric: "error_rate", CurrentValue: 15.2, Threshold: 10.0,
+			Operator: "gt", Message: "Alert 'High error rate — any agent': error_rate for agent agt_research01 is 15.20 (gt 10.00)",
+			Status: "firing", FiredAt: firedAt3},
+	}
+	for _, f := range alertFirings {
+		db.Clauses(clause.OnConflict{DoNothing: true}).Create(&f)
+	}
+
 	return nil
 }
