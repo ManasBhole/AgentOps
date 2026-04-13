@@ -7,7 +7,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.5.0
 	github.com/gorilla/websocket v1.5.3
-	go.uber.org/zap v1.26.0
+	go.uber.org/zap v1.27.1
 	golang.org/x/crypto v0.14.0
 	golang.org/x/oauth2 v0.12.0
 	gorm.io/driver/postgres v1.5.4
