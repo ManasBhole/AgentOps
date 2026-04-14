@@ -32,7 +32,7 @@ const NAV: NavSection[] = [
     { path: '/deployments',   label: 'Deployments',   icon: Rocket },
     { path: '/slo',           label: 'SLO',           icon: Target },
   ]},
-  { label: 'Analyze', colorHex: '#a78bfa', items: [
+  { label: 'Analyze', colorHex: '#93c5fd', items: [
     { path: '/analytics',    label: 'Analytics',    icon: BarChart3 },
     { path: '/intelligence', label: 'Intelligence', icon: Brain },
     { path: '/nexus',        label: 'NEXUS',        icon: Cpu },
@@ -63,7 +63,7 @@ const NAV: NavSection[] = [
 ]
 
 const ROLE_COLOR: Record<string, string> = {
-  owner: '#fbbf24', admin: '#818cf8', 'agent-runner': '#34d399', viewer: '#94a3b8',
+  owner: '#fbbf24', admin: '#60a5fa', 'agent-runner': '#34d399', viewer: '#94a3b8',
 }
 
 export default function Layout({ children }: LayoutProps) {
@@ -140,9 +140,9 @@ export default function Layout({ children }: LayoutProps) {
                 width: '100%', height: '100%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: '#6366f1', borderRadius: 0, transition: 'background 0.15s',
+                color: '#3b82f6', borderRadius: 0, transition: 'background 0.15s',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.1)')}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(59,130,246,0.1)')}
               onMouseLeave={e => (e.currentTarget.style.background = 'none')}
             >
               <PanelLeftOpen style={{ width: 18, height: 18 }} />
@@ -152,8 +152,8 @@ export default function Layout({ children }: LayoutProps) {
               <div style={{
                 flexShrink: 0, width: 30, height: 30, borderRadius: 10,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
-                boxShadow: '0 0 16px rgba(99,102,241,0.45)',
+                background: 'linear-gradient(135deg,#3b82f6,#2563eb)',
+                boxShadow: '0 0 16px rgba(59,130,246,0.35)',
               }}>
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                   <circle cx="8" cy="3.5" r="1.5" fill="white"/>
@@ -184,7 +184,7 @@ export default function Layout({ children }: LayoutProps) {
           {/* Dashboard */}
           <div style={{ padding: '0 8px', marginBottom: 6 }}>
             <SideLink path="/" label="Dashboard" icon={LayoutDashboard}
-              active={isActive('/') && location.pathname === '/'} collapsed={collapsed} accent="#6366f1" />
+              active={isActive('/') && location.pathname === '/'} collapsed={collapsed} accent="#3b82f6" />
           </div>
 
           {NAV.map(section => (
@@ -216,7 +216,7 @@ export default function Layout({ children }: LayoutProps) {
         {/* Settings + user */}
         <div style={{ padding: '6px 8px 10px', borderTop: '1px solid var(--border-subtle)' }}>
           <SideLink path="/settings" label="Settings" icon={Settings}
-            active={isActive('/settings')} collapsed={collapsed} accent="#6366f1" />
+            active={isActive('/settings')} collapsed={collapsed} accent="#3b82f6" />
         </div>
       </aside>
 
@@ -284,7 +284,7 @@ export default function Layout({ children }: LayoutProps) {
             <div ref={notifRef} style={{ position: 'relative' }}>
               <HeaderBtn onClick={handleBellClick}>
                 {unread > 0
-                  ? <><BellRing style={{ width: 15, height: 15, color: '#818cf8' }} /><span style={{ position: 'absolute', top: 4, right: 4, width: 7, height: 7, borderRadius: '50%', background: '#ef4444', border: '1px solid var(--bg-header)' }} /></>
+                  ? <><BellRing style={{ width: 15, height: 15, color: '#60a5fa' }} /><span style={{ position: 'absolute', top: 4, right: 4, width: 7, height: 7, borderRadius: '50%', background: '#ef4444', border: '1px solid var(--bg-header)' }} /></>
                   : <Bell style={{ width: 15, height: 15 }} />
                 }
               </HeaderBtn>
@@ -298,7 +298,7 @@ export default function Layout({ children }: LayoutProps) {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border-subtle)' }}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Notifications</span>
                     {permission !== 'granted' ? (
-                      <button onClick={requestPermission} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, padding: '3px 8px', borderRadius: 8, color: '#818cf8', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', cursor: 'pointer' }}>
+                      <button onClick={requestPermission} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, padding: '3px 8px', borderRadius: 8, color: '#60a5fa', background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', cursor: 'pointer' }}>
                         <BellRing style={{ width: 11, height: 11 }} /> Enable push
                       </button>
                     ) : pushEnabled ? (
@@ -306,7 +306,7 @@ export default function Layout({ children }: LayoutProps) {
                         <BellOff style={{ width: 11, height: 11 }} /> Turn off
                       </button>
                     ) : (
-                      <button onClick={enablePush} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, padding: '3px 8px', borderRadius: 8, color: '#818cf8', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', cursor: 'pointer' }}>
+                      <button onClick={enablePush} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, padding: '3px 8px', borderRadius: 8, color: '#60a5fa', background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', cursor: 'pointer' }}>
                         <BellRing style={{ width: 11, height: 11 }} /> Turn on
                       </button>
                     )}
@@ -330,7 +330,7 @@ export default function Layout({ children }: LayoutProps) {
                           <div style={{ fontSize: 10, marginTop: 2, color: 'var(--text-faint)' }}>{new Date(evt.timestamp).toLocaleTimeString()}</div>
                         </div>
                         {evt.type !== 'incident.resolved' && (
-                          <Link to="/incidents" onClick={() => setNotifOpen(false)} style={{ fontSize: 11, color: '#818cf8', textDecoration: 'none', flexShrink: 0 }}>View →</Link>
+                          <Link to="/incidents" onClick={() => setNotifOpen(false)} style={{ fontSize: 11, color: '#60a5fa', textDecoration: 'none', flexShrink: 0 }}>View →</Link>
                         )}
                       </div>
                     ))}
@@ -349,7 +349,7 @@ export default function Layout({ children }: LayoutProps) {
                 onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--bg-input)')}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'none')}
               >
-                <div style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 11, color: 'white', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', flexShrink: 0 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 11, color: 'white', background: 'linear-gradient(135deg,#3b82f6,#2563eb)', flexShrink: 0 }}>
                   {user?.name?.charAt(0).toUpperCase() ?? 'U'}
                 </div>
                 <div style={{ textAlign: 'left', display: 'none' }} className="sm-show">
@@ -368,7 +368,7 @@ export default function Layout({ children }: LayoutProps) {
                 }}>
                   <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-input)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: 'white', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', flexShrink: 0 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: 'white', background: 'linear-gradient(135deg,#3b82f6,#2563eb)', flexShrink: 0 }}>
                         {user?.name?.charAt(0).toUpperCase() ?? 'U'}
                       </div>
                       <div style={{ minWidth: 0 }}>
@@ -376,7 +376,7 @@ export default function Layout({ children }: LayoutProps) {
                         <div style={{ fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-muted)' }}>{user?.email}</div>
                       </div>
                     </div>
-                    <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 100, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', color: ROLE_COLOR[user?.role ?? 'viewer'] }}>
+                    <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 100, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', color: ROLE_COLOR[user?.role ?? 'viewer'] }}>
                       <Shield style={{ width: 10, height: 10 }} />{user?.role}
                     </div>
                   </div>

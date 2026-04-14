@@ -83,12 +83,12 @@ export default function Login() {
         background: 'rgba(10,15,30,0.75)',
         border: '1px solid rgba(255,255,255,0.08)',
         backdropFilter: 'blur(32px) saturate(200%)',
-        boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(99,102,241,0.1)',
+        boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(59,130,246,0.1)',
       }}>
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', boxShadow: '0 0 28px rgba(99,102,241,0.5)' }}>
+          <div style={{ width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', background: 'linear-gradient(135deg,#3b82f6,#2563eb)', boxShadow: '0 0 28px rgba(99,102,241,0.5)' }}>
             <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
               <circle cx="8" cy="3.5" r="1.5" fill="white"/>
               <circle cx="4" cy="9.5" r="1.2" fill="white" fillOpacity="0.8"/>
@@ -156,7 +156,7 @@ export default function Login() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               padding: '11px', borderRadius: 12, fontSize: 14, fontWeight: 600,
               color: 'white', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-              background: 'linear-gradient(135deg,#6366f1,#8b5cf6)',
+              background: 'linear-gradient(135deg,#3b82f6,#2563eb)',
               boxShadow: loading ? 'none' : '0 0 28px rgba(99,102,241,0.4)',
               opacity: loading || !email || !password ? 0.6 : 1,
               transition: 'opacity 0.2s, transform 0.2s, box-shadow 0.2s',
@@ -203,7 +203,7 @@ export default function Login() {
         {/* Register link */}
         <p style={{ textAlign: 'center', fontSize: 13, marginTop: 22, color: 'rgba(148,163,184,0.4)' }}>
           Don't have an account?{' '}
-          <Link to="/register" style={{ color: '#818cf8', fontWeight: 600, textDecoration: 'none' }}>
+          <Link to="/register" style={{ color: '#60a5fa', fontWeight: 600, textDecoration: 'none' }}>
             Create one →
           </Link>
         </p>

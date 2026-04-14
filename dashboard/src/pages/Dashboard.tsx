@@ -159,7 +159,7 @@ export default function Dashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14 }}>
         <KpiCard label="Active Agents" value={stats?.active_agents ?? 0}
           sub={`${stats?.total_agents ?? 0} registered`}
-          icon={Bot} color="#818cf8" glow="#6366f1" />
+          icon={Bot} color="#60a5fa" glow="#3b82f6" />
         <KpiCard label="Open Incidents" value={stats?.active_incidents ?? 0}
           sub="requiring attention"
           icon={Siren} color={stats?.active_incidents ? '#f87171' : '#34d399'} glow={stats?.active_incidents ? '#ef4444' : '#10b981'} />
@@ -176,10 +176,10 @@ export default function Dashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
 
         {/* LLM Calls */}
-        <GlassCard glow="#6366f1" style={{ padding: 22 }}>
+        <GlassCard glow="#3b82f6" style={{ padding: 22 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(148,163,184,0.5)' }}>LLM Calls</span>
-            <Activity style={{ width: 15, height: 15, color: '#818cf8' }} />
+            <Activity style={{ width: 15, height: 15, color: '#60a5fa' }} />
           </div>
           <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: '#f1f5f9' }}>
             {(live?.tokens.last_1h ?? 0).toLocaleString()}
@@ -253,7 +253,7 @@ export default function Dashboard() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#6366f1', display: 'inline-block' }} />ok
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', display: 'inline-block' }} />ok
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />error
@@ -267,8 +267,8 @@ export default function Dashboard() {
                 <AreaChart data={hourly}>
                   <defs>
                     <linearGradient id="okGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="errGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#ef4444" stopOpacity={0.35}/>
@@ -279,7 +279,7 @@ export default function Dashboard() {
                   <XAxis dataKey="time" tick={{ fill: 'rgba(148,163,184,0.35)', fontSize: 10 }} axisLine={false} tickLine={false}/>
                   <YAxis tick={{ fill: 'rgba(148,163,184,0.35)', fontSize: 10 }} axisLine={false} tickLine={false}/>
                   <Tooltip contentStyle={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: '#f1f5f9', fontSize: 12 }}/>
-                  <Area type="monotone" dataKey="ok" stroke="#6366f1" strokeWidth={2} fill="url(#okGrad)" dot={false}/>
+                  <Area type="monotone" dataKey="ok" stroke="#3b82f6" strokeWidth={2} fill="url(#okGrad)" dot={false}/>
                   <Area type="monotone" dataKey="error" stroke="#ef4444" strokeWidth={2} fill="url(#errGrad)" dot={false}/>
                 </AreaChart>
               </ResponsiveContainer>
@@ -303,7 +303,7 @@ export default function Dashboard() {
                   />
                   <Bar dataKey="rate" radius={[0,5,5,0]}>
                     {agentErrors.map(e => (
-                      <Cell key={e.id} fill={e.rate > 30 ? '#ef4444' : e.rate > 15 ? '#f97316' : '#6366f1'}/>
+                      <Cell key={e.id} fill={e.rate > 30 ? '#ef4444' : e.rate > 15 ? '#f97316' : '#3b82f6'}/>
                     ))}
                   </Bar>
                 </BarChart>
@@ -322,12 +322,12 @@ export default function Dashboard() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles style={{ width: 14, height: 14, color: '#818cf8' }} />
+                <Sparkles style={{ width: 14, height: 14, color: '#60a5fa' }} />
                 Live Trace Feed
               </div>
               <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)', marginTop: 2 }}>most recent agent executions</div>
             </div>
-            <Link to="/traces" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#818cf8', textDecoration: 'none', fontWeight: 500 }}>
+            <Link to="/traces" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#60a5fa', textDecoration: 'none', fontWeight: 500 }}>
               View all <ArrowRight style={{ width: 12, height: 12 }} />
             </Link>
           </div>
@@ -365,7 +365,7 @@ export default function Dashboard() {
               </div>
               <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)', marginTop: 2 }}>latest alerts requiring attention</div>
             </div>
-            <Link to="/incidents" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#818cf8', textDecoration: 'none', fontWeight: 500 }}>
+            <Link to="/incidents" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#60a5fa', textDecoration: 'none', fontWeight: 500 }}>
               View all <ArrowRight style={{ width: 12, height: 12 }} />
             </Link>
           </div>

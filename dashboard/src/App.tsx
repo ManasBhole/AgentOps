@@ -40,8 +40,8 @@ import OAuthCallback from './pages/OAuthCallback'
 
 function HomeRoute() {
   const { isAuthenticated, isLoading } = useAuth()
-  if (isLoading) return null
-  if (isAuthenticated) return <Navigate to="/agents" replace />
+  // Always render LandingPage — only redirect once auth is confirmed loaded
+  if (isAuthenticated && !isLoading) return <Navigate to="/agents" replace />
   return <LandingPage />
 }
 
