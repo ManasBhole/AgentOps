@@ -118,8 +118,8 @@ func (s *AlertRuleService) measureMetric(agentID, metric string) (float64, error
 	case "avg_latency_ms":
 		var avg *float64
 		s.db.Model(&database.Trace{}).
-			Select("avg(duration_ms)").
-			Where("agent_id = ? AND start_time > ? AND duration_ms > 0", agentID, window).
+			Select("avg(duration)").
+			Where("agent_id = ? AND start_time > ? AND duration > 0", agentID, window).
 			Scan(&avg)
 		if avg == nil {
 			return 0, nil

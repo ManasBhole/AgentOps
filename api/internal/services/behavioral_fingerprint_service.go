@@ -196,11 +196,11 @@ func (s *BehavioralFingerprintService) queryWindowStats(
 	sql := `
 		SELECT
 			COUNT(*) AS sample_count,
-			COALESCE(PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY duration_ms), 0) AS p50,
-			COALESCE(PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration_ms), 0) AS p95,
-			COALESCE(PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY duration_ms), 0) AS p99,
-			COALESCE(AVG(duration_ms), 0)                                           AS avg_latency,
-			COALESCE(MAX(duration_ms), 0)                                           AS max_latency,
+			COALESCE(PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY duration), 0) AS p50,
+			COALESCE(PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration), 0) AS p95,
+			COALESCE(PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY duration), 0) AS p99,
+			COALESCE(AVG(duration), 0)                                           AS avg_latency,
+			COALESCE(MAX(duration), 0)                                           AS max_latency,
 			COALESCE(AVG(CASE WHEN status='error' THEN 1.0 ELSE 0.0 END), 0)        AS error_rate,
 			COALESCE(SUM(CASE WHEN status='error' THEN 1 ELSE 0 END), 0)            AS error_count,
 			COALESCE(AVG(NULLIF((attributes::jsonb->>'llm.usage.total_tokens')::float, 0)), 0) AS avg_tokens,

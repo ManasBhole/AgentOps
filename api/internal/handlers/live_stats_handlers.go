@@ -134,14 +134,14 @@ func (h *Handlers) CompareAgents(c *gin.Context) {
 
 		var avgLatency *float64
 		h.db.WithContext(ctx).Model(&database.Trace{}).
-			Select("avg(duration_ms)").
-			Where("agent_id = ? AND start_time > ? AND duration_ms > 0", id, window24h).
+			Select("avg(duration)").
+			Where("agent_id = ? AND start_time > ? AND duration > 0", id, window24h).
 			Scan(&avgLatency)
 
 		var p95Latency *float64
 		h.db.WithContext(ctx).Raw(`
-			SELECT PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration_ms)
-			FROM traces WHERE agent_id = ? AND start_time > ? AND duration_ms > 0`, id, window24h).
+			SELECT PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration)
+			FROM traces WHERE agent_id = ? AND start_time > ? AND duration > 0`, id, window24h).
 			Scan(&p95Latency)
 
 		var cost7d, cost30d *float64

@@ -498,7 +498,7 @@ func runSeed(db *gorm.DB) error {
 	}{
 		{"Show top 5 agents by error rate", "SELECT name, error_rate FROM agents ORDER BY error_rate DESC LIMIT 5", "bar", 5},
 		{"How many incidents per day last 7 days?", "SELECT DATE(created_at) as day, COUNT(*) FROM incidents GROUP BY day ORDER BY day", "line", 7},
-		{"What is average latency by agent?", "SELECT agent_id, AVG(duration_ms) as avg_latency FROM traces GROUP BY agent_id", "bar", 5},
+		{"What is average latency by agent?", "SELECT agent_id, AVG(duration) as avg_latency FROM traces GROUP BY agent_id", "bar", 5},
 		{"Total cost per agent this month", "SELECT agent_id, SUM(cost_est_usd) FROM router_logs GROUP BY agent_id", "pie", 5},
 		{"List all critical open incidents", "SELECT id, title, agent_id FROM incidents WHERE severity='critical' AND status='open'", "table", 2},
 	}
