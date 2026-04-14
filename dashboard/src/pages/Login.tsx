@@ -1,5 +1,5 @@
 import { useState, FormEvent, useEffect, useRef } from 'react'
-import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
@@ -199,9 +199,7 @@ function FancyInput({ label, ...props }: { label: string } & React.InputHTMLAttr
 /* ── Main ────────────────────────────────────────────────────────── */
 export default function Login() {
   const { isAuthenticated, login } = useAuth()
-  const location = useLocation()
   const [searchParams] = useSearchParams()
-  const from = (location.state as any)?.from?.pathname ?? '/dashboard'
 
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
@@ -223,7 +221,7 @@ export default function Login() {
       .catch(() => setConfiguredProviders([]))
   }, [])
 
-  if (isAuthenticated) return <Navigate to={from} replace />
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
