@@ -49,6 +49,8 @@ func main() {
 
 	// Seed demo data if DB is empty (idempotent)
 	handlers.SeedIfEmpty(db, logger)
+	// Patch SLO targets so budget gauges show realistic values with demo data
+	handlers.PatchDemoSLOs(db)
 
 	// Initialize services
 	hub := services.NewEventHub()

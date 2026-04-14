@@ -31,6 +31,45 @@ func SeedIfEmpty(db *gorm.DB, logger *zap.Logger) {
 	}
 }
 
+// PatchDemoSLOs adjusts SLO targets so the demo data shows a realistic mix of
+// budget states (healthy / warning / critical) instead of 0% for every gauge.
+//
+// Background: seed traces have ~20% error rate. The original 99% availability
+// target allows only 1% errors, so the budget is always 100% consumed → 0% left.
+// We update targets to levels achievable by the demo data, giving each agent a
+// different budget-remaining value so the UI shows variety.
+//
+// Called every startup — safe to re-run (it's idempotent UPDATEs).
+func PatchDemoSLOs(db *gorm.DB) {
+	type patch struct {
+		id       string
+		target   float64
+		threshMs int64
+		name     string
+	}
+	patches := []patch{
+		// Availability SLOs — demo error rate ~20%; targets chosen so budget
+		// remaining spans: 9% (critical), 20% (warning), 29% (warning), 37% (ok)
+		{"slo_agt_research01_0", 0.78, 0, "research-agent — Availability ≥ 78%"},
+		{"slo_agt_codeass02_0", 0.75, 0, "code-assistant — Availability ≥ 75%"},
+		{"slo_agt_ragpipe03_0", 0.72, 0, "rag-pipeline — Availability ≥ 72%"},
+		{"slo_agt_orchest04_0", 0.68, 0, "orchestrator — Availability ≥ 68%"},
+		// Latency SLOs — threshold bumped to 3500ms; ~17% of traces exceed it.
+		// Targets chosen for variety: 3% / 20% / 30% / 37% budget remaining.
+		{"slo_agt_research01_1", 0.82, 3500, "research-agent — Latency p99 < 3.5s"},
+		{"slo_agt_codeass02_1", 0.78, 3500, "code-assistant — Latency p99 < 3.5s"},
+		{"slo_agt_ragpipe03_1", 0.75, 3500, "rag-pipeline — Latency p99 < 3.5s"},
+		{"slo_agt_orchest04_1", 0.72, 3500, "orchestrator — Latency p99 < 3.5s"},
+	}
+	for _, p := range patches {
+		upd := map[string]any{"target_value": p.target, "name": p.name}
+		if p.threshMs > 0 {
+			upd["threshold_ms"] = p.threshMs
+		}
+		db.Model(&database.SLODefinition{}).Where("id = ?", p.id).Updates(upd)
+	}
+}
+
 // POST /api/v1/seed  — force re-seed via API (admin use)
 func (h *Handlers) SeedDemoData(c *gin.Context) {
 	if err := runSeed(h.db); err != nil {
