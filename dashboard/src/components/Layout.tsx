@@ -1,5 +1,5 @@
 import { ReactNode, useState, useRef, useEffect, useCallback } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, Outlet } from 'react-router-dom'
 import {
   LayoutDashboard, Bot, GitBranch, Siren, Layers, Brain, Settings,
   Bell, BellRing, BellOff, CheckCircle2, AlertTriangle,
@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import CommandPalette from './CommandPalette'
 
-interface LayoutProps { children: ReactNode }
+interface LayoutProps { children?: ReactNode }
 type NavItem = { path: string; label: string; icon: React.ElementType; badge?: 'incidents' }
 type NavSection = { label: string; colorHex: string; items: NavItem[] }
 
@@ -406,7 +406,7 @@ export default function Layout({ children }: LayoutProps) {
         {/* Content */}
         <main style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-page)' }}>
           <div style={{ padding: 24, maxWidth: 1600, margin: '0 auto' }}>
-            {children}
+            {children ?? <Outlet />}
           </div>
         </main>
       </div>

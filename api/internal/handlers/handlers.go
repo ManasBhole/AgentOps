@@ -576,7 +576,7 @@ func (h *Handlers) GetStats(c *gin.Context) {
 	h.db.WithContext(ctx).Model(&database.Trace{}).Where("status = ?", "error").Count(&stats.ErrorTraces)
 
 	var avgDuration *float64
-	h.db.WithContext(ctx).Model(&database.Trace{}).Select("AVG(duration_ms)").Scan(&avgDuration)
+	h.db.WithContext(ctx).Model(&database.Trace{}).Select("AVG(duration)").Scan(&avgDuration)
 	if avgDuration != nil {
 		stats.AvgLatencyMs = *avgDuration
 	}
