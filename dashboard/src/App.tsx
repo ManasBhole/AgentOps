@@ -1,8 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
+import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Agents from './pages/Agents'
@@ -37,12 +38,20 @@ import AgentComparison from './pages/AgentComparison'
 import AlertRules from './pages/AlertRules'
 import OAuthCallback from './pages/OAuthCallback'
 
+function HomeRoute() {
+  const { isAuthenticated, isLoading } = useAuth()
+  if (isLoading) return null
+  if (isAuthenticated) return <Navigate to="/agents" replace />
+  return <LandingPage />
+}
+
 function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<HomeRoute />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/oauth/callback" element={<OAuthCallback />} />
