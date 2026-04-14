@@ -41,7 +41,7 @@ import OAuthCallback from './pages/OAuthCallback'
 function HomeRoute() {
   const { isAuthenticated, isLoading } = useAuth()
   // Always render LandingPage — only redirect once auth is confirmed loaded
-  if (isAuthenticated && !isLoading) return <Navigate to="/agents" replace />
+  if (isAuthenticated && !isLoading) return <Navigate to="/dashboard" replace />
   return <LandingPage />
 }
 
@@ -61,7 +61,7 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Routes>
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/agents" element={<Agents />} />
                     <Route path="/traces" element={<Traces />} />
                     <Route path="/incidents" element={<Incidents />} />

@@ -183,8 +183,8 @@ export default function Layout({ children }: LayoutProps) {
         <nav style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '8px 0', scrollbarWidth: 'thin', scrollbarColor: 'var(--border-default) transparent' }}>
           {/* Dashboard */}
           <div style={{ padding: '0 8px', marginBottom: 6 }}>
-            <SideLink path="/" label="Dashboard" icon={LayoutDashboard}
-              active={isActive('/') && location.pathname === '/'} collapsed={collapsed} accent="#3b82f6" />
+            <SideLink path="/dashboard" label="Dashboard" icon={LayoutDashboard}
+              active={location.pathname === '/dashboard'} collapsed={collapsed} accent="#3b82f6" />
           </div>
 
           {NAV.map(section => (
