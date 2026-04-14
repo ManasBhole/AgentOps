@@ -35,8 +35,8 @@ code {
   --text-muted:    #64748b;
   --text-faint:    #3d4f6a;
 
-  --accent:        #6366f1;
-  --accent-glow:   rgba(99, 102, 241, 0.3);
+  --accent:        #3b82f6;
+  --accent-glow:   rgba(59, 130, 246, 0.3);
 
   --shadow-lg:     0 20px 60px -10px rgba(0, 0, 0, 0.7), 0 4px 16px -4px rgba(0, 0, 0, 0.5);
 }
@@ -62,8 +62,8 @@ html.light {
   --text-muted:    #64748b;
   --text-faint:    #94a3b8;
 
-  --accent:        #6366f1;
-  --accent-glow:   rgba(99, 102, 241, 0.12);
+  --accent:        #3b82f6;
+  --accent-glow:   rgba(59, 130, 246, 0.12);
 
   --shadow-lg:     0 10px 40px -8px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.06);
 }
