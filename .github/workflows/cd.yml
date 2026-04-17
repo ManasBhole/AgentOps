@@ -85,7 +85,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: azure/setup-kubectl@v3
+      - uses: azure/setup-kubectl@v4
 
       - name: Deploy to dev-westus3
         env:
@@ -125,7 +125,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: azure/setup-kubectl@v3
+      - uses: azure/setup-kubectl@v4
 
       - name: Deploy to stage-westus3
         env:
@@ -169,7 +169,7 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - uses: azure/setup-kubectl@v3
+      - uses: azure/setup-kubectl@v4
 
       - name: Deploy to prod-eastus2
         env:
