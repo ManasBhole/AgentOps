@@ -55,7 +55,7 @@ function IntensitySlider({ value, onChange }: { value: number; onChange: (v: num
       </div>
       <input type="range" min="0.1" max="1" step="0.05" value={value}
         onChange={e => onChange(parseFloat(e.target.value))}
-        className="w-full accent-indigo-500" />
+        className="w-full accent-blue-500" />
       <div className="w-full h-1.5 bg-gray-700 rounded-full">
         <div className={`h-1.5 rounded-full transition-all ${color}`} style={{ width: `${value * 100}%` }} />
       </div>
@@ -94,9 +94,9 @@ function ResultCard({ result }: { result: ChaosResult }) {
         </div>
       )}
 
-      <div className="p-3 bg-indigo-950 border border-indigo-900 rounded-lg">
-        <div className="text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">Recommendation</div>
-        <p className="text-sm text-indigo-200/80">{result.recommendation}</p>
+      <div className="p-3 bg-blue-950 border border-blue-900 rounded-lg">
+        <div className="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-1">Recommendation</div>
+        <p className="text-sm text-blue-200/80">{result.recommendation}</p>
       </div>
     </div>
   )
@@ -192,7 +192,7 @@ export default function ChaosEngineering() {
           <div className="space-y-1">
             <label className="text-xs text-gray-400">Target Agent</label>
             <select value={agentID} onChange={e => setAgentID(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
               <option value="">Select agent…</option>
               {agents.map(a => <option key={a.id} value={a.id}>{a.name || a.id}</option>)}
             </select>
@@ -203,7 +203,7 @@ export default function ChaosEngineering() {
             <div className="grid grid-cols-2 gap-2">
               {FAULT_TYPES.map(ft => (
                 <button key={ft.value} onClick={() => setFaultType(ft.value)}
-                  className={`p-3 rounded-lg border text-left transition-colors ${faultType === ft.value ? 'border-indigo-600 bg-indigo-950/50' : 'border-gray-700 hover:border-gray-600'}`}>
+                  className={`p-3 rounded-lg border text-left transition-colors ${faultType === ft.value ? 'border-blue-600 bg-blue-950/50' : 'border-gray-700 hover:border-gray-600'}`}>
                   <div className="text-base mb-1">{ft.icon}</div>
                   <div className="text-xs font-medium text-gray-200">{ft.label}</div>
                   <div className="text-xs text-gray-500 mt-0.5">{ft.desc}</div>
@@ -218,13 +218,13 @@ export default function ChaosEngineering() {
             <label className="text-xs text-gray-400">Duration: {durationSec}s</label>
             <input type="range" min="10" max="300" step="10" value={durationSec}
               onChange={e => setDurationSec(parseInt(e.target.value))}
-              className="w-full accent-indigo-500" />
+              className="w-full accent-blue-500" />
           </div>
 
           <div className="space-y-1">
             <label className="text-xs text-gray-400">Notes (optional)</label>
             <input value={notes} onChange={e => setNotes(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-blue-500"
               placeholder="Why are you running this experiment?" />
           </div>
 

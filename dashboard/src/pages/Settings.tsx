@@ -24,12 +24,12 @@ const EVENT_OPTIONS = [
   { value: 'incident.created',  label: 'Incident Created',  color: 'text-red-400' },
   { value: 'incident.resolved', label: 'Incident Resolved', color: 'text-emerald-400' },
   { value: 'trace.error',       label: 'Trace Error',       color: 'text-orange-400' },
-  { value: '*',                 label: 'All Events',         color: 'text-indigo-400' },
+  { value: '*',                 label: 'All Events',         color: 'text-blue-400' },
 ]
 
 const ROLE_BADGE: Record<string, string> = {
   owner: 'bg-yellow-900/60 text-yellow-300 border-yellow-800',
-  admin: 'bg-indigo-900/60 text-indigo-300 border-indigo-800',
+  admin: 'bg-blue-900/60 text-blue-300 border-blue-800',
   'agent-runner': 'bg-emerald-900/60 text-emerald-300 border-emerald-800',
   viewer: 'bg-gray-800 text-gray-400 border-gray-700',
 }
@@ -172,7 +172,7 @@ export default function Settings() {
         ] as [string, React.ElementType, string][]).map(([id, Icon, label]) => (
           <button key={id} onClick={() => setTab(id as any)}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-colors
-              ${tab === id ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+              ${tab === id ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}>
             <Icon className="h-3.5 w-3.5" /> {label}
           </button>
         ))}
@@ -183,7 +183,7 @@ export default function Settings() {
         <div className="space-y-4 max-w-lg">
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
             <div className="flex items-center gap-3 pb-3 border-b border-gray-800">
-              <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
                 {me?.name?.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -200,7 +200,7 @@ export default function Settings() {
               <input
                 value={profileName}
                 onChange={e => setProfileName(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
               />
             </div>
 
@@ -215,14 +215,14 @@ export default function Settings() {
                   placeholder="Current password"
                   value={oldPass}
                   onChange={e => setOldPass(e.target.value)}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="password"
                   placeholder="New password (min 8 chars)"
                   value={newPass}
                   onChange={e => setNewPass(e.target.value)}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
@@ -233,7 +233,7 @@ export default function Settings() {
             <button
               onClick={() => updateProfileMutation.mutate()}
               disabled={updateProfileMutation.isPending}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
             >
               {updateProfileMutation.isPending ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
               Save Changes
@@ -248,7 +248,7 @@ export default function Settings() {
           {/* Invite form */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
             <div className="flex items-center gap-2 mb-4">
-              <UserPlus className="h-4 w-4 text-indigo-400" />
+              <UserPlus className="h-4 w-4 text-blue-400" />
               <h3 className="text-sm font-semibold text-white">Invite New User</h3>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-3">
@@ -256,24 +256,24 @@ export default function Settings() {
                 <label className="block text-xs text-gray-400 mb-1">Full Name</label>
                 <input value={newUserName} onChange={e => setNewUserName(e.target.value)}
                   placeholder="Jane Smith"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
               </div>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Email</label>
                 <input value={newUserEmail} onChange={e => setNewUserEmail(e.target.value)}
                   placeholder="jane@company.com" type="email"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
               </div>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Temporary Password</label>
                 <input value={newUserPass} onChange={e => setNewUserPass(e.target.value)}
                   placeholder="Min 8 characters" type="password"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
               </div>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Role</label>
                 <select value={newUserRole} onChange={e => setNewUserRole(e.target.value)}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                   {me?.role === 'owner' && <option value="owner">Owner</option>}
                   <option value="admin">Admin</option>
                   <option value="agent-runner">Agent Runner</option>
@@ -287,7 +287,7 @@ export default function Settings() {
             <button
               onClick={() => createUserMutation.mutate()}
               disabled={!newUserEmail || !newUserName || !newUserPass || createUserMutation.isPending}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
             >
               <UserPlus className="h-3.5 w-3.5" />
               {createUserMutation.isPending ? 'Creating…' : 'Create User'}
@@ -297,13 +297,13 @@ export default function Settings() {
           {/* Users list */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
             <div className="px-5 py-3 border-b border-gray-800 flex items-center gap-2">
-              <Users className="h-4 w-4 text-indigo-400" />
+              <Users className="h-4 w-4 text-blue-400" />
               <span className="text-sm font-semibold text-white">Team Members</span>
               <span className="ml-auto text-xs text-gray-500">{(usersData ?? []).length} users</span>
             </div>
             {(usersData ?? []).map((u: any) => (
               <div key={u.id} className="flex items-center gap-4 px-5 py-3 border-b border-gray-800 last:border-0">
-                <div className="w-8 h-8 rounded-full bg-indigo-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                   {u.name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -345,7 +345,7 @@ export default function Settings() {
                   {revealedKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
                 <button onClick={() => copyKey(createdKey.key!)}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700">
+                  className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700">
                   <Copy className="h-3.5 w-3.5" />
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
@@ -359,7 +359,7 @@ export default function Settings() {
             <div className="flex gap-2">
               <input
                 placeholder="Key name, e.g. production-sdk"
-                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={newKeyName}
                 onChange={e => setNewKeyName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && newKeyName.trim() && createKeyMutation.mutate(newKeyName.trim())}
@@ -367,7 +367,7 @@ export default function Settings() {
               <button
                 onClick={() => createKeyMutation.mutate(newKeyName.trim())}
                 disabled={!newKeyName.trim() || createKeyMutation.isPending}
-                className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
                 <Plus className="h-3.5 w-3.5" />
                 {createKeyMutation.isPending ? 'Creating…' : 'Generate'}
               </button>
@@ -388,7 +388,7 @@ export default function Settings() {
             )}
             {(keysData ?? []).map(k => (
               <div key={k.id} className="flex items-center gap-4 px-4 py-3 border-b border-gray-800 last:border-0">
-                <Key className="h-4 w-4 text-indigo-400 flex-shrink-0" />
+                <Key className="h-4 w-4 text-blue-400 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-gray-200">{k.name}</div>
                   <div className="text-xs text-gray-500 font-mono mt-0.5">{k.key_prefix}••••••••••••••••</div>
@@ -422,13 +422,13 @@ export default function Settings() {
                 <div>
                   <label className="block text-xs text-gray-400 mb-1">Name</label>
                   <input placeholder="e.g. Slack Alerts"
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={whName} onChange={e => setWhName(e.target.value)} />
                 </div>
                 <div>
                   <label className="block text-xs text-gray-400 mb-1">Endpoint URL</label>
                   <input placeholder="https://hooks.slack.com/…"
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={whURL} onChange={e => setWhURL(e.target.value)} />
                 </div>
               </div>
@@ -439,7 +439,7 @@ export default function Settings() {
                     <button key={opt.value} onClick={() => toggleEvent(opt.value)}
                       className={`text-xs px-3 py-1 rounded-full border transition-colors
                         ${whEvents.includes(opt.value)
-                          ? 'bg-indigo-900/60 border-indigo-700 text-indigo-300'
+                          ? 'bg-blue-900/60 border-blue-700 text-blue-300'
                           : 'border-gray-700 text-gray-500 hover:border-gray-500'}`}>
                       {opt.label}
                     </button>
@@ -449,7 +449,7 @@ export default function Settings() {
               <button
                 onClick={() => createWebhookMutation.mutate()}
                 disabled={!whName.trim() || !whURL.trim() || whEvents.length === 0 || createWebhookMutation.isPending}
-                className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
                 <Plus className="h-3.5 w-3.5" />
                 {createWebhookMutation.isPending ? 'Creating…' : 'Create Webhook'}
               </button>
@@ -473,7 +473,7 @@ export default function Settings() {
               return (
                 <div key={hook.id} className="px-4 py-3 border-b border-gray-800 last:border-0">
                   <div className="flex items-center gap-3">
-                    <Globe className="h-4 w-4 text-indigo-400 flex-shrink-0" />
+                    <Globe className="h-4 w-4 text-blue-400 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-gray-200">{hook.name}</span>
@@ -503,7 +503,7 @@ export default function Settings() {
                       )}
                       <button onClick={() => testWebhookMutation.mutate(hook.id)}
                         disabled={testWebhookMutation.isPending}
-                        className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-950 border border-indigo-900 px-2 py-1 rounded-lg">
+                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 bg-blue-950 border border-blue-900 px-2 py-1 rounded-lg">
                         <Zap className="h-3 w-3" /> Test
                       </button>
                       <button onClick={() => deleteWebhookMutation.mutate(hook.id)}

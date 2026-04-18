@@ -148,7 +148,7 @@ export default function Intelligence() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-white flex items-center gap-2">
-            <Brain className="h-5 w-5 text-indigo-400" /> Intelligence Layer
+            <Brain className="h-5 w-5 text-blue-400" /> Intelligence Layer
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Cross-run agent memory · Intelligent model routing · Cost optimisation
@@ -186,13 +186,13 @@ export default function Intelligence() {
             <textarea
               rows={3}
               placeholder="Describe the task, e.g. 'Summarise this support ticket in one sentence'"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               value={task}
               onChange={e => setTask(e.target.value)}
             />
             <div className="flex items-center gap-2">
               <select
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={provider}
                 onChange={e => setProvider(e.target.value)}>
                 <option value="">Any provider</option>
@@ -202,7 +202,7 @@ export default function Intelligence() {
               <button
                 onClick={() => routeMutation.mutate()}
                 disabled={!task.trim() || routeMutation.isPending}
-                className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-1.5">
+                className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1.5">
                 <Zap className="h-3.5 w-3.5" />
                 {routeMutation.isPending ? 'Routing…' : 'Route'}
               </button>
@@ -229,7 +229,7 @@ export default function Intelligence() {
                 <p className="text-xs text-gray-400">{decision.rationale}</p>
                 {decision.alternative_model && (
                   <p className="text-xs text-gray-600">
-                    Need more power? Use <span className="text-indigo-400">{decision.alternative_model}</span>
+                    Need more power? Use <span className="text-blue-400">{decision.alternative_model}</span>
                   </p>
                 )}
                 {/* Savings bar */}
@@ -246,7 +246,7 @@ export default function Intelligence() {
         <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Database className="h-4 w-4 text-indigo-400" />
+              <Database className="h-4 w-4 text-blue-400" />
               <span className="text-sm font-semibold text-white">Agent Memory</span>
             </div>
             <button onClick={() => { refetchMem(); refetchShared() }}
@@ -258,7 +258,7 @@ export default function Intelligence() {
           <div className="p-4 space-y-3">
             {/* Agent selector */}
             <select
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={selectedAgent}
               onChange={e => setSelectedAgent(e.target.value)}>
               <option value="">Select agent to view memory…</option>
@@ -268,10 +268,10 @@ export default function Intelligence() {
             {/* Write new memory */}
             <div className="flex gap-2">
               <input placeholder="key"
-                className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white w-28 focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder-gray-600"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white w-28 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-600"
                 value={newKey} onChange={e => setNewKey(e.target.value)} />
               <input placeholder="value"
-                className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white flex-1 focus:outline-none focus:ring-1 focus:ring-indigo-500 placeholder-gray-600"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white flex-1 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-600"
                 value={newValue} onChange={e => setNewValue(e.target.value)} />
               <select
                 className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"
@@ -283,7 +283,7 @@ export default function Intelligence() {
               <button
                 onClick={() => setMemMutation.mutate()}
                 disabled={!newKey.trim() || !newValue.trim() || (!selectedAgent && newScope === 'agent') || setMemMutation.isPending}
-                className="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+                className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 disabled:opacity-50">
                 Save
               </button>
             </div>
@@ -297,7 +297,7 @@ export default function Intelligence() {
                 <div key={m.id} className="flex items-start gap-2 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-medium text-indigo-300">{m.key}</span>
+                      <span className="text-xs font-mono font-medium text-blue-300">{m.key}</span>
                       <span className="text-xs text-gray-600">{new Date(m.updated_at).toLocaleTimeString()}</span>
                     </div>
                     <p className="text-xs text-gray-400 mt-0.5 truncate">{m.value}</p>
@@ -318,11 +318,11 @@ export default function Intelligence() {
         <button onClick={() => setShowShared(v => !v)}
           className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-800/50 transition-colors">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-purple-400" />
+            <Sparkles className="h-4 w-4 text-blue-400" />
             <span className="text-sm font-semibold text-white">Shared Memory</span>
             <span className="text-xs text-gray-500">— all agents can read and write</span>
             {sharedMems.length > 0 && (
-              <span className="text-xs bg-purple-900/60 text-purple-300 px-2 py-0.5 rounded-full">{sharedMems.length}</span>
+              <span className="text-xs bg-zinc-900/60 text-blue-300 px-2 py-0.5 rounded-full">{sharedMems.length}</span>
             )}
           </div>
           {showShared ? <ChevronUp className="h-4 w-4 text-gray-500" /> : <ChevronDown className="h-4 w-4 text-gray-500" />}
@@ -337,10 +337,10 @@ export default function Intelligence() {
             )}
             <div className="grid grid-cols-2 gap-2">
               {sharedMems.map(m => (
-                <div key={m.id} className="flex items-start gap-2 bg-gray-800/50 border border-purple-900/40 rounded-lg px-3 py-2">
+                <div key={m.id} className="flex items-start gap-2 bg-gray-800/50 border border-zinc-900/40 rounded-lg px-3 py-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-medium text-purple-300">{m.key}</span>
+                      <span className="text-xs font-mono font-medium text-blue-300">{m.key}</span>
                       <span className="text-xs text-gray-600">{new Date(m.updated_at).toLocaleDateString()}</span>
                     </div>
                     <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{m.value}</p>
@@ -374,7 +374,7 @@ export default function Intelligence() {
           <div className="flex flex-wrap gap-3 items-end">
             <div>
               <label className="block text-xs text-gray-400 mb-1">Agent</label>
-              <select className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-48 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              <select className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-48 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={budgetAgent} onChange={e => setBudgetAgent(e.target.value)}>
                 <option value="">Select agent…</option>
                 {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -383,19 +383,19 @@ export default function Intelligence() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">Daily limit (USD)</label>
               <input type="number" min="0" step="0.01" placeholder="e.g. 5.00"
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-28 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-600"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
                 value={budgetDaily} onChange={e => setBudgetDaily(e.target.value)} />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Monthly limit (USD)</label>
               <input type="number" min="0" step="0.01" placeholder="e.g. 50.00"
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-28 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-600"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-28 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
                 value={budgetMonthly} onChange={e => setBudgetMonthly(e.target.value)} />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Alert at %</label>
               <input type="number" min="1" max="100"
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-20 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={budgetAlertPct} onChange={e => setBudgetAlertPct(e.target.value)} />
             </div>
             <button

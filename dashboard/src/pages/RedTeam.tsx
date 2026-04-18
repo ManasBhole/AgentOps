@@ -40,7 +40,7 @@ const CATEGORY_META: Record<string, { label: string; icon: React.ElementType; co
   prompt_injection:    { label: 'Prompt Injection',    icon: Zap,          color: 'text-red-400 bg-red-950/40 border-red-900/60' },
   jailbreak:           { label: 'Jailbreak',           icon: Lock,         color: 'text-orange-400 bg-orange-950/40 border-orange-900/60' },
   pii_extraction:      { label: 'PII Extraction',      icon: Eye,          color: 'text-yellow-400 bg-yellow-950/40 border-yellow-900/60' },
-  indirect_injection:  { label: 'Indirect Injection',  icon: Crosshair,    color: 'text-purple-400 bg-purple-950/40 border-purple-900/60' },
+  indirect_injection:  { label: 'Indirect Injection',  icon: Crosshair,    color: 'text-blue-400 bg-zinc-950/40 border-zinc-900/60' },
   role_confusion:      { label: 'Role Confusion',      icon: Bot,          color: 'text-sky-400 bg-sky-950/40 border-sky-900/60' },
   cost_attack:         { label: 'Cost Attack',         icon: AlertTriangle, color: 'text-pink-400 bg-pink-950/40 border-pink-900/60' },
 }

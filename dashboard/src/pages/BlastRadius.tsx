@@ -35,7 +35,7 @@ interface SimOutput {
 }
 
 const CHANGE_TYPES = [
-  { value: 'deploy',     label: 'New Deploy',    icon: '🚀', amplifier: 'Moderate risk', color: 'text-indigo-400' },
+  { value: 'deploy',     label: 'New Deploy',    icon: '🚀', amplifier: 'Moderate risk', color: 'text-blue-400' },
   { value: 'config',     label: 'Config Change', icon: '⚙️', amplifier: 'Lower risk',    color: 'text-blue-400' },
   { value: 'scale_down', label: 'Scale Down',    icon: '📉', amplifier: 'High risk',     color: 'text-red-400' },
   { value: 'rollback',   label: 'Rollback',      icon: '↩️', amplifier: 'Lowest risk',   color: 'text-emerald-400' },
@@ -237,7 +237,7 @@ export default function BlastRadius() {
               { label: 'Agents Affected', value: result.total_affected, color: 'text-white', icon: Zap },
               { label: 'Critical Impact', value: criticalCount, color: 'text-red-400', icon: AlertTriangle },
               { label: 'High Impact', value: highCount, color: 'text-orange-400', icon: TrendingUp },
-              { label: 'Max Depth', value: `${result.max_depth} hops`, color: 'text-indigo-400', icon: Clock },
+              { label: 'Max Depth', value: `${result.max_depth} hops`, color: 'text-blue-400', icon: Clock },
             ].map(({ label, value, color, icon: Icon }) => (
               <div key={label} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-1">
@@ -327,7 +327,7 @@ export default function BlastRadius() {
                           </div>
                           <div className="text-center">
                             <div className="text-gray-500">Depth</div>
-                            <div className="text-indigo-300">{r.depth}</div>
+                            <div className="text-blue-300">{r.depth}</div>
                           </div>
                           <div className="text-center">
                             <div className="text-gray-500">Health</div>

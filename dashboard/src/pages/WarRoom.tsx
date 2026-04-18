@@ -31,7 +31,7 @@ interface WarRoomData {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const ROLE_COLOR: Record<string, string> = {
-  owner: 'bg-yellow-600', admin: 'bg-indigo-600',
+  owner: 'bg-yellow-600', admin: 'bg-blue-600',
   'agent-runner': 'bg-emerald-600', viewer: 'bg-gray-600', system: 'bg-gray-700',
 }
 
@@ -63,15 +63,15 @@ function MessageBubble({ msg, isMe }: { msg: ChatMessage; isMe: boolean }) {
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-gray-400">{msg.user_email}</span>
             {msg.kind === 'annotation' && (
-              <span className="text-xs text-indigo-400 bg-indigo-950 border border-indigo-900 px-1.5 rounded">annotation</span>
+              <span className="text-xs text-blue-400 bg-blue-950 border border-blue-900 px-1.5 rounded">annotation</span>
             )}
           </div>
         )}
         <div className={`rounded-2xl px-3 py-2 text-sm leading-relaxed
           ${isMe
-            ? 'bg-indigo-600 text-white rounded-tr-sm'
+            ? 'bg-blue-600 text-white rounded-tr-sm'
             : msg.kind === 'annotation'
-              ? 'bg-indigo-950 border border-indigo-800 text-indigo-200 rounded-tl-sm'
+              ? 'bg-blue-950 border border-blue-800 text-blue-200 rounded-tl-sm'
               : 'bg-gray-800 text-gray-200 rounded-tl-sm'}`}>
           {msg.body}
           {msg.trace_id && (
@@ -224,7 +224,7 @@ export default function WarRoom() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Radio className="h-6 w-6 text-indigo-400 animate-pulse" />
+        <Radio className="h-6 w-6 text-blue-400 animate-pulse" />
         <span className="ml-2 text-gray-400">Opening war room…</span>
       </div>
     )
@@ -333,7 +333,7 @@ export default function WarRoom() {
             <div className="flex gap-1.5 mb-2">
               {(['chat', 'annotation'] as const).map(k => (
                 <button key={k} onClick={() => setMsgKind(k)}
-                  className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${msgKind === k ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}>
+                  className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${msgKind === k ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}>
                   {k === 'chat' ? '💬 Chat' : '📌 Annotate'}
                 </button>
               ))}
@@ -344,10 +344,10 @@ export default function WarRoom() {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
                 placeholder={msgKind === 'annotation' ? 'Add an annotation (links to a trace)…' : 'Message the team…'}
-                className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
               />
               <button onClick={sendMessage} disabled={!input.trim()}
-                className="p-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-xl transition-colors">
+                className="p-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white rounded-xl transition-colors">
                 <Send className="h-4 w-4" />
               </button>
             </div>
@@ -358,7 +358,7 @@ export default function WarRoom() {
         <div className="w-60 flex-shrink-0 border-l border-gray-800 flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
-              <CheckSquare className="h-4 w-4 text-indigo-400" />
+              <CheckSquare className="h-4 w-4 text-blue-400" />
               <span className="text-sm font-semibold text-white">Tasks</span>
               {tasks.length > 0 && (
                 <span className="text-xs text-gray-500">{doneTasks}/{tasks.length}</span>
@@ -376,7 +376,7 @@ export default function WarRoom() {
                 onKeyDown={e => e.key === 'Enter' && newTask.trim() && createTaskMutation.mutate(newTask.trim())}
                 placeholder="New task… (Enter to add)"
                 autoFocus
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
             </div>
           )}
 
@@ -425,7 +425,7 @@ export default function WarRoom() {
             <div className="text-xs font-medium text-gray-500 mb-1.5">Message Types</div>
             {[
               { icon: Info, label: 'Chat', color: 'text-gray-400' },
-              { icon: AlertTriangle, label: 'Annotation', color: 'text-indigo-400' },
+              { icon: AlertTriangle, label: 'Annotation', color: 'text-blue-400' },
             ].map(({ icon: Icon, label, color }) => (
               <div key={label} className={`flex items-center gap-1.5 text-xs ${color}`}>
                 <Icon className="h-3 w-3" /> {label}

@@ -116,7 +116,7 @@ export default function EvalFramework() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FlaskConical className="h-5 w-5 text-purple-400" />
+          <FlaskConical className="h-5 w-5 text-blue-400" />
           <div>
             <h1 className="text-xl font-semibold text-white">Eval Framework</h1>
             <p className="text-sm text-gray-500">Define test suites · run evals · track quality over time</p>
@@ -127,7 +127,7 @@ export default function EvalFramework() {
             <RefreshCw className={`h-3.5 w-3.5 ${suitesFetching ? 'animate-spin' : ''}`} />
           </button>
           <button onClick={() => setShowNewSuite(true)}
-            className="flex items-center gap-1.5 text-xs bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg">
+            className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg">
             <Plus className="h-3.5 w-3.5" /> New Suite
           </button>
         </div>
@@ -143,22 +143,22 @@ export default function EvalFramework() {
 
       {/* New suite form */}
       {showNewSuite && (
-        <div className="bg-gray-900 border border-purple-900 rounded-xl p-4 flex items-end gap-3">
+        <div className="bg-gray-900 border border-zinc-900 rounded-xl p-4 flex items-end gap-3">
           <div className="flex-1">
             <label className="text-xs text-gray-400 mb-1 block">Suite Name</label>
             <input value={newSuiteName} onChange={e => setNewSuiteName(e.target.value)}
               placeholder="e.g. RAG quality suite"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500" />
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
           </div>
           <div className="flex-1">
             <label className="text-xs text-gray-400 mb-1 block">Description</label>
             <input value={newSuiteDesc} onChange={e => setNewSuiteDesc(e.target.value)}
               placeholder="Optional"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500" />
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
           </div>
           <button onClick={() => createSuiteMutation.mutate()}
             disabled={!newSuiteName.trim() || createSuiteMutation.isPending}
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-sm rounded-lg">
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm rounded-lg">
             Create
           </button>
           <button onClick={() => setShowNewSuite(false)} className="px-3 py-2 text-gray-400 hover:text-white text-sm bg-gray-800 rounded-lg">Cancel</button>
@@ -177,7 +177,7 @@ export default function EvalFramework() {
           {suites.map(s => (
             <div key={s.id}
               onClick={() => { setSelectedSuite(s); setSelectedRun(null) }}
-              className={`p-3 rounded-xl border cursor-pointer transition-all ${selectedSuite?.id === s.id ? 'border-purple-500 bg-purple-950/20' : 'border-gray-800 hover:border-gray-700 bg-gray-900'}`}>
+              className={`p-3 rounded-xl border cursor-pointer transition-all ${selectedSuite?.id === s.id ? 'border-blue-500 bg-zinc-950/20' : 'border-gray-800 hover:border-gray-700 bg-gray-900'}`}>
               <div className="flex items-start justify-between gap-2">
                 <span className="text-sm font-medium text-white">{s.name}</span>
                 {s.last_score != null && s.last_score > 0 && <ScoreBadge score={s.last_score} />}
@@ -215,7 +215,7 @@ export default function EvalFramework() {
                   </button>
                   <button onClick={() => runMutation.mutate()}
                     disabled={cases.length === 0 || runMutation.isPending}
-                    className="flex items-center gap-1.5 text-xs bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg">
+                    className="flex items-center gap-1.5 text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg">
                     {runMutation.isPending ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
                     {runMutation.isPending ? 'Running…' : 'Run Suite'}
                   </button>
@@ -235,19 +235,19 @@ export default function EvalFramework() {
                       <label className="text-xs text-gray-500 mb-1 block">Input</label>
                       <textarea rows={3} value={newCaseInput} onChange={e => setNewCaseInput(e.target.value)}
                         placeholder="What the agent receives as input…"
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 resize-none" />
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 resize-none" />
                     </div>
                     <div>
                       <label className="text-xs text-gray-500 mb-1 block">Expected Output <span className="text-gray-600">(optional)</span></label>
                       <textarea rows={3} value={newCaseExpected} onChange={e => setNewCaseExpected(e.target.value)}
                         placeholder="What the ideal response looks like…"
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 resize-none" />
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 resize-none" />
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => addCaseMutation.mutate()}
                       disabled={!newCaseInput.trim() || addCaseMutation.isPending}
-                      className="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-xs rounded-lg">
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs rounded-lg">
                       Add Case
                     </button>
                     <button onClick={() => setShowAddCase(false)} className="px-3 py-1.5 text-gray-400 hover:text-white text-xs bg-gray-800 rounded-lg">Cancel</button>
@@ -331,7 +331,7 @@ export default function EvalFramework() {
                 <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <BarChart3 className="h-4 w-4 text-purple-400" />
+                      <BarChart3 className="h-4 w-4 text-blue-400" />
                       <span className="text-sm font-medium text-white">Results — {selectedRun.id}</span>
                       {liveRun?.status === 'running' && (
                         <span className="text-xs text-yellow-400 flex items-center gap-1 animate-pulse">

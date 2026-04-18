@@ -86,7 +86,7 @@ export default function CostAllocation() {
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: 'Total Spend (30d)', value: `$${total.toFixed(4)}`, icon: DollarSign, color: 'text-emerald-400' },
-          { label: 'Agents with spend', value: items.length, icon: Layers, color: 'text-indigo-400' },
+          { label: 'Agents with spend', value: items.length, icon: Layers, color: 'text-blue-400' },
           { label: 'Avg per agent', value: items.length ? `$${(total / items.length).toFixed(4)}` : '$0', icon: TrendingUp, color: 'text-yellow-400' },
         ].map(s => (
           <div key={s.label} className="bg-gray-900 border border-gray-800 rounded-lg px-3 py-3">
@@ -168,7 +168,7 @@ export default function CostAllocation() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className="w-16 h-1.5 bg-gray-700 rounded-full">
-                          <div className="h-1.5 rounded-full bg-indigo-500" style={{ width: `${item.pct_of_total}%` }} />
+                          <div className="h-1.5 rounded-full bg-blue-500" style={{ width: `${item.pct_of_total}%` }} />
                         </div>
                         <span className="text-gray-400">{item.pct_of_total.toFixed(1)}%</span>
                       </div>

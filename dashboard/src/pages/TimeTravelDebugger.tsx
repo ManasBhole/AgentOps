@@ -148,7 +148,7 @@ export default function TimeTravelDebugger() {
       <div className="w-72 flex-shrink-0 flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-800">
           <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-4 w-4 text-indigo-400" />
+            <Clock className="h-4 w-4 text-blue-400" />
             <span className="text-sm font-semibold text-white">Executions</span>
             {listFetching && <RefreshCw className="h-3 w-3 text-gray-500 animate-spin ml-auto" />}
           </div>
@@ -156,7 +156,7 @@ export default function TimeTravelDebugger() {
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-500" />
             <input value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search trace ID…"
-              className="w-full pl-8 pr-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-xs text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+              className="w-full pl-8 pr-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto divide-y divide-gray-800/60">
@@ -167,7 +167,7 @@ export default function TimeTravelDebugger() {
           )}
           {filtered.map(t => (
             <button key={t.trace_id} onClick={() => setSelectedTrace(t.trace_id)}
-              className={`w-full text-left px-4 py-3 hover:bg-gray-800/50 transition-colors ${selectedTrace === t.trace_id ? 'bg-indigo-900/20 border-l-2 border-l-indigo-500' : ''}`}>
+              className={`w-full text-left px-4 py-3 hover:bg-gray-800/50 transition-colors ${selectedTrace === t.trace_id ? 'bg-blue-900/20 border-l-2 border-l-blue-500' : ''}`}>
               <div className="text-xs font-mono text-gray-300 truncate">{t.trace_id.slice(0, 16)}…</div>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs text-gray-500">{t.span_count} steps</span>
@@ -195,7 +195,7 @@ export default function TimeTravelDebugger() {
             <div className="flex items-center gap-4 mb-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-indigo-400" />
+                  <Clock className="h-4 w-4 text-blue-400" />
                   <span className="text-sm font-mono text-gray-300 truncate">{selectedTrace}</span>
                   {timeline && (
                     <span className="text-xs text-gray-500 flex-shrink-0">
@@ -206,7 +206,7 @@ export default function TimeTravelDebugger() {
               </div>
               <button onClick={() => setShowForkModal(true)}
                 disabled={!currentSnap}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-950 border border-indigo-800 hover:border-indigo-600 text-indigo-300 text-xs rounded-lg disabled:opacity-50 transition-colors">
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-950 border border-blue-800 hover:border-blue-600 text-blue-300 text-xs rounded-lg disabled:opacity-50 transition-colors">
                 <GitFork className="h-3.5 w-3.5" /> Fork from here
               </button>
             </div>
@@ -216,7 +216,7 @@ export default function TimeTravelDebugger() {
               <input type="range" min={0} max={Math.max(0, totalSteps - 1)}
                 value={currentStep}
                 onChange={e => { setPlaying(false); setCurrentStep(Number(e.target.value)) }}
-                className="w-full accent-indigo-500 cursor-pointer"
+                className="w-full accent-blue-500 cursor-pointer"
               />
 
               {/* Step markers */}
@@ -224,7 +224,7 @@ export default function TimeTravelDebugger() {
                 {snapshots.map((snap, i) => (
                   <button key={snap.id}
                     onClick={() => { setPlaying(false); setCurrentStep(i) }}
-                    className={`flex-1 rounded-sm transition-colors ${i === currentStep ? 'bg-indigo-500' : snap.status === 'error' ? 'bg-red-700' : 'bg-gray-700 hover:bg-gray-600'}`}
+                    className={`flex-1 rounded-sm transition-colors ${i === currentStep ? 'bg-blue-500' : snap.status === 'error' ? 'bg-red-700' : 'bg-gray-700 hover:bg-gray-600'}`}
                     title={snap.span_name}
                   />
                 ))}
@@ -237,7 +237,7 @@ export default function TimeTravelDebugger() {
                 <button onClick={() => { setPlaying(false); setCurrentStep(s => Math.max(0, s - 1)) }}
                   className="p-1.5 text-gray-400 hover:text-white"><ChevronRight className="h-4 w-4 rotate-180" /></button>
                 <button onClick={() => setPlaying(v => !v)}
-                  className="p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full">
+                  className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-full">
                   {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 </button>
                 <button onClick={() => { setPlaying(false); setCurrentStep(s => Math.min(totalSteps - 1, s + 1)) }}
@@ -284,17 +284,17 @@ export default function TimeTravelDebugger() {
                   <div className="text-xs text-gray-500 font-medium">Cumulative at this step</div>
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">Cost so far</span>
-                    <span className="text-indigo-300">${cumulativeCost.toFixed(5)}</span>
+                    <span className="text-blue-300">${cumulativeCost.toFixed(5)}</span>
                   </div>
                   {timeline && timeline.total_cost_usd > 0 && (
                     <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-500 rounded-full"
+                      <div className="h-full bg-blue-500 rounded-full"
                         style={{ width: `${(cumulativeCost / timeline.total_cost_usd) * 100}%` }} />
                     </div>
                   )}
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-400">Tokens so far</span>
-                    <span className="text-indigo-300">{cumulativeTokens.toLocaleString()}</span>
+                    <span className="text-blue-300">{cumulativeTokens.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -323,13 +323,13 @@ export default function TimeTravelDebugger() {
           {timeline && timeline.forks.length > 0 && (
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <GitFork className="h-3.5 w-3.5 text-indigo-400" />
+                <GitFork className="h-3.5 w-3.5 text-blue-400" />
                 <span className="text-xs font-medium text-gray-300">Forks from this execution</span>
               </div>
               <div className="flex gap-2 flex-wrap">
                 {timeline.forks.map(f => (
-                  <div key={f.id} className="text-xs bg-indigo-950 border border-indigo-900 rounded-lg px-3 py-1.5">
-                    <span className="text-indigo-300 font-medium">{f.label}</span>
+                  <div key={f.id} className="text-xs bg-blue-950 border border-blue-900 rounded-lg px-3 py-1.5">
+                    <span className="text-blue-300 font-medium">{f.label}</span>
                     <span className="text-gray-500 ml-2">at step #{f.fork_seq_num + 1}</span>
                     {f.notes && <span className="text-gray-600 ml-2">· {f.notes}</span>}
                   </div>
@@ -345,7 +345,7 @@ export default function TimeTravelDebugger() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowForkModal(false)}>
           <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-96 shadow-2xl" onClick={e => e.stopPropagation()}>
             <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
-              <GitFork className="h-4 w-4 text-indigo-400" /> Fork from Step {currentStep + 1}
+              <GitFork className="h-4 w-4 text-blue-400" /> Fork from Step {currentStep + 1}
             </h3>
             <p className="text-xs text-gray-500 mb-4">Mark this as a branch point for comparison or replay</p>
             <div className="space-y-3">
@@ -353,20 +353,20 @@ export default function TimeTravelDebugger() {
                 <label className="block text-xs text-gray-400 mb-1">Fork Label</label>
                 <input value={forkLabel} onChange={e => setForkLabel(e.target.value)}
                   placeholder="e.g. retry-with-gpt4"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
               </div>
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Notes (optional)</label>
                 <textarea value={forkNotes} onChange={e => setForkNotes(e.target.value)}
                   placeholder="What are you changing in this branch?"
                   rows={3}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 resize-none" />
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 resize-none" />
               </div>
             </div>
             <div className="flex gap-2 mt-4">
               <button onClick={() => forkMutation.mutate()}
                 disabled={!forkLabel || forkMutation.isPending}
-                className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg">
+                className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm rounded-lg">
                 {forkMutation.isPending ? 'Creating…' : 'Create Fork'}
               </button>
               <button onClick={() => setShowForkModal(false)}

@@ -34,7 +34,7 @@ function SpanBar({ node, totalMs, depth }: { node: FlameNode; totalMs: number; d
   const isError = node.status === 'error'
 
   const colors = [
-    'bg-indigo-600', 'bg-purple-600', 'bg-cyan-600',
+    'bg-blue-600', 'bg-blue-600', 'bg-cyan-600',
     'bg-teal-600', 'bg-blue-600', 'bg-violet-600',
   ]
   const color = isError ? 'bg-red-600' : colors[depth % colors.length]
@@ -107,7 +107,7 @@ export default function FlameGraph() {
           {traces.map(t => (
             <button key={t.trace_id} onClick={() => setSelectedTrace(t.trace_id)}
               className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-800/50 transition-colors
-                ${selectedTrace === t.trace_id ? 'bg-indigo-950/40 border-l-2 border-indigo-500' : ''}`}>
+                ${selectedTrace === t.trace_id ? 'bg-blue-950/40 border-l-2 border-blue-500' : ''}`}>
               <Flame className="h-3.5 w-3.5 text-orange-400 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="text-sm text-gray-200 font-mono truncate">{t.trace_id}</div>
@@ -146,8 +146,8 @@ export default function FlameGraph() {
           {/* Legend */}
           <div className="flex items-center gap-4 px-4 pb-3 text-xs text-gray-500">
             <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-red-600" /> Error span</div>
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-indigo-600" /> Root span</div>
-            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-purple-600" /> Child span</div>
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-blue-600" /> Root span</div>
+            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-blue-600" /> Child span</div>
             <span>Bar width = relative duration</span>
           </div>
         </div>

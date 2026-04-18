@@ -42,8 +42,8 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 const TYPE_STYLES: Record<string, string> = {
-  llm:          'bg-indigo-900/60 text-indigo-300',
-  'tool-use':   'bg-purple-900/60 text-purple-300',
+  llm:          'bg-blue-900/60 text-blue-300',
+  'tool-use':   'bg-zinc-900/60 text-blue-300',
   rag:          'bg-cyan-900/60 text-cyan-300',
   'multi-agent':'bg-orange-900/60 text-orange-300',
   custom:       'bg-gray-800 text-gray-300',
@@ -121,7 +121,7 @@ export default function Agents() {
             <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
           </button>
           <button onClick={() => setShowForm(v => !v)}
-            className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
+            className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
             <Plus className="h-4 w-4" /> New Agent
           </button>
         </div>
@@ -150,7 +150,7 @@ export default function Agents() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">Name *</label>
               <input
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-48 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-600"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
                 placeholder="my-research-agent"
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
@@ -159,7 +159,7 @@ export default function Agents() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">Type</label>
               <select
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={form.type}
                 onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
               >
@@ -173,14 +173,14 @@ export default function Agents() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">Version</label>
               <input
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-24 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-600"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-24 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
                 placeholder="1.0.0"
                 value={form.version}
                 onChange={e => setForm(f => ({ ...f, version: e.target.value }))}
               />
             </div>
             <button type="submit" disabled={createMutation.isPending}
-              className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+              className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
               {createMutation.isPending ? 'Creating…' : 'Create'}
             </button>
             <button type="button" onClick={() => setShowForm(false)}
@@ -258,9 +258,9 @@ export default function Agents() {
                       <div className="flex items-center gap-3">
                         <button title={agent.status === 'active' ? 'Pause' : 'Activate'}
                           onClick={() => toggleMutation.mutate({ id: agent.id, status: agent.status })}
-                          className="text-gray-500 hover:text-indigo-400 transition-colors">
+                          className="text-gray-500 hover:text-blue-400 transition-colors">
                           {agent.status === 'active'
-                            ? <ToggleRight className="h-5 w-5 text-indigo-400" />
+                            ? <ToggleRight className="h-5 w-5 text-blue-400" />
                             : <ToggleLeft className="h-5 w-5" />}
                         </button>
                         <button title="Delete"

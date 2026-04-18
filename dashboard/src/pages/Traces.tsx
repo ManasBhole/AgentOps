@@ -19,7 +19,7 @@ async function fetchTraces(agentFilter: string, statusFilter: string): Promise<T
 
 function DurationBar({ ms, max }: { ms: number; max: number }) {
   const pct = Math.min((ms / max) * 100, 100)
-  const color = ms > 30000 ? 'bg-red-500' : ms > 10000 ? 'bg-orange-400' : 'bg-indigo-500'
+  const color = ms > 30000 ? 'bg-red-500' : ms > 10000 ? 'bg-orange-400' : 'bg-blue-500'
   return (
     <div className="flex items-center gap-2">
       <div className="w-24 bg-gray-800 rounded-full h-1.5">
@@ -164,7 +164,7 @@ export default function Traces() {
                             <div className="text-xs text-gray-400 w-36 truncate">{span.name}</div>
                             <div className="flex-1 bg-gray-800 rounded h-4 relative overflow-hidden">
                               <div
-                                className={`absolute h-4 rounded ${trace.status === 'error' && i === 2 ? 'bg-red-600' : 'bg-indigo-600'} opacity-80`}
+                                className={`absolute h-4 rounded ${trace.status === 'error' && i === 2 ? 'bg-red-600' : 'bg-blue-600'} opacity-80`}
                                 style={{ left: `${span.off}%`, width: `${span.width - span.off}%` }}
                               />
                             </div>

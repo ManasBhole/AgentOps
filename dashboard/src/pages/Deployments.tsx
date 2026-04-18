@@ -57,7 +57,7 @@ export default function Deployments() {
           <p className="text-sm text-gray-400 mt-0.5">Manage agent deployments across namespaces</p>
         </div>
         <button onClick={() => setShowCreate(v => !v)}
-          className="flex items-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors">
+          className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors">
           <Plus className="h-4 w-4" />
           New Deployment
         </button>
@@ -65,29 +65,29 @@ export default function Deployments() {
 
       {/* Create form */}
       {showCreate && (
-        <div className="bg-gray-900 border border-indigo-800 rounded-xl p-5 space-y-4">
+        <div className="bg-gray-900 border border-blue-800 rounded-xl p-5 space-y-4">
           <h2 className="text-sm font-semibold text-white">Create Deployment</h2>
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-xs text-gray-400 mb-1.5">Agent ID</label>
               <input value={form.agent_id} onChange={e => setForm(f => ({ ...f, agent_id: e.target.value }))}
                 placeholder="agent-uuid…"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1.5">Namespace</label>
               <input value={form.namespace} onChange={e => setForm(f => ({ ...f, namespace: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1.5">Replicas</label>
               <input type="number" min={1} max={20} value={form.replicas} onChange={e => setForm(f => ({ ...f, replicas: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
             </div>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={handleCreate} disabled={createMutation.isPending || !form.agent_id.trim()}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors">
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors">
               {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}
               Deploy
             </button>
@@ -113,7 +113,7 @@ export default function Deployments() {
       <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
           <div className="flex items-center gap-2">
-            <Server className="h-4 w-4 text-indigo-400" />
+            <Server className="h-4 w-4 text-blue-400" />
             <h2 className="text-sm font-semibold text-white">All Deployments</h2>
           </div>
           <button onClick={() => qc.invalidateQueries({ queryKey: ['deployments'] })}

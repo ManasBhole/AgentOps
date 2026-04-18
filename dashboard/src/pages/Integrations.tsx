@@ -77,7 +77,7 @@ result = llm.invoke("What is the capital of France?")`,
     id: 'llamaindex',
     name: 'LlamaIndex',
     logo: '🦙',
-    color: 'bg-purple-900/40 border-purple-800/60 text-purple-300',
+    color: 'bg-zinc-900/40 border-zinc-800/60 text-blue-300',
     install: 'pip install orion-llamaindex',
     lang: 'python',
     code: `from llama_index.core import VectorStoreIndex
@@ -290,7 +290,7 @@ export default function Integrations() {
           <button
             onClick={sendTestEvent}
             disabled={testLoading}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-60"
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-60"
           >
             {testLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
             Send test event
@@ -314,13 +314,13 @@ export default function Integrations() {
               onClick={() => setActiveSdk(s.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all ${
                 activeSdk === s.id
-                  ? 'bg-indigo-900/40 border border-indigo-700/60 text-white'
+                  ? 'bg-blue-900/40 border border-blue-700/60 text-white'
                   : 'bg-gray-900 border border-gray-800 text-gray-400 hover:text-gray-200 hover:border-gray-700'
               }`}
             >
               <span className="text-lg">{s.logo}</span>
               <span className="text-sm font-medium">{s.name}</span>
-              {activeSdk === s.id && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400" />}
+              {activeSdk === s.id && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400" />}
             </button>
           ))}
         </div>
@@ -404,12 +404,12 @@ export default function Integrations() {
               onChange={e => setNewKeyName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && newKeyName.trim() && createMutation.mutate(newKeyName.trim())}
               placeholder="Key name (e.g. production)"
-              className="flex-1 text-sm bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 placeholder-gray-600 outline-none focus:border-indigo-600"
+              className="flex-1 text-sm bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 placeholder-gray-600 outline-none focus:border-blue-600"
             />
             <button
               onClick={() => newKeyName.trim() && createMutation.mutate(newKeyName.trim())}
               disabled={!newKeyName.trim() || createMutation.isPending}
-              className="flex items-center gap-1.5 text-sm px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg"
+              className="flex items-center gap-1.5 text-sm px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg"
             >
               {createMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
               Create

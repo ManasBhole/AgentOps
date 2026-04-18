@@ -104,7 +104,7 @@ export default function AuditLog() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: 'Total Events',   value: total,       color: 'text-indigo-400', icon: ScrollText },
+          { label: 'Total Events',   value: total,       color: 'text-blue-400', icon: ScrollText },
           { label: 'Logins',         value: loginCount,  color: 'text-emerald-400', icon: LogIn },
           { label: 'Write Actions',  value: writeCount,  color: 'text-yellow-400', icon: Edit },
           { label: 'Errors (4xx/5xx)', value: errorCount, color: 'text-red-400',  icon: AlertTriangle },
@@ -127,11 +127,11 @@ export default function AuditLog() {
             placeholder="Search by action, user, path…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+            className="w-full pl-9 pr-3 py-1.5 bg-gray-900 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
           />
         </div>
         <select value={resource} onChange={e => setResource(e.target.value)}
-          className="bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-indigo-500">
+          className="bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500">
           {RESOURCES.map(r => (
             <option key={r} value={r}>{r || 'All Resources'}</option>
           ))}
@@ -142,7 +142,7 @@ export default function AuditLog() {
       <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-indigo-400" />
+            <Shield className="h-4 w-4 text-blue-400" />
             <span className="text-sm font-medium text-white">Events</span>
             <span className="text-xs text-gray-500 ml-1">{filtered.length} shown · {total} total</span>
           </div>
@@ -180,7 +180,7 @@ export default function AuditLog() {
                     )}
                   </div>
                   <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                    <span className="text-xs text-indigo-400">{e.user_email || 'system'}</span>
+                    <span className="text-xs text-blue-400">{e.user_email || 'system'}</span>
                     <span className="text-xs text-gray-600 font-mono truncate max-w-xs">{e.path}</span>
                     {e.ip_address && <span className="text-xs text-gray-600">{e.ip_address}</span>}
                     {detail && Object.keys(detail).length > 0 && (

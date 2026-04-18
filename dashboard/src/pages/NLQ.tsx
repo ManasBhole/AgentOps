@@ -160,7 +160,7 @@ export default function NLQ() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-indigo-400" />
+        <Sparkles className="h-5 w-5 text-blue-400" />
         <div>
           <h1 className="text-xl font-semibold text-white">Natural Language Query</h1>
           <p className="text-sm text-gray-500">Ask questions in plain English — AI generates SQL and charts the results</p>
@@ -172,7 +172,7 @@ export default function NLQ() {
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
             <input
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
               placeholder="e.g. Show me the top 5 agents by error rate today..."
               value={question}
               onChange={e => setQuestion(e.target.value)}
@@ -182,7 +182,7 @@ export default function NLQ() {
           <button
             onClick={submit}
             disabled={mutation.isPending || !question.trim()}
-            className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
           >
             {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             {mutation.isPending ? 'Querying…' : 'Ask AI'}
@@ -195,7 +195,7 @@ export default function NLQ() {
             <button
               key={q}
               onClick={() => { setQuestion(q); mutation.mutate(q) }}
-              className="text-xs px-2.5 py-1 bg-gray-800 border border-gray-700 hover:border-indigo-600 text-gray-400 hover:text-indigo-300 rounded-lg transition-colors"
+              className="text-xs px-2.5 py-1 bg-gray-800 border border-gray-700 hover:border-blue-600 text-gray-400 hover:text-blue-300 rounded-lg transition-colors"
             >
               {q}
             </button>
@@ -224,7 +224,7 @@ export default function NLQ() {
                 <button
                   key={v}
                   onClick={() => setView(v)}
-                  className={`px-3 py-1 text-xs rounded-lg font-medium transition-colors ${view === v ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+                  className={`px-3 py-1 text-xs rounded-lg font-medium transition-colors ${view === v ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
                 >
                   {v === 'chart' ? <><BarChart2 className="h-3 w-3 inline mr-1" />Chart</> : v === 'table' ? 'Table' : 'SQL'}
                 </button>

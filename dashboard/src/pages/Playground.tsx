@@ -94,7 +94,7 @@ export default function Playground() {
       {/* Config */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2 mb-1">
-          <FlaskConical className="h-4 w-4 text-indigo-400" />
+          <FlaskConical className="h-4 w-4 text-blue-400" />
           <h2 className="text-sm font-semibold text-white">Test Configuration</h2>
         </div>
 
@@ -103,7 +103,7 @@ export default function Playground() {
           <select
             value={selectedAgent}
             onChange={e => setSelectedAgent(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
           >
             <option value="">Auto-select first active agent</option>
             {agents.map(a => (
@@ -119,7 +119,7 @@ export default function Playground() {
             value={task}
             onChange={e => setTask(e.target.value)}
             placeholder="Describe the task you want to simulate…"
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 resize-none"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 resize-none"
           />
         </div>
 
@@ -129,7 +129,7 @@ export default function Playground() {
           <div className="flex flex-wrap gap-2">
             {SAMPLE_TASKS.map(t => (
               <button key={t} onClick={() => setTask(t)}
-                className="text-xs px-2.5 py-1 bg-gray-800 border border-gray-700 hover:border-indigo-600 hover:text-indigo-300 text-gray-400 rounded-lg transition-colors">
+                className="text-xs px-2.5 py-1 bg-gray-800 border border-gray-700 hover:border-blue-600 hover:text-blue-300 text-gray-400 rounded-lg transition-colors">
                 {t.slice(0, 40)}…
               </button>
             ))}
@@ -139,7 +139,7 @@ export default function Playground() {
         <button
           onClick={handleRun}
           disabled={running || !task.trim()}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
         >
           {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
           {running ? 'Running…' : 'Run Trace'}
@@ -175,7 +175,7 @@ export default function Playground() {
             </div>
             <div className="bg-gray-800 rounded-lg p-3 text-center">
               <div className="text-xs text-gray-500 mb-1">Trace ID</div>
-              <span className="text-xs font-mono text-indigo-400">{result.id?.slice(0, 8)}…</span>
+              <span className="text-xs font-mono text-blue-400">{result.id?.slice(0, 8)}…</span>
             </div>
           </div>
 
@@ -189,14 +189,14 @@ export default function Playground() {
               {showAttrs && (
                 <div className="mt-2 bg-gray-950 rounded-lg p-3 text-xs font-mono text-gray-300 space-y-1 border border-gray-800">
                   {Object.entries(attrs).map(([k, v]) => (
-                    <div key={k}><span className="text-indigo-400">{k}</span>: <span className="text-gray-300">{String(v)}</span></div>
+                    <div key={k}><span className="text-blue-400">{k}</span>: <span className="text-gray-300">{String(v)}</span></div>
                   ))}
                 </div>
               )}
             </div>
           )}
 
-          <p className="text-xs text-gray-600">Trace saved → visible in <a href="/traces" className="text-indigo-400 hover:underline">Traces</a></p>
+          <p className="text-xs text-gray-600">Trace saved → visible in <a href="/traces" className="text-blue-400 hover:underline">Traces</a></p>
         </div>
       )}
     </div>

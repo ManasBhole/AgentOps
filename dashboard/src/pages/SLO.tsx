@@ -152,7 +152,7 @@ export default function SLO() {
             <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
           </button>
           <button onClick={() => setShowCreate(v => !v)}
-            className="flex items-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm rounded-lg">
+            className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-lg">
             <Plus className="h-4 w-4" /> Define SLO
           </button>
         </div>
@@ -187,13 +187,13 @@ export default function SLO() {
       {showCreate && (
         <div className="bg-gray-900 border border-gray-700 rounded-xl p-5">
           <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Target className="h-4 w-4 text-indigo-400" /> New SLO Definition
+            <Target className="h-4 w-4 text-blue-400" /> New SLO Definition
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-gray-400 mb-1">Agent</label>
               <select value={form.agent_id} onChange={e => setForm(f => ({ ...f, agent_id: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                 <option value="">Select agent…</option>
                 {agents.map(a => <option key={a.id} value={a.id}>{a.name || a.id.slice(0, 12)}</option>)}
               </select>
@@ -202,12 +202,12 @@ export default function SLO() {
               <label className="block text-xs text-gray-400 mb-1">SLO Name</label>
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. 99.9% availability"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">SLI Type</label>
               <select value={form.sli_type} onChange={e => setForm(f => ({ ...f, sli_type: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                 <option value="availability">Availability</option>
                 <option value="latency">Latency</option>
                 <option value="error_rate">Error Rate</option>
@@ -217,25 +217,25 @@ export default function SLO() {
               <label className="block text-xs text-gray-400 mb-1">Target (%)</label>
               <input type="number" value={form.target_value} onChange={e => setForm(f => ({ ...f, target_value: e.target.value }))}
                 min="0" max="100" step="0.1"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Rolling Window (days)</label>
               <input type="number" value={form.window_days} onChange={e => setForm(f => ({ ...f, window_days: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
             </div>
             {form.sli_type === 'latency' && (
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Latency Threshold (ms)</label>
                 <input type="number" value={form.threshold_ms} onChange={e => setForm(f => ({ ...f, threshold_ms: e.target.value }))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
               </div>
             )}
           </div>
           <div className="flex gap-2 mt-4">
             <button onClick={() => createMutation.mutate()}
               disabled={!form.agent_id || !form.name || createMutation.isPending}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm rounded-lg">
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm rounded-lg">
               {createMutation.isPending ? 'Creating…' : 'Create SLO'}
             </button>
             <button onClick={() => setShowCreate(false)}
@@ -323,7 +323,7 @@ export default function SLO() {
       {/* Info footer */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-xs text-gray-500 leading-relaxed">
         <div className="flex items-center gap-2 mb-2">
-          <Activity className="h-3.5 w-3.5 text-indigo-400" />
+          <Activity className="h-3.5 w-3.5 text-blue-400" />
           <span className="font-medium text-gray-400">Burn Rate Thresholds (Google SRE)</span>
         </div>
         <div className="grid grid-cols-3 gap-4">

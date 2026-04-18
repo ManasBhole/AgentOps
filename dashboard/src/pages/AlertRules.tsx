@@ -89,7 +89,7 @@ export default function AlertRules() {
         </div>
         <button
           onClick={() => setShowForm(s => !s)}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-3 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-2 rounded-lg transition-colors"
         >
           <Plus className="h-4 w-4" /> New Rule
         </button>
@@ -105,18 +105,18 @@ export default function AlertRules() {
               <label className="block text-xs text-gray-400 mb-1">Rule Name</label>
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="High error rate"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Agent ID (blank = all agents)</label>
               <input value={form.agent_id} onChange={e => setForm(f => ({ ...f, agent_id: e.target.value }))}
                 placeholder="agent-xyz or leave blank"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1">Metric</label>
               <select value={form.metric} onChange={e => setForm(f => ({ ...f, metric: e.target.value }))}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                 {Object.entries(METRIC_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             </div>
@@ -124,7 +124,7 @@ export default function AlertRules() {
               <div className="flex-shrink-0">
                 <label className="block text-xs text-gray-400 mb-1">Condition</label>
                 <select value={form.operator} onChange={e => setForm(f => ({ ...f, operator: e.target.value }))}
-                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                   <option value="gt">Greater than (&gt;)</option>
                   <option value="lt">Less than (&lt;)</option>
                 </select>
@@ -132,7 +132,7 @@ export default function AlertRules() {
               <div className="flex-1">
                 <label className="block text-xs text-gray-400 mb-1">Threshold</label>
                 <input type="number" value={form.threshold} onChange={e => setForm(f => ({ ...f, threshold: parseFloat(e.target.value) || 0 }))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ export default function AlertRules() {
               {['webhook', 'slack'].map(ch => (
                 <label key={ch} className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={form.channels.includes(ch)} onChange={() => toggleChannel(ch)}
-                    className="accent-indigo-500" />
+                    className="accent-blue-500" />
                   <span className="text-sm text-gray-300 capitalize">{ch}</span>
                 </label>
               ))}
@@ -150,13 +150,13 @@ export default function AlertRules() {
             {form.channels.includes('slack') && (
               <input value={form.slack_url} onChange={e => setForm(f => ({ ...f, slack_url: e.target.value }))}
                 placeholder="https://hooks.slack.com/services/..."
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
             )}
           </div>
           <div className="flex gap-2 pt-1">
             <button onClick={() => createMutation.mutate(form)}
               disabled={!form.name || createMutation.isPending}
-              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg transition-colors">
+              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg transition-colors">
               {createMutation.isPending ? 'Creating…' : 'Create Rule'}
             </button>
             <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-white text-sm px-4 py-2 rounded-lg">Cancel</button>
@@ -197,7 +197,7 @@ export default function AlertRules() {
                     <button onClick={() => toggleMutation.mutate({ id: r.id, enabled: !r.enabled })}
                       className="text-gray-400 hover:text-white transition-colors">
                       {r.enabled
-                        ? <ToggleRight className="h-5 w-5 text-indigo-400" />
+                        ? <ToggleRight className="h-5 w-5 text-blue-400" />
                         : <ToggleLeft className="h-5 w-5" />}
                     </button>
                     <button onClick={() => deleteMutation.mutate(r.id)}

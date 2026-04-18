@@ -41,7 +41,7 @@ export default function OAuthCallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950">
       <div className="flex flex-col items-center gap-3 text-gray-400">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
         <p className="text-sm">Completing sign-in…</p>
       </div>
     </div>

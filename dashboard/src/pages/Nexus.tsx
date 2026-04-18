@@ -51,7 +51,7 @@ function FingerprintsTab({ agents }: { agents: Agent[] }) {
         <div className="flex items-center gap-1 bg-gray-900 border border-gray-800 rounded-lg p-1">
           {(['1h', '6h', '24h', '7d'] as WindowLabel[]).map(w => (
             <button key={w} onClick={() => setWindow(w)}
-              className={`px-3 py-1.5 text-xs rounded-md font-medium transition-colors ${window === w ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+              className={`px-3 py-1.5 text-xs rounded-md font-medium transition-colors ${window === w ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}>
               {w}
             </button>
           ))}
@@ -73,7 +73,7 @@ function FingerprintsTab({ agents }: { agents: Agent[] }) {
             return (
               <div key={fp.id}
                 onClick={() => setSelectedAgent(isSelected ? '' : fp.agent_id)}
-                className={`bg-gray-900 border rounded-xl p-4 cursor-pointer transition-all ${isSelected ? 'border-indigo-500' : 'border-gray-800 hover:border-gray-700'}`}>
+                className={`bg-gray-900 border rounded-xl p-4 cursor-pointer transition-all ${isSelected ? 'border-blue-500' : 'border-gray-800 hover:border-gray-700'}`}>
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <span className="text-sm font-medium text-white">{agentName}</span>
@@ -114,7 +114,7 @@ function FingerprintsTab({ agents }: { agents: Agent[] }) {
                     <div className="text-xs text-gray-500">Error Rate</div>
                   </div>
                   <div className="bg-gray-800 rounded-lg p-2">
-                    <div className="text-sm font-bold text-indigo-400">{Math.round(fp.avg_tokens_per_req)}</div>
+                    <div className="text-sm font-bold text-blue-400">{Math.round(fp.avg_tokens_per_req)}</div>
                     <div className="text-xs text-gray-500">Avg Tokens</div>
                   </div>
                   <div className="bg-gray-800 rounded-lg p-2">
@@ -130,7 +130,7 @@ function FingerprintsTab({ agents }: { agents: Agent[] }) {
 
       {/* Sparkline for selected agent */}
       {selectedAgent && histData?.history && histData.history.length > 1 && (
-        <div className="bg-gray-900 border border-indigo-800 rounded-xl p-5">
+        <div className="bg-gray-900 border border-blue-800 rounded-xl p-5">
           <h3 className="text-sm font-semibold text-white mb-3">
             P99 Latency History — {agents.find(a => a.id === selectedAgent)?.name ?? selectedAgent.slice(0, 12)}
           </h3>
@@ -183,19 +183,19 @@ function AnomaliesTab({ agents }: { agents: Agent[] }) {
         <div className="flex items-center gap-1 bg-gray-900 border border-gray-800 rounded-lg p-1">
           {['', 'open', 'acknowledged', 'resolved'].map(s => (
             <button key={s} onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 text-xs rounded-md capitalize transition-colors ${statusFilter === s ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+              className={`px-3 py-1.5 text-xs rounded-md capitalize transition-colors ${statusFilter === s ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}>
               {s || 'all'}
             </button>
           ))}
         </div>
         <select value={agentFilter} onChange={e => setAgentFilter(e.target.value)}
-          className="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500">
+          className="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-blue-500">
           <option value="">All agents</option>
           {agents.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
         </select>
         <button onClick={() => scanMutation.mutate(undefined)}
           disabled={scanMutation.isPending}
-          className="flex items-center gap-1.5 px-3 py-2 bg-indigo-950 border border-indigo-800 hover:border-indigo-600 text-indigo-300 text-xs rounded-lg transition-colors disabled:opacity-50">
+          className="flex items-center gap-1.5 px-3 py-2 bg-blue-950 border border-blue-800 hover:border-blue-600 text-blue-300 text-xs rounded-lg transition-colors disabled:opacity-50">
           {scanMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Scan className="h-3.5 w-3.5" />}
           Run Scan Now
         </button>
@@ -253,7 +253,7 @@ function AnomaliesTab({ agents }: { agents: Agent[] }) {
                       <button
                         onClick={() => ackMutation.mutate(a.id)}
                         disabled={ackMutation.isPending}
-                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-indigo-300 bg-gray-800 border border-gray-700 px-2.5 py-1.5 rounded-lg transition-colors">
+                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-300 bg-gray-800 border border-gray-700 px-2.5 py-1.5 rounded-lg transition-colors">
                         <Eye className="h-3 w-3" /> Ack
                       </button>
                     )}
@@ -307,7 +307,7 @@ function CausalTab() {
           ) : graphs.map(g => (
             <button key={g.graph_id}
               onClick={() => setSelectedGraph(g.graph_id)}
-              className={`w-full text-left px-4 py-3 border-b border-gray-800 hover:bg-gray-800 transition-colors ${selectedGraph === g.graph_id ? 'bg-gray-800 border-l-2 border-l-indigo-500' : ''}`}>
+              className={`w-full text-left px-4 py-3 border-b border-gray-800 hover:bg-gray-800 transition-colors ${selectedGraph === g.graph_id ? 'bg-gray-800 border-l-2 border-l-blue-500' : ''}`}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-mono text-gray-300">{g.graph_id.slice(0, 14)}…</span>
                 <span className={`text-xs font-medium ${severityColor(g.max_severity)}`}>{g.max_severity}</span>
@@ -464,7 +464,7 @@ function PredictionsTab({ agents }: { agents: Agent[] }) {
             return (
               <div key={agentId}
                 onClick={() => setSelectedAgent(isSelected ? '' : agentId)}
-                className={`bg-gray-900 border rounded-xl p-4 cursor-pointer transition-all ${isSelected ? 'border-indigo-500' : preds.critical ? 'border-red-900' : 'border-gray-800 hover:border-gray-700'}`}>
+                className={`bg-gray-900 border rounded-xl p-4 cursor-pointer transition-all ${isSelected ? 'border-blue-500' : preds.critical ? 'border-red-900' : 'border-gray-800 hover:border-gray-700'}`}>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-white">{agentName}</span>
                   {preds.critical && (
@@ -641,7 +641,7 @@ function TopologyTab() {
       {graph && graph.nodes.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {graph.nodes.map(n => (
-            <div key={n.agent_id} className={`bg-gray-900 border rounded-lg p-3 ${hovered === n.agent_id ? 'border-indigo-500' : 'border-gray-800'}`}
+            <div key={n.agent_id} className={`bg-gray-900 border rounded-lg p-3 ${hovered === n.agent_id ? 'border-blue-500' : 'border-gray-800'}`}
               onMouseEnter={() => setHovered(n.agent_id)} onMouseLeave={() => setHovered(null)}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-medium text-gray-300 truncate">{n.name}</span>
@@ -766,7 +766,7 @@ export default function Nexus() {
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-2.5 bg-indigo-600 rounded-xl">
+        <div className="p-2.5 bg-blue-600 rounded-xl">
           <Cpu className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -782,8 +782,8 @@ export default function Nexus() {
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <SummaryCard label="Active Anomalies"    value={summary?.active_anomalies ?? '—'}    icon={AlertTriangle} color="bg-red-700"    sub="open z-score events" />
         <SummaryCard label="Critical Forecast"   value={summary?.critical_predictions ?? '—'} icon={TrendingDown}  color="bg-orange-700"  sub="agents trending down" />
-        <SummaryCard label="Causal Clusters"     value={summary?.causal_clusters ?? '—'}      icon={GitMerge}     color="bg-purple-700"  sub="incident graphs" />
-        <SummaryCard label="Fingerprinted"       value={summary?.agents_fingerprinted ?? '—'} icon={Fingerprint}  color="bg-indigo-700"  sub="agents with DNA" />
+        <SummaryCard label="Causal Clusters"     value={summary?.causal_clusters ?? '—'}      icon={GitMerge}     color="bg-blue-700"  sub="incident graphs" />
+        <SummaryCard label="Fingerprinted"       value={summary?.agents_fingerprinted ?? '—'} icon={Fingerprint}  color="bg-blue-700"  sub="agents with DNA" />
         <SummaryCard label="Topology Nodes"      value={summary?.topology_nodes ?? '—'}       icon={Network}      color="bg-cyan-700"    sub="live call graph" />
         <SummaryCard label="Topology Edges"      value={summary?.topology_edges ?? '—'}       icon={Zap}          color="bg-teal-700"    sub="agent relationships" />
       </div>
@@ -792,7 +792,7 @@ export default function Nexus() {
       <div className="flex items-center gap-1 bg-gray-900 border border-gray-800 rounded-xl p-1">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setTab(id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-1 justify-center ${tab === id ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-1 justify-center ${tab === id ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
             <Icon className="h-4 w-4" />
             <span className="hidden lg:inline">{label}</span>
           </button>

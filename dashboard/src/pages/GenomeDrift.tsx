@@ -73,7 +73,7 @@ export default function GenomeDrift() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Dna className="h-5 w-5 text-purple-400" />
+          <Dna className="h-5 w-5 text-blue-400" />
           <div>
             <h1 className="text-xl font-semibold text-white">Agent Genome Drift</h1>
             <p className="text-sm text-gray-500">Behavioral fingerprint comparison — detect when agents change personality</p>
@@ -114,7 +114,7 @@ export default function GenomeDrift() {
           <button
             onClick={() => computeMutation.mutate(selectedAgent)}
             disabled={computeMutation.isPending}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg"
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg"
           >
             {computeMutation.isPending ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Dna className="h-3 w-3" />}
             Compute

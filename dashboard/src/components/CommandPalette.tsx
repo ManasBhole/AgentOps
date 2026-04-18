@@ -76,7 +76,7 @@ export default function CommandPalette({ open, onClose }: Props) {
         {/* Input */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-gray-800">
           {loading
-            ? <Loader2 className="h-4 w-4 text-indigo-400 animate-spin flex-shrink-0" />
+            ? <Loader2 className="h-4 w-4 text-blue-400 animate-spin flex-shrink-0" />
             : <Search className="h-4 w-4 text-gray-500 flex-shrink-0" />
           }
           <input
@@ -111,7 +111,7 @@ export default function CommandPalette({ open, onClose }: Props) {
                 onMouseEnter={() => setCursor(i)}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors border-l-2
                   ${i === cursor
-                    ? 'bg-indigo-600/20 border-indigo-500'
+                    ? 'bg-blue-600/20 border-blue-500'
                     : 'hover:bg-gray-800/60 border-transparent'
                   }`}
               >

@@ -107,7 +107,7 @@ export default function Analytics() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Routed" value={logs.length.toString()} sub="model routing decisions" icon={Zap} color="bg-indigo-600" />
+        <StatCard label="Total Routed" value={logs.length.toString()} sub="model routing decisions" icon={Zap} color="bg-blue-600" />
         <StatCard label="Estimated Cost" value={`$${totalCost.toFixed(4)}`} sub="from model routing" icon={DollarSign} color="bg-emerald-700" />
         <StatCard label="Estimated Savings" value={`$${totalSavings.toFixed(4)}`} sub="vs GPT-4o baseline" icon={TrendingUp} color="bg-cyan-700" />
         <StatCard label="Monthly Spend" value={`$${totalBudgetSpend.toFixed(3)}`} sub={overBudget > 0 ? `${overBudget} agent(s) over budget` : 'all within budget'} icon={AlertTriangle} color={overBudget > 0 ? 'bg-red-700' : 'bg-gray-700'} />
@@ -117,7 +117,7 @@ export default function Analytics() {
         {/* Model usage breakdown */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="h-4 w-4 text-indigo-400" />
+            <BarChart3 className="h-4 w-4 text-blue-400" />
             <h2 className="text-sm font-semibold text-white">Model Usage</h2>
           </div>
           {Object.keys(modelCounts).length === 0 ? (
@@ -133,7 +133,7 @@ export default function Analytics() {
                       <span className="text-gray-400">{count} calls · ${(modelCosts[model] ?? 0).toFixed(5)}</span>
                     </div>
                     <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 )
@@ -145,7 +145,7 @@ export default function Analytics() {
         {/* Complexity breakdown */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Clock className="h-4 w-4 text-indigo-400" />
+            <Clock className="h-4 w-4 text-blue-400" />
             <h2 className="text-sm font-semibold text-white">Task Complexity</h2>
           </div>
           <div className="space-y-4">
@@ -177,7 +177,7 @@ export default function Analytics() {
       {/* Budget table */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
-          <DollarSign className="h-4 w-4 text-indigo-400" />
+          <DollarSign className="h-4 w-4 text-blue-400" />
           <h2 className="text-sm font-semibold text-white">Agent Budget Overview</h2>
         </div>
         {budgets.length === 0 ? (

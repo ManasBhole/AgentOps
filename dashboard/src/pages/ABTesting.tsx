@@ -424,7 +424,7 @@ export default function ABTesting() {
         <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-medium
-            bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500
+            bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500
             text-white shadow-lg shadow-violet-900/30"
         >
           <Plus className="h-4 w-4" /> New Test

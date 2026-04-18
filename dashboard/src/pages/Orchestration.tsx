@@ -54,7 +54,7 @@ const STATUS_STYLES: Record<string, string> = {
   active:  'bg-emerald-900/60 text-emerald-300',
   pending: 'bg-yellow-900/60 text-yellow-300',
   error:   'bg-red-900/60 text-red-300',
-  scaled:  'bg-indigo-900/60 text-indigo-300',
+  scaled:  'bg-blue-900/60 text-blue-300',
 }
 
 const NS_STYLES: Record<string, string> = {
@@ -140,7 +140,7 @@ export default function Orchestration() {
             <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
           </button>
           <button onClick={() => setShowDeploy(v => !v)}
-            className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
+            className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
             <Rocket className="h-4 w-4" /> Deploy Agent
           </button>
         </div>
@@ -151,7 +151,7 @@ export default function Orchestration() {
         {[
           { label: 'Deployments',    value: deployments?.length ?? 0, color: 'text-white' },
           { label: 'Active',         value: activeCount,               color: activeCount > 0 ? 'text-emerald-400' : 'text-gray-400' },
-          { label: 'Total Replicas', value: totalReplicas,             color: 'text-indigo-400' },
+          { label: 'Total Replicas', value: totalReplicas,             color: 'text-blue-400' },
           { label: 'Namespaces',     value: new Set(deployments?.map(d => d.namespace)).size, color: 'text-gray-300' },
         ].map(s => (
           <div key={s.label} className="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2">
@@ -170,7 +170,7 @@ export default function Orchestration() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">Agent *</label>
               <select
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-52 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-52 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={deployForm.agent_id}
                 onChange={e => setDeployForm(f => ({ ...f, agent_id: e.target.value }))}>
                 <option value="">Select agent…</option>
@@ -182,7 +182,7 @@ export default function Orchestration() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">Namespace</label>
               <select
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={deployForm.namespace}
                 onChange={e => setDeployForm(f => ({ ...f, namespace: e.target.value }))}>
                 <option value="production">production</option>
@@ -193,13 +193,13 @@ export default function Orchestration() {
             <div>
               <label className="block text-xs text-gray-400 mb-1">Replicas</label>
               <input type="number" min={1} max={20}
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-20 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={deployForm.replicas}
                 onChange={e => setDeployForm(f => ({ ...f, replicas: parseInt(e.target.value) || 1 }))}
               />
             </div>
             <button type="submit" disabled={deployMutation.isPending}
-              className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+              className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
               {deployMutation.isPending ? 'Deploying…' : 'Deploy'}
             </button>
             <button type="button" onClick={() => setShowDeploy(false)}
@@ -234,7 +234,7 @@ export default function Orchestration() {
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Agent *</label>
                 <select
-                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-52 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-52 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={cbTarget}
                   onChange={e => setCbTarget(e.target.value)}>
                   <option value="">Select agent…</option>
@@ -246,7 +246,7 @@ export default function Orchestration() {
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Error threshold</label>
                 <input type="number" min={1} max={100}
-                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-20 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={cbSettings.threshold}
                   onChange={e => setCbSettings(s => ({ ...s, threshold: parseInt(e.target.value) || 5 }))}
                 />
@@ -254,7 +254,7 @@ export default function Orchestration() {
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Timeout (s)</label>
                 <input type="number" min={5} max={300}
-                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-20 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white w-20 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={cbSettings.timeout_s}
                   onChange={e => setCbSettings(s => ({ ...s, timeout_s: parseInt(e.target.value) || 30 }))}
                 />
@@ -333,7 +333,7 @@ export default function Orchestration() {
                             <button
                               onClick={() => scaleMutation.mutate({ deployment_id: dep.id, replicas: scaleReplicas })}
                               disabled={scaleMutation.isPending}
-                              className="text-xs px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50">
+                              className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">
                               {scaleMutation.isPending ? '…' : 'Set'}
                             </button>
                             <button onClick={() => setScaleTarget(null)}
@@ -344,7 +344,7 @@ export default function Orchestration() {
                         ) : (
                           <button
                             onClick={() => { setScaleTarget({ id: dep.id, current: dep.replicas }); setScaleReplicas(dep.replicas) }}
-                            className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300">
+                            className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
                             <Scale className="h-3 w-3" /> Scale
                           </button>
                         )}

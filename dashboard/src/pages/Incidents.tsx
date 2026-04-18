@@ -202,7 +202,7 @@ export default function Incidents() {
                     <button
                       onClick={e => { e.stopPropagation(); resolveMutation.mutate(inc.id) }}
                       disabled={resolveMutation.isPending}
-                      className="flex items-center gap-1 text-xs px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg disabled:opacity-50"
+                      className="flex items-center gap-1 text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
                     >
                       <ShieldCheck className="h-3 w-3" /> Resolve
                     </button>
@@ -237,7 +237,7 @@ export default function Incidents() {
                       </span>
                     </div>
                     <div className="w-full bg-gray-700 rounded-full h-1 mb-2">
-                      <div className="bg-indigo-500 h-1 rounded-full" style={{ width: `${inc.confidence * 100}%` }} />
+                      <div className="bg-blue-500 h-1 rounded-full" style={{ width: `${inc.confidence * 100}%` }} />
                     </div>
                     <p className="text-sm text-gray-200">{inc.root_cause || 'No root cause identified yet.'}</p>
                   </div>
@@ -260,7 +260,7 @@ export default function Incidents() {
                         <button
                           onClick={() => runAnalysis(inc.id)}
                           className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-medium
-                            bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500
+                            bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500
                             text-white shadow-lg shadow-violet-900/30 transition-all"
                         >
                           <Sparkles className="h-4 w-4" />
@@ -383,7 +383,7 @@ export default function Incidents() {
                     <Link
                       to={`/warroom/${inc.id}`}
                       onClick={e => e.stopPropagation()}
-                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-indigo-950 border border-indigo-800 hover:bg-indigo-900 text-indigo-300 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-blue-950 border border-blue-800 hover:bg-blue-900 text-blue-300 rounded-lg transition-colors"
                     >
                       <Radio className="h-3 w-3" /> Open War Room
                     </Link>
