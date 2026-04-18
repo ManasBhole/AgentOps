@@ -18,13 +18,13 @@ code {
 
 /* ── Design tokens — dark (default) ─────────────────────────────────────────── */
 :root {
-  --bg-page:       #070C1A;
-  --bg-sidebar:    #0A1020;
-  --bg-header:     rgba(10, 16, 32, 0.92);
-  --bg-card:       #0D1526;
-  --bg-input:      #111827;
-  --bg-popover:    #0D1526;
-  --bg-kbd:        #1a2236;
+  --bg-page:       #09090b;
+  --bg-sidebar:    #0a0a0a;
+  --bg-header:     rgba(9,9,11,0.92);
+  --bg-card:       #111111;
+  --bg-input:      #18181b;
+  --bg-popover:    #111111;
+  --bg-kbd:        #1c1c1e;
 
   --border-subtle:  rgba(255, 255, 255, 0.05);
   --border-default: rgba(255, 255, 255, 0.08);
@@ -116,7 +116,7 @@ html.light input::placeholder,
 html.light textarea::placeholder { color: #94a3b8 !important; }
 html.light input:focus,
 html.light textarea:focus,
-html.light select:focus { border-color: #6366f1 !important; }
+html.light select:focus { border-color: #3b82f6 !important; }
 html.light select option { background-color: #ffffff; color: #0f172a; }
 
 html.light .bg-indigo-950      { background-color: #eef2ff !important; }
