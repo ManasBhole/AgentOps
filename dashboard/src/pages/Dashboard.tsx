@@ -50,30 +50,26 @@ const SEV_COLOR: Record<string,string> = {
   critical:'#f87171', high:'#fb923c', medium:'#fbbf24', low:'#60a5fa',
 }
 
-/* ── Glass card wrapper ─────────────────────────────────────────── */
-function GlassCard({ children, className = '', style = {}, glow }: {
-  children: React.ReactNode; className?: string; style?: React.CSSProperties; glow?: string
+/* ── Card wrapper — uses CSS variables, works in both modes ──────── */
+function Card({ children, glow, style = {} }: {
+  children: React.ReactNode; glow?: string; style?: React.CSSProperties
 }) {
   return (
-    <div
-      className={className}
-      style={{
-        background: 'rgba(12,17,32,0.7)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 18,
-        boxShadow: glow
-          ? `0 0 0 1px ${glow}22, 0 8px 32px rgba(0,0,0,0.4)`
-          : '0 4px 24px rgba(0,0,0,0.35)',
-        position: 'relative',
-        overflow: 'hidden',
-        ...style,
-      }}
-    >
+    <div style={{
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border-default)',
+      borderRadius: 16,
+      position: 'relative',
+      overflow: 'hidden',
+      boxShadow: glow
+        ? `0 0 0 1px ${glow}18, var(--shadow-lg)`
+        : 'var(--shadow-lg)',
+      ...style,
+    }}>
       {glow && (
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 1,
-          background: `linear-gradient(90deg, transparent, ${glow}60, transparent)`,
+          background: `linear-gradient(90deg, transparent, ${glow}50, transparent)`,
           pointerEvents: 'none',
         }} />
       )}
@@ -82,24 +78,24 @@ function GlassCard({ children, className = '', style = {}, glow }: {
   )
 }
 
-/* ── KPI card ───────────────────────────────────────────────────── */
+/* ── KPI card ────────────────────────────────────────────────────── */
 function KpiCard({ label, value, sub, icon: Icon, color, glow }: {
   label: string; value: React.ReactNode; sub: string
   icon: React.ElementType; color: string; glow: string
 }) {
   return (
-    <GlassCard glow={glow} style={{ padding: 22 }}>
+    <Card glow={glow} style={{ padding: 22 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(148,163,184,0.5)' }}>
+        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
           {label}
         </span>
-        <div style={{ width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${glow}18`, border: `1px solid ${glow}30` }}>
+        <div style={{ width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${glow}15`, border: `1px solid ${glow}25` }}>
           <Icon style={{ width: 15, height: 15, color }} />
         </div>
       </div>
-      <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: '#f1f5f9', lineHeight: 1 }}>{value}</div>
-      <div style={{ fontSize: 12, color: 'rgba(148,163,184,0.4)', marginTop: 6 }}>{sub}</div>
-    </GlassCard>
+      <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)', lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 6 }}>{sub}</div>
+    </Card>
   )
 }
 
@@ -135,6 +131,14 @@ export default function Dashboard() {
   const errorRate   = stats?.error_rate ?? 0
   const avgMs       = Math.round(stats?.avg_latency_ms ?? 0)
   const uptimePct   = live?.uptime.fleet_pct ?? 100
+  const uptimeColor = uptimePct >= 99 ? '#34d399' : uptimePct >= 95 ? '#fbbf24' : '#f87171'
+  const uptimeGlow  = uptimePct >= 99 ? '#10b981' : uptimePct >= 95 ? '#f59e0b' : '#ef4444'
+
+  const chartTickStyle = { fill: 'var(--text-faint)', fontSize: 10 } as const
+  const tooltipStyle   = {
+    background: 'var(--bg-popover)', border: '1px solid var(--border-default)',
+    borderRadius: 10, color: 'var(--text-primary)', fontSize: 12,
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
@@ -142,16 +146,16 @@ export default function Dashboard() {
       {/* Page header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', color: '#f1f5f9', margin: 0, lineHeight: 1.2 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
             Overview
           </h1>
-          <p style={{ fontSize: 13, color: 'rgba(148,163,184,0.4)', marginTop: 4, marginBottom: 0 }}>
+          <p style={{ fontSize: 13, color: 'var(--text-faint)', marginTop: 4, marginBottom: 0 }}>
             Real-time platform health · auto-refreshes every 15 s
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px #34d399', display: 'inline-block' }} />
-          <span style={{ fontSize: 12, color: 'rgba(52,211,153,0.7)' }}>Live data</span>
+          <span style={{ fontSize: 12, color: '#34d399' }}>Live data</span>
         </div>
       </div>
 
@@ -176,214 +180,209 @@ export default function Dashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
 
         {/* LLM Calls */}
-        <GlassCard glow="#3b82f6" style={{ padding: 22 }}>
+        <Card glow="#3b82f6" style={{ padding: 22 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(148,163,184,0.5)' }}>LLM Calls</span>
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>LLM Calls</span>
             <Activity style={{ width: 15, height: 15, color: '#60a5fa' }} />
           </div>
-          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: '#f1f5f9' }}>
+          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
             {(live?.tokens.last_1h ?? 0).toLocaleString()}
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(148,163,184,0.4)', marginTop: 4 }}>last hour</div>
-          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.05)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 4 }}>last hour</div>
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border-subtle)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#e2e8f0' }}>{(live?.tokens.last_24h ?? 0).toLocaleString()}</div>
-              <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)' }}>24 h</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)' }}>{(live?.tokens.last_24h ?? 0).toLocaleString()}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>24 h</div>
             </div>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#e2e8f0' }}>{(live?.tokens.last_7d ?? 0).toLocaleString()}</div>
-              <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)' }}>7 d</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)' }}>{(live?.tokens.last_7d ?? 0).toLocaleString()}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>7 d</div>
             </div>
           </div>
-        </GlassCard>
+        </Card>
 
         {/* Cost Burn */}
-        <GlassCard glow="#f59e0b" style={{ padding: 22 }}>
+        <Card glow="#f59e0b" style={{ padding: 22 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(148,163,184,0.5)' }}>Cost Burn</span>
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Cost Burn</span>
             <Coins style={{ width: 15, height: 15, color: '#fbbf24' }} />
           </div>
-          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: '#f1f5f9' }}>
+          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
             ${(live?.cost.per_hour ?? 0).toFixed(4)}
-            <span style={{ fontSize: 14, fontWeight: 400, color: 'rgba(148,163,184,0.4)' }}>/hr</span>
+            <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-faint)' }}>/hr</span>
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(148,163,184,0.4)', marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 4 }}>
             projected ${(live?.cost.per_day_projected ?? 0).toFixed(3)}/day
           </div>
-          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#e2e8f0' }}>${(live?.cost.last_24h_actual ?? 0).toFixed(4)}</div>
-            <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)' }}>actual last 24 h</div>
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border-subtle)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)' }}>${(live?.cost.last_24h_actual ?? 0).toFixed(4)}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>actual last 24 h</div>
           </div>
-        </GlassCard>
+        </Card>
 
         {/* Fleet Uptime */}
-        <GlassCard glow={uptimePct >= 99 ? '#10b981' : uptimePct >= 95 ? '#f59e0b' : '#ef4444'} style={{ padding: 22 }}>
+        <Card glow={uptimeGlow} style={{ padding: 22 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(148,163,184,0.5)' }}>Fleet Uptime</span>
-            <ShieldCheck style={{ width: 15, height: 15, color: uptimePct >= 99 ? '#34d399' : uptimePct >= 95 ? '#fbbf24' : '#f87171' }} />
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Fleet Uptime</span>
+            <ShieldCheck style={{ width: 15, height: 15, color: uptimeColor }} />
           </div>
-          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: uptimePct >= 99 ? '#34d399' : uptimePct >= 95 ? '#fbbf24' : '#f87171' }}>
+          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color: uptimeColor }}>
             {uptimePct.toFixed(1)}%
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(148,163,184,0.4)', marginTop: 4 }}>30-day rolling average</div>
-          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 60, overflowY: 'auto' }}>
+          <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 4 }}>30-day rolling average</div>
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 60, overflowY: 'auto' }}>
             {(live?.uptime.agents ?? []).map(a => (
               <div key={a.agent_id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                <span style={{ color: 'rgba(148,163,184,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>{a.agent_name}</span>
+                <span style={{ color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>{a.agent_name}</span>
                 <span style={{ color: a.uptime_pct >= 99 ? '#34d399' : a.uptime_pct >= 95 ? '#fbbf24' : '#f87171', flexShrink: 0 }}>
                   {a.uptime_pct.toFixed(1)}%
                 </span>
               </div>
             ))}
           </div>
-        </GlassCard>
+        </Card>
 
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
 
-          {/* Trace volume */}
-          <GlassCard style={{ padding: 22 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9' }}>Trace Volume</div>
-                <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)', marginTop: 2 }}>last 200 traces by hour</div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', display: 'inline-block' }} />ok
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />error
-                </span>
-              </div>
+        {/* Trace volume */}
+        <Card style={{ padding: 22 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Trace Volume</div>
+              <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 2 }}>last 200 traces by hour</div>
             </div>
-            {hourly.length === 0 ? (
-              <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(148,163,184,0.2)', fontSize: 13 }}>No data yet</div>
-            ) : (
-              <ResponsiveContainer width="100%" height={180}>
-                <AreaChart data={hourly}>
-                  <defs>
-                    <linearGradient id="okGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="errGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.35}/>
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)"/>
-                  <XAxis dataKey="time" tick={{ fill: 'rgba(148,163,184,0.35)', fontSize: 10 }} axisLine={false} tickLine={false}/>
-                  <YAxis tick={{ fill: 'rgba(148,163,184,0.35)', fontSize: 10 }} axisLine={false} tickLine={false}/>
-                  <Tooltip contentStyle={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: '#f1f5f9', fontSize: 12 }}/>
-                  <Area type="monotone" dataKey="ok" stroke="#3b82f6" strokeWidth={2} fill="url(#okGrad)" dot={false}/>
-                  <Area type="monotone" dataKey="error" stroke="#ef4444" strokeWidth={2} fill="url(#errGrad)" dot={false}/>
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </GlassCard>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-muted)' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', display: 'inline-block' }} />ok
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-muted)' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />error
+              </span>
+            </div>
+          </div>
+          {hourly.length === 0 ? (
+            <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-faint)', fontSize: 13 }}>No data yet</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={180}>
+              <AreaChart data={hourly}>
+                <defs>
+                  <linearGradient id="okGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="errGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.25}/>
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)"/>
+                <XAxis dataKey="time" tick={chartTickStyle} axisLine={false} tickLine={false}/>
+                <YAxis tick={chartTickStyle} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={tooltipStyle}/>
+                <Area type="monotone" dataKey="ok" stroke="#3b82f6" strokeWidth={2} fill="url(#okGrad)" dot={false}/>
+                <Area type="monotone" dataKey="error" stroke="#ef4444" strokeWidth={2} fill="url(#errGrad)" dot={false}/>
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </Card>
 
-          {/* Error rate by agent */}
-          <GlassCard style={{ padding: 22 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', marginBottom: 4 }}>Error Rate</div>
-            <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)', marginBottom: 18 }}>by agent</div>
-            {agentErrors.length === 0 ? (
-              <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(148,163,184,0.2)', fontSize: 13 }}>No data</div>
-            ) : (
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={agentErrors} layout="vertical">
-                  <XAxis type="number" tick={{ fill: 'rgba(148,163,184,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} unit="%"/>
-                  <YAxis type="category" dataKey="id" tick={{ fill: 'rgba(148,163,184,0.45)', fontSize: 10 }} axisLine={false} tickLine={false} width={28}/>
-                  <Tooltip
-                    contentStyle={{ background: '#0C1120', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: '#f1f5f9', fontSize: 12 }}
-                    formatter={(v: number) => [`${v}%`, 'Error rate']}
-                  />
-                  <Bar dataKey="rate" radius={[0,5,5,0]}>
-                    {agentErrors.map(e => (
-                      <Cell key={e.id} fill={e.rate > 30 ? '#ef4444' : e.rate > 15 ? '#f97316' : '#3b82f6'}/>
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </GlassCard>
+        {/* Error rate by agent */}
+        <Card style={{ padding: 22 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>Error Rate</div>
+          <div style={{ fontSize: 11, color: 'var(--text-faint)', marginBottom: 18 }}>by agent</div>
+          {agentErrors.length === 0 ? (
+            <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-faint)', fontSize: 13 }}>No data</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={agentErrors} layout="vertical">
+                <XAxis type="number" tick={chartTickStyle} axisLine={false} tickLine={false} unit="%"/>
+                <YAxis type="category" dataKey="id" tick={chartTickStyle} axisLine={false} tickLine={false} width={28}/>
+                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v}%`, 'Error rate']}/>
+                <Bar dataKey="rate" radius={[0,5,5,0]}>
+                  {agentErrors.map(e => (
+                    <Cell key={e.id} fill={e.rate > 30 ? '#ef4444' : e.rate > 15 ? '#f97316' : '#3b82f6'}/>
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </Card>
 
-        </div>
       </div>
 
       {/* Bottom row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 14 }}>
 
         {/* Live trace feed */}
-        <GlassCard style={{ padding: 22 }}>
+        <Card style={{ padding: 22 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Sparkles style={{ width: 14, height: 14, color: '#60a5fa' }} />
                 Live Trace Feed
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)', marginTop: 2 }}>most recent agent executions</div>
+              <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 2 }}>most recent agent executions</div>
             </div>
-            <Link to="/traces" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#60a5fa', textDecoration: 'none', fontWeight: 500 }}>
+            <Link to="/traces" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#3b82f6', textDecoration: 'none', fontWeight: 500 }}>
               View all <ArrowRight style={{ width: 12, height: 12 }} />
             </Link>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {recentTraces.length === 0 && (
-              <p style={{ fontSize: 13, color: 'rgba(148,163,184,0.25)' }}>No traces yet</p>
+              <p style={{ fontSize: 13, color: 'var(--text-faint)' }}>No traces yet</p>
             )}
             {recentTraces.map(t => (
-              <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+              <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--border-subtle)' }}>
                 {t.status === 'error'
                   ? <XCircle style={{ width: 14, height: 14, color: '#f87171', flexShrink: 0 }} />
                   : <CheckCircle2 style={{ width: 14, height: 14, color: '#34d399', flexShrink: 0 }} />}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: '#e2e8f0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)', marginTop: 1 }}>{t.agent_id}</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 1 }}>{t.agent_id}</div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'rgba(148,163,184,0.5)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--text-muted)' }}>
                     <Clock style={{ width: 11, height: 11 }} />{t.duration_ms}ms
                   </div>
-                  <div style={{ fontSize: 10, color: 'rgba(148,163,184,0.25)', marginTop: 1 }}>{new Date(t.start_time).toLocaleTimeString()}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-faint)', marginTop: 1 }}>{new Date(t.start_time).toLocaleTimeString()}</div>
                 </div>
               </div>
             ))}
           </div>
-        </GlassCard>
+        </Card>
 
         {/* Recent incidents */}
-        <GlassCard style={{ padding: 22 }}>
+        <Card style={{ padding: 22 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Zap style={{ width: 14, height: 14, color: '#fbbf24' }} />
                 Recent Incidents
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.35)', marginTop: 2 }}>latest alerts requiring attention</div>
+              <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 2 }}>latest alerts requiring attention</div>
             </div>
-            <Link to="/incidents" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#60a5fa', textDecoration: 'none', fontWeight: 500 }}>
+            <Link to="/incidents" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#3b82f6', textDecoration: 'none', fontWeight: 500 }}>
               View all <ArrowRight style={{ width: 12, height: 12 }} />
             </Link>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {incidents.length === 0 && (
-              <p style={{ fontSize: 13, color: 'rgba(148,163,184,0.25)' }}>No incidents</p>
+              <p style={{ fontSize: 13, color: 'var(--text-faint)' }}>No incidents</p>
             )}
             {incidents.map(inc => (
               <div key={inc.id} style={{
                 display: 'flex', alignItems: 'flex-start', gap: 10,
-                padding: '10px 12px', borderRadius: 12,
-                background: 'rgba(255,255,255,0.025)',
-                border: `1px solid ${SEV_COLOR[inc.severity] ?? '#64748b'}20`,
+                padding: '10px 12px', borderRadius: 10,
+                background: 'var(--bg-input)',
+                border: `1px solid ${SEV_COLOR[inc.severity] ?? '#6b6b6b'}20`,
               }}>
-                <div style={{ width: 7, height: 7, borderRadius: '50%', background: SEV_COLOR[inc.severity] ?? '#64748b', marginTop: 5, flexShrink: 0, boxShadow: `0 0 6px ${SEV_COLOR[inc.severity] ?? '#64748b'}` }} />
+                <div style={{ width: 7, height: 7, borderRadius: '50%', background: SEV_COLOR[inc.severity] ?? '#6b6b6b', marginTop: 5, flexShrink: 0, boxShadow: `0 0 5px ${SEV_COLOR[inc.severity] ?? '#6b6b6b'}` }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: '#e2e8f0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inc.title}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', marginTop: 3 }}>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inc.title}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 3 }}>
                     <span style={{ color: SEV_COLOR[inc.severity], fontWeight: 600 }}>{inc.severity}</span>
                     {' · '}{inc.status}{' · '}{new Date(inc.created_at).toLocaleTimeString()}
                   </div>
@@ -391,7 +390,7 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-        </GlassCard>
+        </Card>
 
       </div>
     </div>
