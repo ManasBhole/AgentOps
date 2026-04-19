@@ -238,11 +238,24 @@ function Navbar() {
       </div>
 
       <div style={{ display: 'flex', gap: 36 }}>
-        {['Platform', 'Features', 'Pricing', 'Docs'].map(l => (
-          <a key={l} href="#" style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s' }}
+        {[
+          { label: 'Platform', href: '#platform' },
+          { label: 'Features', href: '#features' },
+          { label: 'Pricing',  href: '#pricing' },
+          { label: 'Docs',     href: 'https://docs.orion.ai', external: true },
+        ].map(l => (
+          <a key={l.label}
+            href={l.href}
+            target={l.external ? '_blank' : undefined}
+            rel={l.external ? 'noreferrer' : undefined}
+            onClick={l.external ? undefined : e => {
+              e.preventDefault()
+              document.getElementById(l.href.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }}
+            style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
             onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
             onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}>
-            {l}
+            {l.label}
           </a>
         ))}
       </div>
@@ -426,7 +439,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Stats ─────────────────────────────────────────────────── */}
-      <section style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="platform" style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Reveal>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, overflow: 'hidden' }}>
             {[
@@ -448,7 +461,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Features ───────────────────────────────────────────────── */}
-      <section style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="features" style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Reveal>
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
             <div style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 700, marginBottom: 16 }}>Platform</div>
@@ -522,8 +535,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Final CTA ──────────────────────────────────────────────── */}
-      <section style={{ padding: '120px 80px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      {/* ── Final CTA / Pricing ────────────────────────────────────── */}
+      <section id="pricing" style={{ padding: '120px 80px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 50% 100%, rgba(59,130,246,0.08), transparent)', pointerEvents: 'none' }} />
         <Reveal>
           <div style={{ position: 'relative', zIndex: 1 }}>
