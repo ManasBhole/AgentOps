@@ -38,9 +38,9 @@ export default class ErrorBoundary extends Component<Props, State> {
           </pre>
 
           <button
-            onClick={() => { this.setState({ error: null }); window.location.href = '/' }}
+            onClick={() => { this.setState({ error: null }); window.location.reload() }}
             className="w-full flex items-center justify-center gap-2 text-sm py-2.5 rounded-xl font-medium text-white"
-            style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+            style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)' }}
           >
             <RefreshCw className="h-4 w-4" /> Reload app
           </button>

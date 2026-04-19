@@ -221,7 +221,7 @@ export default function Layout({ children }: LayoutProps) {
       </aside>
 
       {/* ── Main ──────────────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
 
         {/* Header */}
         <header style={{
@@ -231,6 +231,7 @@ export default function Layout({ children }: LayoutProps) {
           background: 'var(--bg-header)',
           borderBottom: '1px solid var(--border-subtle)',
           backdropFilter: 'blur(20px) saturate(180%)',
+          position: 'relative', zIndex: 40, overflow: 'visible',
         }}>
           {/* Left */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -362,7 +363,7 @@ export default function Layout({ children }: LayoutProps) {
               {userMenuOpen && (
                 <div style={{
                   position: 'absolute', right: 0, top: 46,
-                  width: 220, borderRadius: 14, zIndex: 50, overflow: 'hidden',
+                  width: 220, borderRadius: 14, zIndex: 200, overflow: 'hidden',
                   background: 'var(--bg-popover)', border: '1px solid var(--border-default)',
                   boxShadow: 'var(--shadow-lg)',
                 }}>

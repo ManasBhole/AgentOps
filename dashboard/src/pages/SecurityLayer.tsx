@@ -171,7 +171,7 @@ export default function SecurityLayer() {
                     ? <><ShieldCheck className="h-4 w-4 text-emerald-400" /><span className="text-sm font-medium text-emerald-300">No threats detected</span></>
                     : <><ShieldAlert className="h-4 w-4 text-red-400" /><span className="text-sm font-medium text-red-300">{scanResult.events.length} threat{scanResult.events.length !== 1 ? 's' : ''} detected</span></>}
                 </div>
-                {scanResult.events.map(ev => (
+                {(scanResult.events ?? []).map(ev => (
                   <div key={ev.id} className="mt-2 p-2 bg-gray-900/50 rounded-lg">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-xs px-1.5 py-0.5 rounded-full border font-medium capitalize ${SEV_STYLES[ev.severity]}`}>{ev.severity}</span>
