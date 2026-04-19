@@ -242,21 +242,24 @@ function Navbar() {
           { label: 'Platform', href: '#platform' },
           { label: 'Features', href: '#features' },
           { label: 'Pricing',  href: '#pricing' },
-          { label: 'Docs',     href: 'https://github.com/ManasBhole/AgentOps', external: true },
+          { label: 'Docs',     href: '/docs' },
         ].map(l => (
-          <a key={l.label}
-            href={l.href}
-            target={l.external ? '_blank' : undefined}
-            rel={l.external ? 'noreferrer' : undefined}
-            onClick={l.external ? undefined : e => {
-              e.preventDefault()
-              document.getElementById(l.href.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-            }}
-            style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}>
-            {l.label}
-          </a>
+          l.href.startsWith('/') ? (
+            <Link key={l.label} to={l.href}
+              style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}>
+              {l.label}
+            </Link>
+          ) : (
+            <a key={l.label} href={l.href}
+              onClick={e => { e.preventDefault(); document.getElementById(l.href.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+              style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}>
+              {l.label}
+            </a>
+          )
         ))}
       </div>
 
@@ -589,17 +592,24 @@ export default function LandingPage() {
           {[
             { label: 'Privacy', href: '#' },
             { label: 'Terms',   href: '#' },
-            { label: 'Docs',    href: 'https://github.com/ManasBhole/AgentOps' },
+            { label: 'Docs',    href: '/docs' },
             { label: 'Status',  href: '#' },
           ].map(l => (
-            <a key={l.label} href={l.href}
-              target={l.href.startsWith('http') ? '_blank' : undefined}
-              rel={l.href.startsWith('http') ? 'noreferrer' : undefined}
-              style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'none', transition: 'color 0.15s' }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
-              {l.label}
-            </a>
+            l.href.startsWith('/') ? (
+              <Link key={l.label} to={l.href}
+                style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'none', transition: 'color 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
+                {l.label}
+              </Link>
+            ) : (
+              <a key={l.label} href={l.href}
+                style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'none', transition: 'color 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
+                {l.label}
+              </a>
+            )
           ))}
         </div>
         <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>© 2026 Orion. All rights reserved.</span>

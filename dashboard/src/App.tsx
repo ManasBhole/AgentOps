@@ -37,6 +37,7 @@ import RedTeam from './pages/RedTeam'
 import AgentComparison from './pages/AgentComparison'
 import AlertRules from './pages/AlertRules'
 import OAuthCallback from './pages/OAuthCallback'
+import Docs from './pages/Docs'
 
 // Shows landing page for guests, redirects authenticated users to /dashboard
 function HomeRoute() {
@@ -76,6 +77,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/oauth/callback" element={<OAuthCallback />} />
+            <Route path="/docs" element={<Docs />} />
 
             {/* Protected — all share the Layout shell */}
             <Route element={<ProtectedLayout />}>
