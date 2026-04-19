@@ -242,7 +242,7 @@ function Navbar() {
           { label: 'Platform', href: '#platform' },
           { label: 'Features', href: '#features' },
           { label: 'Pricing',  href: '#pricing' },
-          { label: 'Docs',     href: 'https://docs.orion.ai', external: true },
+          { label: 'Docs',     href: 'https://github.com/ManasBhole/AgentOps', external: true },
         ].map(l => (
           <a key={l.label}
             href={l.href}
@@ -586,11 +586,19 @@ export default function LandingPage() {
           <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Orion</span>
         </div>
         <div style={{ display: 'flex', gap: 28 }}>
-          {['Privacy', 'Terms', 'Docs', 'Status'].map(l => (
-            <a key={l} href="#" style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'none', transition: 'color 0.15s' }}
+          {[
+            { label: 'Privacy', href: '#' },
+            { label: 'Terms',   href: '#' },
+            { label: 'Docs',    href: 'https://github.com/ManasBhole/AgentOps' },
+            { label: 'Status',  href: '#' },
+          ].map(l => (
+            <a key={l.label} href={l.href}
+              target={l.href.startsWith('http') ? '_blank' : undefined}
+              rel={l.href.startsWith('http') ? 'noreferrer' : undefined}
+              style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'none', transition: 'color 0.15s' }}
               onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
               onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
-              {l}
+              {l.label}
             </a>
           ))}
         </div>
