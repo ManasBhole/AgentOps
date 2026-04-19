@@ -590,26 +590,17 @@ export default function LandingPage() {
         </div>
         <div style={{ display: 'flex', gap: 28 }}>
           {[
-            { label: 'Privacy', href: '#' },
-            { label: 'Terms',   href: '#' },
-            { label: 'Docs',    href: '/docs' },
-            { label: 'Status',  href: '#' },
+            { label: 'Privacy', to: '/privacy' },
+            { label: 'Terms',   to: '/terms' },
+            { label: 'Docs',    to: '/docs' },
+            { label: 'Status',  to: '/status' },
           ].map(l => (
-            l.href.startsWith('/') ? (
-              <Link key={l.label} to={l.href}
-                style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'none', transition: 'color 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
-                {l.label}
-              </Link>
-            ) : (
-              <a key={l.label} href={l.href}
-                style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'none', transition: 'color 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
-                {l.label}
-              </a>
-            )
+            <Link key={l.label} to={l.to}
+              style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
+              {l.label}
+            </Link>
           ))}
         </div>
         <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>© 2026 Orion. All rights reserved.</span>

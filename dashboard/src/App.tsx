@@ -38,6 +38,9 @@ import AgentComparison from './pages/AgentComparison'
 import AlertRules from './pages/AlertRules'
 import OAuthCallback from './pages/OAuthCallback'
 import Docs from './pages/Docs'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
+import Status from './pages/Status'
 
 // Shows landing page for guests, redirects authenticated users to /dashboard
 function HomeRoute() {
@@ -78,6 +81,9 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/oauth/callback" element={<OAuthCallback />} />
             <Route path="/docs" element={<Docs />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/status" element={<Status />} />
 
             {/* Protected — all share the Layout shell */}
             <Route element={<ProtectedLayout />}>
