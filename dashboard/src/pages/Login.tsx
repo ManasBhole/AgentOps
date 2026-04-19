@@ -248,6 +248,28 @@ export default function Login() {
       position: 'relative',
       overflow: 'hidden',
     }}>
+      {/* Top-left back link */}
+      <div style={{ position: 'absolute', top: 20, left: 24, zIndex: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="3.5" r="1.5" fill="#000"/>
+              <circle cx="4" cy="9.5" r="1.2" fill="#000" fillOpacity="0.7"/>
+              <circle cx="12" cy="9.5" r="1.2" fill="#000" fillOpacity="0.7"/>
+              <line x1="8" y1="5" x2="4" y2="8.3" stroke="#000" strokeOpacity="0.5" strokeWidth="0.8"/>
+              <line x1="8" y1="5" x2="12" y2="8.3" stroke="#000" strokeOpacity="0.5" strokeWidth="0.8"/>
+            </svg>
+          </div>
+          <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Orion</span>
+        </Link>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>·</span>
+        <Link to="/" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.15s' }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}>
+          ← Back to home
+        </Link>
+      </div>
+
       {/* Particle canvas */}
       <Particles />
 
