@@ -74,8 +74,20 @@ export default function Layout({ children }: LayoutProps) {
   const [notifOpen, setNotifOpen]   = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [paletteOpen, setPaletteOpen]  = useState(false)
+  const [isMobile, setIsMobile]        = useState(() => window.innerWidth < 768)
+  const [sidebarOpen, setSidebarOpen]  = useState(false)
   const notifRef    = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+      if (!mobile) setSidebarOpen(false)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const openPalette = useCallback(() => setPaletteOpen(true), [])
 
@@ -114,14 +126,32 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-page)', color: 'var(--text-primary)' }}>
 
+      {/* ── Mobile backdrop overlay ───────────────────────────────────────── */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 299,
+            background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(2px)',
+          }}
+        />
+      )}
+
       {/* ── Sidebar ──────────────────────────────────────────────────────── */}
       <aside style={{
-        width: W, flexShrink: 0,
+        width: isMobile ? 232 : W, flexShrink: 0,
         display: 'flex', flexDirection: 'column',
-        transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)',
+        transition: isMobile
+          ? 'transform 0.25s cubic-bezier(0.4,0,0.2,1)'
+          : 'width 0.22s cubic-bezier(0.4,0,0.2,1)',
         background: 'var(--bg-sidebar)',
         borderRight: '1px solid var(--border-subtle)',
         overflow: 'hidden',
+        ...(isMobile ? {
+          position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 300,
+          transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+        } : {}),
       }}>
 
         {/* Brand */}
@@ -184,7 +214,8 @@ export default function Layout({ children }: LayoutProps) {
           {/* Dashboard */}
           <div style={{ padding: '0 8px', marginBottom: 6 }}>
             <SideLink path="/dashboard" label="Dashboard" icon={LayoutDashboard}
-              active={location.pathname === '/dashboard'} collapsed={collapsed} accent="#3b82f6" />
+              active={location.pathname === '/dashboard'} collapsed={collapsed} accent="#3b82f6"
+              onNavClick={isMobile ? () => setSidebarOpen(false) : undefined} />
           </div>
 
           {NAV.map(section => (
@@ -206,6 +237,7 @@ export default function Layout({ children }: LayoutProps) {
                     key={path} path={path} label={label} icon={icon}
                     active={isActive(path)} collapsed={collapsed} accent={section.colorHex}
                     badgeCount={badge === 'incidents' ? activeIncidents : 0}
+                    onNavClick={isMobile ? () => setSidebarOpen(false) : undefined}
                   />
                 ))}
               </div>
@@ -216,7 +248,8 @@ export default function Layout({ children }: LayoutProps) {
         {/* Settings + user */}
         <div style={{ padding: '6px 8px 10px', borderTop: '1px solid var(--border-subtle)' }}>
           <SideLink path="/settings" label="Settings" icon={Settings}
-            active={isActive('/settings')} collapsed={collapsed} accent="#3b82f6" />
+            active={isActive('/settings')} collapsed={collapsed} accent="#3b82f6"
+            onNavClick={isMobile ? () => setSidebarOpen(false) : undefined} />
         </div>
       </aside>
 
@@ -235,6 +268,24 @@ export default function Layout({ children }: LayoutProps) {
         }}>
           {/* Left */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* Hamburger — mobile only */}
+            {isMobile && (
+              <button
+                onClick={() => setSidebarOpen(v => !v)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 32, height: 32, borderRadius: 8,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--text-muted)', fontSize: 20, lineHeight: 1,
+                  transition: 'background 0.15s, color 0.15s',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-input)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+                title="Open menu"
+              >
+                ☰
+              </button>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ position: 'relative', display: 'flex', width: 8, height: 8 }}>
                 <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#34d399', opacity: 0.6, animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) infinite' }} />
@@ -258,23 +309,25 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* Right */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            {/* Search */}
-            <button
-              onClick={openPalette}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                fontSize: 12, padding: '5px 12px', borderRadius: 10,
-                color: 'var(--text-muted)', background: 'var(--bg-input)',
-                border: '1px solid var(--border-default)', cursor: 'pointer',
-                transition: 'border-color 0.15s',
-              }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)')}
-            >
-              <Search style={{ width: 13, height: 13 }} />
-              <span>Search…</span>
-              <kbd style={{ marginLeft: 4, fontSize: 10, padding: '1px 5px', borderRadius: 4, fontFamily: 'monospace', color: 'var(--text-faint)', background: 'var(--bg-kbd)', border: '1px solid var(--border-default)' }}>⌘K</kbd>
-            </button>
+            {/* Search — hidden on very small screens */}
+            {!isMobile && (
+              <button
+                onClick={openPalette}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  fontSize: 12, padding: '5px 12px', borderRadius: 10,
+                  color: 'var(--text-muted)', background: 'var(--bg-input)',
+                  border: '1px solid var(--border-default)', cursor: 'pointer',
+                  transition: 'border-color 0.15s',
+                }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)')}
+              >
+                <Search style={{ width: 13, height: 13 }} />
+                <span>Search…</span>
+                <kbd style={{ marginLeft: 4, fontSize: 10, padding: '1px 5px', borderRadius: 4, fontFamily: 'monospace', color: 'var(--text-faint)', background: 'var(--bg-kbd)', border: '1px solid var(--border-default)' }}>⌘K</kbd>
+              </button>
+            )}
 
             {/* Theme */}
             <HeaderBtn onClick={toggleTheme} title={theme === 'dark' ? 'Light' : 'Dark'}>
@@ -406,7 +459,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Content */}
         <main style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-page)' }}>
-          <div style={{ padding: 24, maxWidth: 1600, margin: '0 auto' }}>
+          <div style={{ padding: isMobile ? 16 : 24, maxWidth: 1600, margin: '0 auto' }}>
             {children ?? <Outlet />}
           </div>
         </main>
@@ -438,11 +491,12 @@ function HeaderBtn({ children, onClick, title }: { children: React.ReactNode; on
 }
 
 /* ── Sidebar nav link ───────────────────────────────────────────────────── */
-function SideLink({ path, label, icon: Icon, active, collapsed, accent, badgeCount = 0 }:
-  { path: string; label: string; icon: React.ElementType; active: boolean; collapsed: boolean; accent: string; badgeCount?: number }) {
+function SideLink({ path, label, icon: Icon, active, collapsed, accent, badgeCount = 0, onNavClick }:
+  { path: string; label: string; icon: React.ElementType; active: boolean; collapsed: boolean; accent: string; badgeCount?: number; onNavClick?: () => void }) {
   return (
     <Link
       to={path}
+      onClick={onNavClick}
       title={collapsed ? label : undefined}
       style={{
         display: 'flex',

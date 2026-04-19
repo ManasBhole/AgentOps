@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
 import {
   Bot, Siren, GitBranch, TrendingUp, TrendingDown,
   Zap, Clock, CheckCircle2, XCircle, ArrowRight,
@@ -100,6 +101,13 @@ function KpiCard({ label, value, sub, icon: Icon, color, glow }: {
 }
 
 export default function Dashboard() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+  useEffect(() => {
+    const h = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', h)
+    return () => window.removeEventListener('resize', h)
+  }, [])
+
   const { data: stats }  = useQuery<Stats>({
     queryKey: ['dashboard-stats'],
     queryFn: async () => { const { data } = await api.get('/stats'); return data },
@@ -160,7 +168,7 @@ export default function Dashboard() {
       </div>
 
       {/* KPI row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(auto-fit,minmax(200px,1fr))', gap: 14 }}>
         <KpiCard label="Active Agents" value={stats?.active_agents ?? 0}
           sub={`${stats?.total_agents ?? 0} registered`}
           icon={Bot} color="#60a5fa" glow="#3b82f6" />
@@ -177,7 +185,7 @@ export default function Dashboard() {
       </div>
 
       {/* Live widgets */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
 
         {/* LLM Calls */}
         <Card glow="#3b82f6" style={{ padding: 22 }}>
@@ -245,7 +253,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr', gap: 14 }}>
 
         {/* Trace volume */}
         <Card style={{ padding: 22 }}>
@@ -314,7 +322,7 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit,minmax(300px,1fr))', gap: 14 }}>
 
         {/* Live trace feed */}
         <Card style={{ padding: 22 }}>

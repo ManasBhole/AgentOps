@@ -237,7 +237,7 @@ function Navbar() {
         <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Orion</span>
       </div>
 
-      <div style={{ display: 'flex', gap: 36 }}>
+      <div className="lp-nav-links" style={{ display: 'flex', gap: 36 }}>
         {[
           { label: 'Platform', href: '#platform' },
           { label: 'Features', href: '#features' },
@@ -305,9 +305,9 @@ export default function LandingPage() {
       </div>
 
       {/* ── Hero split ─────────────────────────────────────────────── */}
-      <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '88vh', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <section className="lp-hero" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '88vh', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         {/* Left — product mockup */}
-        <div style={{
+        <div className="lp-hero-left" style={{
           padding: '80px 48px 80px 80px',
           borderRight: '1px solid rgba(255,255,255,0.06)',
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
@@ -372,7 +372,7 @@ export default function LandingPage() {
         </div>
 
         {/* Right — live demo + floating cards */}
-        <div style={{
+        <div className="lp-hero-right" style={{
           padding: '80px 80px 80px 48px',
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
           position: 'relative', gap: 16,
@@ -426,7 +426,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Social proof logos ─────────────────────────────────────── */}
-      <section style={{ padding: '48px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+      <section className="lp-logos" style={{ padding: '48px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 28, fontWeight: 600 }}>
           Trusted by AI teams at
         </div>
@@ -442,9 +442,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── Stats ─────────────────────────────────────────────────── */}
-      <section id="platform" style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="platform" className="lp-section" style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Reveal>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, overflow: 'hidden' }}>
+          <div className="lp-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, overflow: 'hidden' }}>
             {[
               { n: 50, s: 'M+', label: 'Traces processed monthly', sub: 'Across all agent types' },
               { n: 99, s: '.9%', label: 'Platform uptime', sub: 'SLA-backed reliability' },
@@ -464,7 +464,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Features ───────────────────────────────────────────────── */}
-      <section id="features" style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="features" className="lp-section" style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Reveal>
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
             <div style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 700, marginBottom: 16 }}>Platform</div>
@@ -474,7 +474,7 @@ export default function LandingPage() {
           </div>
         </Reveal>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+        <div className="lp-features-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
           {[
             { icon: Activity, color: '#60a5fa', title: 'Real-time Observability', desc: 'Every LLM call, tool execution, and memory operation traced end-to-end. Sub-millisecond overhead with full context.' },
             { icon: AlertTriangle, color: '#f87171', title: 'Instant Incident Detection', desc: 'ML-powered anomaly detection fires before your users notice. Auto root-cause with correlated traces.' },
@@ -497,7 +497,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Big demo section ───────────────────────────────────────── */}
-      <section style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+      <section className="lp-section" style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
         <Reveal style={{ textAlign: 'center', marginBottom: 72 }}>
           <div style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontWeight: 700, marginBottom: 16 }}>Product</div>
           <h2 style={{ fontSize: 'clamp(28px,3vw,44px)', fontWeight: 900, letterSpacing: '-0.03em', margin: 0, color: '#fff' }}>
@@ -513,13 +513,13 @@ export default function LandingPage() {
       </section>
 
       {/* ── Testimonials ───────────────────────────────────────────── */}
-      <section style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <section className="lp-section" style={{ padding: '96px 80px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Reveal style={{ textAlign: 'center', marginBottom: 56 }}>
           <h2 style={{ fontSize: 'clamp(24px,2.5vw,38px)', fontWeight: 900, letterSpacing: '-0.03em', margin: 0, color: '#fff' }}>
             Loved by AI engineers.
           </h2>
         </Reveal>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+        <div className="lp-testimonials-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
           {[
             { quote: "Orion caught a prompt injection attack on our customer-facing agent before we even knew it was possible. It's become a non-negotiable part of our stack.", name: 'Sarah K.', role: 'Head of AI, DeepLayer' },
             { quote: "We reduced our OpenAI bill by 38% in the first week by letting ModelRouter move traffic to Haiku. The ROI is immediate.", name: 'Marcus T.', role: 'ML Platform Lead, Veridian' },
@@ -539,7 +539,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Final CTA / Pricing ────────────────────────────────────── */}
-      <section id="pricing" style={{ padding: '120px 80px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <section id="pricing" className="lp-section" style={{ padding: '120px 80px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 50% 100%, rgba(59,130,246,0.08), transparent)', pointerEvents: 'none' }} />
         <Reveal>
           <div style={{ position: 'relative', zIndex: 1 }}>
@@ -577,7 +577,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────────── */}
-      <footer style={{ padding: '40px 80px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+      <footer className="lp-footer" style={{ padding: '40px 80px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 24, height: 24, borderRadius: 7, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
@@ -619,12 +619,52 @@ export default function LandingPage() {
           from { opacity:0; transform:translateX(20px); }
           to { opacity:1; transform:translateX(0); }
         }
+
+        /* ── Mobile (< 768px) ── */
+        @media (max-width: 768px) {
+          /* Navbar */
+          .lp-nav-links { display: none !important; }
+          nav { padding: 0 20px !important; }
+
+          /* Hero split → single column, hide right panel */
+          .lp-hero { grid-template-columns: 1fr !important; min-height: auto !important; }
+          .lp-hero-right { display: none !important; }
+          .lp-hero-left { padding: 80px 24px 48px !important; border-right: none !important; }
+
+          /* Stats → 2 col */
+          .lp-stats-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .lp-stats-grid > div { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 32px 20px !important; }
+
+          /* Features → 1 col */
+          .lp-features-grid { grid-template-columns: 1fr !important; }
+
+          /* Testimonials → 1 col */
+          .lp-testimonials-grid { grid-template-columns: 1fr !important; }
+
+          /* Section padding */
+          .lp-section { padding-left: 24px !important; padding-right: 24px !important; padding-top: 64px !important; padding-bottom: 64px !important; }
+
+          /* Social proof */
+          .lp-logos { gap: 28px !important; padding: 32px 24px !important; }
+
+          /* Footer */
+          .lp-footer { padding: 32px 24px !important; flex-direction: column !important; align-items: flex-start !important; gap: 20px !important; }
+        }
+
+        /* ── Tablet (768–1024px) ── */
+        @media (min-width: 768px) and (max-width: 1024px) {
+          .lp-hero { grid-template-columns: 1fr 1fr !important; }
+          .lp-hero-left { padding: 80px 32px 80px 48px !important; }
+          .lp-hero-right { padding: 80px 48px 80px 32px !important; }
+          .lp-stats-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .lp-features-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .lp-testimonials-grid { grid-template-columns: repeat(2,1fr) !important; }
+          .lp-section { padding-left: 40px !important; padding-right: 40px !important; }
+        }
+
+        /* ── Existing 900px fallback (kept for compat) ── */
         @media (max-width: 900px) {
-          section[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
-          section[style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
-          section[style*="grid-template-columns: repeat(4"] { grid-template-columns: repeat(2,1fr) !important; }
           nav { padding: 0 24px !important; }
-          section { padding-left: 24px !important; padding-right: 24px !important; }
         }
       `}</style>
     </div>

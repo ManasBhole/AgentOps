@@ -484,9 +484,20 @@ export default function Login() {
           to { opacity: 1; transform: translateX(0); }
         }
         .login-left-panel { display: none; }
+        .login-right-panel {
+          width: 100% !important;
+          max-width: 100% !important;
+          border-left: none !important;
+          padding: 40px 24px !important;
+        }
         @media (min-width: 900px) {
           .login-left-panel { display: flex; }
-          .login-right-panel { max-width: 480px !important; }
+          .login-right-panel {
+            width: auto !important;
+            max-width: 480px !important;
+            border-left: 1px solid rgba(255,255,255,0.04) !important;
+            padding: 40px 40px !important;
+          }
         }
       `}</style>
     </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Copy, Check } from 'lucide-react'
+import { ArrowRight, Copy, Check, Menu, X } from 'lucide-react'
 
 /* ── Code block with copy ─────────────────────────────────────────── */
 function Code({ children, lang = 'bash' }: { children: string; lang?: string }) {
@@ -99,16 +99,31 @@ function useSectionObserver() {
 
 export default function Docs() {
   const active = useSectionObserver()
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+  const [navOpen, setNavOpen] = useState(false)
+
+  useEffect(() => {
+    const h = () => { setIsMobile(window.innerWidth < 768); if (window.innerWidth >= 768) setNavOpen(false) }
+    window.addEventListener('resize', h)
+    return () => window.removeEventListener('resize', h)
+  }, [])
+
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (isMobile) setNavOpen(false)
   }
 
   return (
     <div style={{ background: '#000', color: '#fff', minHeight: '100vh', fontFamily: "'Inter',-apple-system,sans-serif" }}>
 
       {/* ── Top nav ──────────────────────────────────────────────── */}
-      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {isMobile && (
+            <button onClick={() => setNavOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', borderRadius: 6 }}>
+              {navOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          )}
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
             <div style={{ width: 28, height: 28, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -121,42 +136,65 @@ export default function Docs() {
             </div>
             <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Orion</span>
           </Link>
-          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>/</span>
-          <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>Docs</span>
+          {!isMobile && <><span style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>/</span><span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>Docs</span></>}
         </div>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <Link to="/login" style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>Log in</Link>
-          <Link to="/register" style={{ fontSize: 13, fontWeight: 700, padding: '7px 18px', borderRadius: 8, background: '#fff', color: '#000', textDecoration: 'none' }}>Get started</Link>
+          {!isMobile && <Link to="/register" style={{ fontSize: 13, fontWeight: 700, padding: '7px 18px', borderRadius: 8, background: '#fff', color: '#000', textDecoration: 'none' }}>Get started</Link>}
         </div>
       </header>
 
+      {/* ── Mobile nav drawer ──────────────────────────────────────── */}
+      {isMobile && navOpen && (
+        <>
+          <div onClick={() => setNavOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 98, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} />
+          <div style={{ position: 'fixed', top: 60, left: 0, bottom: 0, width: 240, zIndex: 99, background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.08)', overflowY: 'auto', padding: '16px 0' }}>
+            {NAV.map(n => (
+              <button key={n.id} onClick={() => scrollTo(n.id)} style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '9px 24px', border: 'none', cursor: 'pointer',
+                background: active === n.id ? 'rgba(255,255,255,0.05)' : 'transparent',
+                color: active === n.id ? '#fff' : 'rgba(255,255,255,0.4)',
+                fontSize: 14, fontWeight: active === n.id ? 600 : 400,
+                borderLeft: active === n.id ? '2px solid #3b82f6' : '2px solid transparent',
+                transition: 'all 0.15s',
+              }}>
+                {n.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
       <div style={{ display: 'flex', paddingTop: 60 }}>
 
-        {/* ── Sidebar ──────────────────────────────────────────────── */}
-        <aside style={{ width: 220, flexShrink: 0, position: 'sticky', top: 60, height: 'calc(100vh - 60px)', overflowY: 'auto', padding: '32px 0', borderRight: '1px solid rgba(255,255,255,0.06)', scrollbarWidth: 'none' }}>
-          {NAV.map(n => (
-            <button key={n.id} onClick={() => scrollTo(n.id)} style={{
-              display: 'block', width: '100%', textAlign: 'left',
-              padding: '7px 24px', border: 'none', cursor: 'pointer',
-              background: active === n.id ? 'rgba(255,255,255,0.05)' : 'transparent',
-              color: active === n.id ? '#fff' : 'rgba(255,255,255,0.4)',
-              fontSize: 13, fontWeight: active === n.id ? 600 : 400,
-              borderRight: active === n.id ? '2px solid #3b82f6' : '2px solid transparent',
-              transition: 'all 0.15s',
-            }}>
-              {n.label}
-            </button>
-          ))}
-        </aside>
+        {/* ── Sidebar — desktop only ────────────────────────────────── */}
+        {!isMobile && (
+          <aside style={{ width: 220, flexShrink: 0, position: 'sticky', top: 60, height: 'calc(100vh - 60px)', overflowY: 'auto', padding: '32px 0', borderRight: '1px solid rgba(255,255,255,0.06)', scrollbarWidth: 'none' }}>
+            {NAV.map(n => (
+              <button key={n.id} onClick={() => scrollTo(n.id)} style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '7px 24px', border: 'none', cursor: 'pointer',
+                background: active === n.id ? 'rgba(255,255,255,0.05)' : 'transparent',
+                color: active === n.id ? '#fff' : 'rgba(255,255,255,0.4)',
+                fontSize: 13, fontWeight: active === n.id ? 600 : 400,
+                borderRight: active === n.id ? '2px solid #3b82f6' : '2px solid transparent',
+                transition: 'all 0.15s',
+              }}>
+                {n.label}
+              </button>
+            ))}
+          </aside>
+        )}
 
         {/* ── Main content ─────────────────────────────────────────── */}
-        <main style={{ flex: 1, maxWidth: 760, padding: '48px 64px 120px', margin: '0 auto' }}>
+        <main style={{ flex: 1, maxWidth: 760, padding: isMobile ? '32px 20px 80px' : '48px 64px 120px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
 
           {/* Quick Start */}
           <H2 id="quickstart">Quick Start</H2>
           <P>Orion gives you full observability over your AI agents — traces, costs, SLOs, alerts, and anomaly detection — in under 5 minutes.</P>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, margin: '24px 0' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12, margin: '24px 0' }}>
             {[
               { n: '1', title: 'Install SDK', sub: 'One package, any framework' },
               { n: '2', title: 'Wrap your agent', sub: 'Two lines of code' },
@@ -340,8 +378,8 @@ docker compose up -d`}</Code>
 
         </main>
 
-        {/* ── Right TOC spacer ─────────────────────────────────────── */}
-        <div style={{ width: 180, flexShrink: 0 }} />
+        {/* ── Right TOC spacer — desktop only ─────────────────────── */}
+        {!isMobile && <div style={{ width: 180, flexShrink: 0 }} />}
       </div>
     </div>
   )
