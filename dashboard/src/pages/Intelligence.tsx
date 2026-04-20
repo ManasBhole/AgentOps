@@ -157,7 +157,7 @@ export default function Intelligence() {
       </div>
 
       {/* Router stats strip */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Routing Decisions', value: stats?.total_decisions ?? 0,      icon: Zap,        color: 'text-white' },
           { label: 'Total Cost',        value: `$${(stats?.total_cost_usd ?? 0).toFixed(4)}`, icon: DollarSign, color: 'text-yellow-400' },
@@ -174,7 +174,7 @@ export default function Intelligence() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* ── Model Router ──────────────────────────────────────────── */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-800 flex items-center gap-2">
@@ -335,7 +335,7 @@ export default function Intelligence() {
                 No shared memories yet. Save a memory with scope "shared" to see it here.
               </p>
             )}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {sharedMems.map(m => (
                 <div key={m.id} className="flex items-start gap-2 bg-gray-800/50 border border-zinc-900/40 rounded-lg px-3 py-2">
                   <div className="flex-1 min-w-0">
@@ -430,7 +430,7 @@ export default function Intelligence() {
                       )}
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {[
                       { label: 'Daily', spent: b.daily_spend_usd, limit: b.daily_limit_usd, pct: b.daily_pct, status: b.daily_status },
                       { label: 'Monthly', spent: b.monthly_spend_usd, limit: b.monthly_limit_usd, pct: b.monthly_pct, status: b.monthly_status },

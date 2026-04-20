@@ -81,7 +81,7 @@ export default function AlertCorrelation() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <GitMerge className="h-5 w-5 text-pink-400" />
           <div>
@@ -105,7 +105,7 @@ export default function AlertCorrelation() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Active clusters', value: activeClusters.length, color: activeClusters.length > 0 ? 'text-orange-400' : 'text-emerald-400' },
           { label: 'Critical clusters', value: criticalCount, color: criticalCount > 0 ? 'text-red-400' : 'text-gray-400' },
@@ -169,7 +169,7 @@ export default function AlertCorrelation() {
 
               {isOpen && (
                 <div className="border-t border-gray-800 px-4 py-4 bg-gray-900/50 space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Incidents ({incIDs.length})</div>
                       <div className="space-y-1">

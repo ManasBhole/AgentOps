@@ -86,7 +86,7 @@ export default function GenomeDrift() {
       </div>
 
       {/* Summary strip */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: 'Agents tracked', value: fleetGenomes.length, color: 'text-white' },
           { label: 'Drifted agents', value: driftedCount, color: driftedCount > 0 ? 'text-orange-400' : 'text-emerald-400' },
@@ -181,7 +181,7 @@ export default function GenomeDrift() {
 
               {isExpanded && (
                 <div className="border-t border-gray-800 px-4 py-4 bg-gray-900/50">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       {[
                         ['Error Rate', `${(genome.error_rate * 100).toFixed(2)}%`],

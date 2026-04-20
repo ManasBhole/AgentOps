@@ -106,12 +106,12 @@ export default function Agents() {
         </div>
       )}
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-semibold text-white">Agents</h1>
           <p className="text-sm text-gray-500 mt-0.5">Register and manage your AI agent fleet</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <ExportButton
             data={(agents ?? []).map(a => ({ id: a.id, name: a.name, type: a.type, version: a.version, status: a.status, created_at: a.created_at }))}
             filename="agents"
@@ -128,7 +128,7 @@ export default function Agents() {
       </div>
 
       {/* Summary strip */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Total',   value: agents?.length ?? 0, color: 'text-white' },
           { label: 'Active',  value: activeCount,          color: activeCount > 0 ? 'text-emerald-400' : 'text-gray-400' },

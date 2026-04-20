@@ -181,7 +181,7 @@ function TestCard({ test, onConclude, onSimulate }: {
           </div>
 
           {/* Metric comparison grid */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Variant A */}
             <div className={`rounded-xl border p-3 space-y-3 ${
               winner === 'A' ? 'border-amber-700/60 bg-amber-950/20' : 'border-violet-900/60 bg-violet-950/20'
@@ -301,7 +301,7 @@ function CreateModal({ prompts, onClose, onCreate }: {
               className="w-full text-sm bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 placeholder-gray-600 outline-none focus:border-violet-600"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-gray-400 font-medium mb-1.5 block">
                 <span className="text-violet-300 font-bold">A</span> — Control prompt *
@@ -432,7 +432,7 @@ export default function ABTesting() {
       </div>
 
       {/* Summary strip */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Total Tests', value: tests.length, color: 'text-white' },
           { label: 'Running', value: running, color: running > 0 ? 'text-violet-400' : 'text-gray-500' },

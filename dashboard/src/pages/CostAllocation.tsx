@@ -83,7 +83,7 @@ export default function CostAllocation() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: 'Total Spend (30d)', value: `$${total.toFixed(4)}`, icon: DollarSign, color: 'text-emerald-400' },
           { label: 'Agents with spend', value: items.length, icon: Layers, color: 'text-blue-400' },

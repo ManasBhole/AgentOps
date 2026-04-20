@@ -143,9 +143,9 @@ export default function TimeTravelDebugger() {
   const totalSteps = snapshots.length
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4">
+    <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-8rem)] gap-4">
       {/* Left: trace list */}
-      <div className="w-72 flex-shrink-0 flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="w-full lg:w-72 lg:flex-shrink-0 flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden max-h-64 lg:max-h-none">
         <div className="px-4 py-3 border-b border-gray-800">
           <div className="flex items-center gap-2 mb-2">
             <Clock className="h-4 w-4 text-blue-400" />
@@ -251,7 +251,7 @@ export default function TimeTravelDebugger() {
 
           {/* Step detail */}
           {currentSnap && (
-            <div className="flex-1 grid grid-cols-2 gap-3 overflow-hidden">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-3 overflow-hidden">
               {/* Span info */}
               <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 overflow-y-auto">
                 <div className="flex items-center gap-2 mb-3">
@@ -262,7 +262,7 @@ export default function TimeTravelDebugger() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 mb-4">
                   {[
                     { label: 'Duration', value: `${currentSnap.duration_ms}ms`, icon: Clock },
                     { label: 'Tokens', value: currentSnap.tokens_used.toLocaleString(), icon: Zap },

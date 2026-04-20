@@ -277,7 +277,7 @@ export default function Integrations() {
       </div>
 
       {/* Endpoint strip */}
-      <div className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
+      <div className="flex flex-wrap items-center gap-3 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
         <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
           <Terminal className="h-3.5 w-3.5" />
           <span className="text-gray-400">Base URL</span>
@@ -304,9 +304,9 @@ export default function Integrations() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: SDK picker */}
-        <div className="col-span-1 space-y-2">
+        <div className="lg:col-span-1 space-y-2">
           <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-1 mb-3">Frameworks</div>
           {SDKS.map(s => (
             <button
@@ -326,7 +326,7 @@ export default function Integrations() {
         </div>
 
         {/* Right: Code panel */}
-        <div className="col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-4">
           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-medium ${sdk.color}`}>
             <span>{sdk.logo}</span> {sdk.name}
           </div>

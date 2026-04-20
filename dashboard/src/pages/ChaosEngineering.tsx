@@ -72,7 +72,7 @@ function ResultCard({ result }: { result: ChaosResult }) {
   ]
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {metrics.map(m => (
           <div key={m.label} className={`p-3 rounded-lg border ${m.bad ? 'bg-red-950/30 border-red-900' : 'bg-emerald-950/30 border-emerald-900'}`}>
             <div className="text-xs text-gray-500">{m.label}</div>

@@ -51,7 +51,7 @@ export default function Deployments() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-bold text-white">Deployments</h1>
           <p className="text-sm text-gray-400 mt-0.5">Manage agent deployments across namespaces</p>
@@ -67,7 +67,7 @@ export default function Deployments() {
       {showCreate && (
         <div className="bg-gray-900 border border-blue-800 rounded-xl p-5 space-y-4">
           <h2 className="text-sm font-semibold text-white">Create Deployment</h2>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs text-gray-400 mb-1.5">Agent ID</label>
               <input value={form.agent_id} onChange={e => setForm(f => ({ ...f, agent_id: e.target.value }))}
@@ -97,7 +97,7 @@ export default function Deployments() {
       )}
 
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {(['running', 'pending', 'failed', 'stopped'] as const).map(s => {
           const count = deployments.filter(d => d.status === s).length
           return (
@@ -159,7 +159,7 @@ export default function Deployments() {
                   </div>
                   {isOpen && (
                     <div className="px-5 pb-4 bg-gray-950 border-t border-gray-800">
-                      <div className="grid grid-cols-2 gap-4 pt-3 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 text-xs">
                         <div>
                           <span className="text-gray-500">Created</span>
                           <div className="text-gray-300 mt-0.5">{new Date(dep.created_at).toLocaleString()}</div>

@@ -79,7 +79,7 @@ export default function AlertRules() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-semibold text-white flex items-center gap-2">
             <Bell className="h-5 w-5 text-yellow-400" />

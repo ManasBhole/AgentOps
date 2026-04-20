@@ -63,7 +63,7 @@ export default function Traces() {
       </div>
 
       {/* Summary strip */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Total', value: data.length, color: 'text-white' },
           { label: 'Errors', value: errorCount, color: errorCount > 0 ? 'text-red-400' : 'text-emerald-400' },
@@ -78,7 +78,7 @@ export default function Traces() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2">
+      <div className="flex items-center gap-3 flex-wrap bg-gray-900 border border-gray-800 rounded-lg px-4 py-2">
         <Filter className="h-3.5 w-3.5 text-gray-500" />
         <select value={agentFilter} onChange={e => setAgentFilter(e.target.value)}
           className="bg-transparent text-sm text-gray-300 border-0 outline-none cursor-pointer">
@@ -105,6 +105,7 @@ export default function Traces() {
           <div className="p-8 text-center text-gray-500 text-sm">No traces found.</div>
         )}
         {!isLoading && data.length > 0 && (
+          <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
               <tr className="border-b border-gray-800">
@@ -190,6 +191,7 @@ export default function Traces() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
       <p className="text-xs text-gray-600 flex items-center gap-1">

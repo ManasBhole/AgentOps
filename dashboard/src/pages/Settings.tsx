@@ -251,7 +251,7 @@ export default function Settings() {
               <UserPlus className="h-4 w-4 text-blue-400" />
               <h3 className="text-sm font-semibold text-white">Invite New User</h3>
             </div>
-            <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Full Name</label>
                 <input value={newUserName} onChange={e => setNewUserName(e.target.value)}
@@ -302,7 +302,7 @@ export default function Settings() {
               <span className="ml-auto text-xs text-gray-500">{(usersData ?? []).length} users</span>
             </div>
             {(usersData ?? []).map((u: any) => (
-              <div key={u.id} className="flex items-center gap-4 px-5 py-3 border-b border-gray-800 last:border-0">
+              <div key={u.id} className="flex items-center gap-4 flex-wrap px-5 py-3 border-b border-gray-800 last:border-0">
                 <div className="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                   {u.name?.charAt(0).toUpperCase()}
                 </div>
@@ -418,7 +418,7 @@ export default function Settings() {
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
             <h3 className="text-sm font-semibold text-white mb-3">New Webhook</h3>
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-gray-400 mb-1">Name</label>
                   <input placeholder="e.g. Slack Alerts"

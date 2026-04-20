@@ -105,12 +105,12 @@ export default function Incidents() {
           <button onClick={() => setResolveError('')} className="text-red-500 hover:text-red-300 text-xs">✕</button>
         </div>
       )}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-semibold text-white">Incidents</h1>
           <p className="text-sm text-gray-500 mt-0.5">AI-powered root cause analysis · auto-remediation suggestions</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <ExportButton
             data={all.map(i => ({ id: i.id, title: i.title, severity: i.severity, status: i.status, agent_id: i.agent_id, created_at: i.created_at, resolved_at: i.resolved_at ?? '' }))}
             filename="incidents"
@@ -123,7 +123,7 @@ export default function Incidents() {
       </div>
 
       {/* Summary strip */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Total',    value: all.length,    color: 'text-white' },
           { label: 'Open',     value: openCount,     color: openCount > 0 ? 'text-red-400' : 'text-emerald-400' },
@@ -138,7 +138,7 @@ export default function Incidents() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2">
+      <div className="flex items-center gap-3 flex-wrap bg-gray-900 border border-gray-800 rounded-lg px-4 py-2">
         <Filter className="h-3.5 w-3.5 text-gray-500" />
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
           className="bg-transparent text-sm text-gray-300 border-0 outline-none cursor-pointer">

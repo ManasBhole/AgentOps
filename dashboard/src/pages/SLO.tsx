@@ -167,7 +167,7 @@ export default function SLO() {
       )}
 
       {/* Fleet summary */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: 'Critical Burn', value: critical, color: 'text-red-400', icon: AlertTriangle, bg: 'border-red-900/50' },
           { label: 'Warning Burn', value: warning, color: 'text-yellow-400', icon: TrendingDown, bg: 'border-yellow-900/50' },
@@ -189,7 +189,7 @@ export default function SLO() {
           <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
             <Target className="h-4 w-4 text-blue-400" /> New SLO Definition
           </h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-gray-400 mb-1">Agent</label>
               <select value={form.agent_id} onChange={e => setForm(f => ({ ...f, agent_id: e.target.value }))}
@@ -289,7 +289,7 @@ export default function SLO() {
                 </div>
 
                 {/* Burn rate bars */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <BurnRateBar value={st.burn_rate_1h} label="1h burn" />
                   <BurnRateBar value={st.burn_rate_6h} label="6h burn" />
                   <BurnRateBar value={st.burn_rate_24h} label="24h burn" />
@@ -326,7 +326,7 @@ export default function SLO() {
           <Activity className="h-3.5 w-3.5 text-blue-400" />
           <span className="font-medium text-gray-400">Burn Rate Thresholds (Google SRE)</span>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div><span className="text-red-400">Critical (1h &gt; 14×)</span> — Budget exhausted in ~2 days. Page immediately.</div>
           <div><span className="text-yellow-400">Warning (6h &gt; 6×)</span> — Budget exhausted in ~5 days. Ticket required.</div>
           <div><span className="text-emerald-400">Healthy (24h &lt; 3×)</span> — Consuming budget at sustainable rate.</div>

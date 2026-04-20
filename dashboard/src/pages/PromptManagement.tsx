@@ -104,9 +104,9 @@ export default function PromptManagement() {
   const agentName = (id: string) => agents.find(a => a.id === id)?.name ?? id?.slice(0, 12)
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-5rem)]">
+    <div className="flex flex-col lg:flex-row gap-4 h-auto lg:h-[calc(100vh-5rem)]">
       {/* Left: Prompt list */}
-      <div className="w-72 flex-shrink-0 flex flex-col gap-2">
+      <div className="w-full lg:w-72 lg:flex-shrink-0 flex flex-col gap-2 max-h-72 lg:max-h-none">
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-semibold text-white flex items-center gap-2">
             <FileText className="h-5 w-5 text-blue-400" /> Prompts
@@ -240,7 +240,7 @@ export default function PromptManagement() {
             </div>
 
             {/* Description + Meta */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="col-span-2">
                 <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   placeholder="Short description of what this prompt does…"

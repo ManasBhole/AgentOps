@@ -187,7 +187,7 @@ export default function RedTeam() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-semibold text-white">Autonomous Red Team</h1>
@@ -224,7 +224,7 @@ export default function RedTeam() {
       </div>
 
       {/* Fleet summary */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Agents Scanned', value: scores.length, icon: Shield, color: 'text-white' },
           { label: 'Avg Security Score', value: `${Math.round(avgScore)}`, icon: ShieldCheck, color: avgScore >= 75 ? 'text-emerald-400' : avgScore >= 50 ? 'text-yellow-400' : 'text-red-400' },
@@ -269,7 +269,7 @@ export default function RedTeam() {
               <div className="text-sm text-gray-600">Select an agent above and click Run Scan to start</div>
             </div>
           )}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {scores.map(s => <ScoreCard key={s.agent_id} s={s} />)}
           </div>
 

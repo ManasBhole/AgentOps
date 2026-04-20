@@ -91,7 +91,7 @@ export default function SecurityLayer() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-emerald-400" />
           <div>
@@ -105,7 +105,7 @@ export default function SecurityLayer() {
       </div>
 
       {/* Stats strip */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Open Threats',  value: stats.open ?? 0,     icon: ShieldAlert,  color: 'text-red-400',    bg: 'bg-red-700' },
           { label: 'Critical',      value: statsData?.by_severity?.find((s: any) => s.event_type === 'critical')?.count ?? 0, icon: AlertTriangle, color: 'text-orange-400', bg: 'bg-orange-700' },
@@ -122,7 +122,7 @@ export default function SecurityLayer() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* ── Scan tool ── */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-800 flex items-center gap-2">
@@ -306,7 +306,7 @@ export default function SecurityLayer() {
 
                   {isExpanded && (
                     <div className="px-4 pb-4 pt-1 ml-10 space-y-3">
-                      <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div>
                           <div className="text-gray-500 mb-1">Agent ID</div>
                           <div className="text-gray-300 font-mono">{ev.agent_id || '—'}</div>

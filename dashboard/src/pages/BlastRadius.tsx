@@ -296,9 +296,9 @@ export default function BlastRadius() {
                   const Icon = SEV_ICON[r.severity]
                   return (
                     <div key={r.agent_id} className="px-5 py-3 hover:bg-gray-800/30">
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-wrap items-center gap-4">
                         {/* Severity + name */}
-                        <div className="flex items-center gap-2 w-48 flex-shrink-0">
+                        <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
                           <div className={`w-2 h-2 rounded-full ${SEV_DOT[r.severity]}`} />
                           <span className="text-sm text-gray-200 truncate">
                             {r.agent_name || r.agent_id.slice(0, 14)}

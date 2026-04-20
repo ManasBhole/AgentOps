@@ -272,9 +272,9 @@ export default function WarRoom() {
         </button>
       </div>
 
-      <div className="flex flex-1 gap-0 overflow-hidden border-x border-b border-gray-800 rounded-b-xl">
+      <div className="flex flex-col lg:flex-row flex-1 gap-0 overflow-hidden border-x border-b border-gray-800 rounded-b-xl">
         {/* Left: incident context */}
-        <div className="w-56 flex-shrink-0 border-r border-gray-800 overflow-y-auto p-3 space-y-3">
+        <div className="w-full lg:w-56 lg:flex-shrink-0 border-b lg:border-b-0 lg:border-r border-gray-800 overflow-y-auto p-3 space-y-3 max-h-40 lg:max-h-none">
           {incidentData && (
             <div className="space-y-2">
               <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Incident</div>
@@ -355,7 +355,7 @@ export default function WarRoom() {
         </div>
 
         {/* Right: task checklist */}
-        <div className="w-60 flex-shrink-0 border-l border-gray-800 flex flex-col overflow-hidden">
+        <div className="w-full lg:w-60 lg:flex-shrink-0 border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col overflow-hidden max-h-64 lg:max-h-none">
           <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <CheckSquare className="h-4 w-4 text-blue-400" />

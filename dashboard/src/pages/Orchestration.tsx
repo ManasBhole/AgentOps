@@ -129,12 +129,12 @@ export default function Orchestration() {
         </div>
       )}
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-semibold text-white">Orchestration</h1>
           <p className="text-sm text-gray-500 mt-0.5">Deploy, scale, and protect agent fleets</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button onClick={() => refetch()}
             className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white bg-gray-800 px-3 py-1.5 rounded-lg">
             <RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} /> Refresh
@@ -147,7 +147,7 @@ export default function Orchestration() {
       </div>
 
       {/* Summary strip */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Deployments',    value: deployments?.length ?? 0, color: 'text-white' },
           { label: 'Active',         value: activeCount,               color: activeCount > 0 ? 'text-emerald-400' : 'text-gray-400' },

@@ -143,7 +143,7 @@ export default function EvalFramework() {
 
       {/* New suite form */}
       {showNewSuite && (
-        <div className="bg-gray-900 border border-zinc-900 rounded-xl p-4 flex items-end gap-3">
+        <div className="bg-gray-900 border border-zinc-900 rounded-xl p-4 flex flex-wrap items-end gap-3">
           <div className="flex-1">
             <label className="text-xs text-gray-400 mb-1 block">Suite Name</label>
             <input value={newSuiteName} onChange={e => setNewSuiteName(e.target.value)}
@@ -165,9 +165,9 @@ export default function EvalFramework() {
         </div>
       )}
 
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Suite list */}
-        <div className="col-span-3 space-y-2">
+        <div className="md:col-span-3 space-y-2">
           {suites.length === 0 && (
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 text-center">
               <FlaskConical className="h-8 w-8 text-gray-700 mx-auto mb-2" />
@@ -192,7 +192,7 @@ export default function EvalFramework() {
         </div>
 
         {/* Main: cases + runs */}
-        <div className="col-span-9 space-y-4">
+        <div className="md:col-span-9 space-y-4">
           {!selectedSuite ? (
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-12 flex items-center justify-center">
               <div className="text-center">
@@ -230,7 +230,7 @@ export default function EvalFramework() {
               {showAddCase && (
                 <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
                   <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">New Test Case</div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs text-gray-500 mb-1 block">Input</label>
                       <textarea rows={3} value={newCaseInput} onChange={e => setNewCaseInput(e.target.value)}
@@ -267,7 +267,7 @@ export default function EvalFramework() {
                     {cases.map((ec, i) => (
                       <div key={ec.id} className="flex items-start gap-4 px-4 py-3 hover:bg-gray-800/30">
                         <span className="text-xs text-gray-600 font-mono mt-0.5 w-5">{i + 1}</span>
-                        <div className="flex-1 grid grid-cols-2 gap-4 min-w-0">
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
                           <div>
                             <div className="text-xs text-gray-500 mb-0.5">Input</div>
                             <p className="text-xs text-gray-300 font-mono line-clamp-2">{ec.input}</p>
@@ -367,7 +367,7 @@ export default function EvalFramework() {
                               <div className={`h-1 rounded-full transition-all ${r.score >= 0.8 ? 'bg-emerald-500' : r.score >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'}`}
                                 style={{ width: `${r.score * 100}%` }} />
                             </div>
-                            <div className="grid grid-cols-3 gap-3 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                               <div>
                                 <div className="text-gray-500 mb-0.5">Input</div>
                                 <p className="text-gray-400 font-mono line-clamp-2">{r.input}</p>
