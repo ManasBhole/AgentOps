@@ -458,8 +458,8 @@ export default function Layout({ children }: LayoutProps) {
         </header>
 
         {/* Content */}
-        <main style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-page)' }}>
-          <div style={{ padding: isMobile ? 16 : 24, maxWidth: 1600, margin: '0 auto' }}>
+        <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', background: 'var(--bg-page)' }}>
+          <div style={{ padding: isMobile ? 16 : 24, maxWidth: 1600, margin: '0 auto', minWidth: 0 }}>
             {children ?? <Outlet />}
           </div>
         </main>

@@ -343,7 +343,7 @@ export default function TimeTravelDebugger() {
       {/* Fork modal */}
       {showForkModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowForkModal(false)}>
-          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-96 shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-96 max-w-[calc(100vw-2rem)] mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
             <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
               <GitFork className="h-4 w-4 text-blue-400" /> Fork from Step {currentStep + 1}
             </h3>

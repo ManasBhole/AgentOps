@@ -275,7 +275,7 @@ export default function PromptManagement() {
             {/* Delete confirm modal */}
             {deleteConfirm && (
               <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60">
-                <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-80">
+                <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-80 max-w-[calc(100vw-2rem)] mx-4">
                   <h3 className="text-white font-medium mb-2">Delete this version?</h3>
                   <p className="text-sm text-gray-400 mb-4">This removes only this version. Other versions remain intact.</p>
                   <div className="flex gap-2">
