@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -71,9 +72,19 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
+// getEnvSlice reads a comma-separated env var into a slice, e.g.
+// CORS_ORIGINS="https://a.com, https://b.com" -> ["https://a.com", "https://b.com"].
 func getEnvSlice(key string, defaultValue []string) []string {
-	if value := os.Getenv(key); value != "" {
-		return []string{value}
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
 	}
-	return defaultValue
+	parts := strings.Split(value, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }

@@ -1,8 +1,13 @@
 import axios from 'axios'
 
+// When set (e.g. the GitHub Pages build, which can't proxy/rewrite like Vercel
+// does), API calls go straight to the deployed backend instead of a relative
+// same-origin path.
+const API_BASE = import.meta.env.VITE_API_URL ?? ''
+
 // Base instance for /api/v1/* routes
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: `${API_BASE}/api/v1`,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -34,6 +39,6 @@ export default api
 
 // Separate instance for /auth/* routes (login, logout, refresh, me)
 export const authApi = axios.create({
-  baseURL: '/',
+  baseURL: API_BASE || '/',
   headers: { 'Content-Type': 'application/json' },
 })

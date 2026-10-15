@@ -24,6 +24,6 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
-        value: https://orion-ai-dashboard.vercel.app
+        value: https://orion-ai-dashboard.vercel.app,https://manasbhole.github.io
       - key: LLM_API_KEY
         sync: false
