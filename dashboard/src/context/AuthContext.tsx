@@ -64,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const user = JSON.parse(userStr) as AuthUser
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        authApi.defaults.headers.common['Authorization'] = `Bearer ${token}`
         setState({ user, accessToken: token, isLoading: false, isAuthenticated: true })
         return
       } catch {

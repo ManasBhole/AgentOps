@@ -50,10 +50,12 @@ var rbacMatrix = map[string]map[string][]string{
 
 // AuthClaims are embedded in every JWT access token.
 type AuthClaims struct {
-	UserID string `json:"user_id"`
-	Email  string `json:"email"`
-	Name   string `json:"name"`
-	Role   string `json:"role"`
+	UserID  string `json:"user_id"`
+	Email   string `json:"email"`
+	Name    string `json:"name"`
+	Role    string `json:"role"` // platform RBAC role
+	OrgID   string `json:"org_id,omitempty"`
+	OrgRole string `json:"org_role,omitempty"` // role within OrgID (owner|admin|agent-runner|viewer)
 	jwt.RegisteredClaims
 }
 
@@ -66,10 +68,11 @@ type AuthService struct {
 	db        *gorm.DB
 	logger    *zap.Logger
 	jwtSecret []byte
+	orgs      *OrgService
 }
 
-func NewAuthService(db *gorm.DB, logger *zap.Logger, jwtSecret string) *AuthService {
-	return &AuthService{db: db, logger: logger, jwtSecret: []byte(jwtSecret)}
+func NewAuthService(db *gorm.DB, logger *zap.Logger, jwtSecret string, orgs *OrgService) *AuthService {
+	return &AuthService{db: db, logger: logger, jwtSecret: []byte(jwtSecret), orgs: orgs}
 }
 
 // Register creates a new user. Only owners can create non-viewer accounts (enforced at handler level).
@@ -101,14 +104,22 @@ func (s *AuthService) Login(email, password, userAgent, ip string) (string, stri
 	var user database.User
 	err := s.db.Where("email = ? AND is_active = true", email).First(&user).Error
 	if err != nil {
-		// Auto-register: new email gets an account on first login
+		// Auto-register: new email gets an account on first login.
+		// Platform role defaults to "viewer" (least privilege) — the account
+		// only gets real authority inside the personal org it now owns.
 		name := email
 		if idx := strings.Index(email, "@"); idx > 0 {
 			name = email[:idx]
 		}
-		newUser, regErr := s.Register(email, name, password, "admin")
+		newUser, regErr := s.Register(email, name, password, "viewer")
 		if regErr != nil {
 			return "", "", nil, errors.New("invalid credentials")
+		}
+		if s.orgs != nil {
+			if _, orgErr := s.orgs.EnsurePersonalOrg(newUser.ID, name); orgErr != nil {
+				s.logger.Warn("failed to provision personal org", zap.Error(orgErr))
+			}
+			s.db.First(newUser, "id = ?", newUser.ID) // reload with ActiveOrgID set
 		}
 		user = *newUser
 	} else {
@@ -208,11 +219,17 @@ func CheckAccess(role, resource, action string) bool {
 }
 
 func (s *AuthService) signAccessToken(user *database.User) (string, error) {
+	var orgRole string
+	if s.orgs != nil && user.ActiveOrgID != "" {
+		orgRole, _ = s.orgs.GetMemberRole(user.ActiveOrgID, user.ID)
+	}
 	claims := &AuthClaims{
-		UserID: user.ID,
-		Email:  user.Email,
-		Name:   user.Name,
-		Role:   user.Role,
+		UserID:  user.ID,
+		Email:   user.Email,
+		Name:    user.Name,
+		Role:    user.Role,
+		OrgID:   user.ActiveOrgID,
+		OrgRole: orgRole,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   user.ID,
 			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
@@ -298,10 +315,17 @@ func (s *AuthService) EnsureDefaultOwner() {
 	if count > 0 {
 		return
 	}
-	_, err := s.Register("admin@orion.ai", "Admin", "agentops-admin", "owner")
+	user, err := s.Register("admin@orion.ai", "Admin", "agentops-admin", "owner")
 	if err != nil {
 		s.logger.Warn("failed to create default owner", zap.Error(err))
 		return
+	}
+	if s.orgs != nil {
+		if org, orgErr := s.orgs.CreateOrganization(user.ID, "Orion Demo"); orgErr != nil {
+			s.logger.Warn("failed to create demo organization", zap.Error(orgErr))
+		} else if _, planErr := s.orgs.UpdatePlan(org.ID, "enterprise"); planErr != nil {
+			s.logger.Warn("failed to set demo organization plan", zap.Error(planErr))
+		}
 	}
 	s.logger.Info("created default owner: admin@orion.ai / agentops-admin — change this immediately")
 }

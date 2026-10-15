@@ -14,6 +14,7 @@ import (
 
 	"github.com/manasbhole/orion/api/internal/config"
 	"github.com/manasbhole/orion/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/middleware"
 	"github.com/manasbhole/orion/api/internal/services"
 )
 
@@ -63,6 +64,8 @@ type Handlers struct {
 	// OAuth
 	oauthService *services.OAuthService
 	cfg          *config.Config
+	// Organizations
+	orgService *services.OrgService
 }
 
 func NewHandlers(
@@ -108,6 +111,7 @@ func NewHandlers(
 		alertRuleService:        services.NewAlertRuleService(db, logger),
 		oauthService:            services.NewOAuthService(db, logger, cfg),
 		cfg:                     cfg,
+		orgService:              services.NewOrgService(db, logger),
 	}
 }
 
@@ -403,6 +407,7 @@ func (h *Handlers) ResolveIncident(c *gin.Context) {
 
 type AgentResponse struct {
 	ID        string    `json:"id"`
+	OrgID     string    `json:"org_id,omitempty"`
 	Name      string    `json:"name"`
 	Type      string    `json:"type"`
 	Version   string    `json:"version"`
@@ -427,6 +432,7 @@ type UpdateAgentRequest struct {
 func agentToResponse(a *database.Agent) AgentResponse {
 	return AgentResponse{
 		ID:        a.ID,
+		OrgID:     a.OrgID,
 		Name:      a.Name,
 		Type:      a.Type,
 		Version:   a.Version,
@@ -480,6 +486,12 @@ func (h *Handlers) CreateAgent(c *gin.Context) {
 		return
 	}
 
+	claims := middleware.GetClaims(c)
+	if h.orgService.AgentLimitReached(claims.OrgID) {
+		c.JSON(http.StatusPaymentRequired, gin.H{"error": "agent limit reached for your plan — upgrade in Settings → Billing"})
+		return
+	}
+
 	version := req.Version
 	if version == "" {
 		version = "1.0.0"
@@ -488,6 +500,7 @@ func (h *Handlers) CreateAgent(c *gin.Context) {
 	now := time.Now().UTC()
 	agent := &database.Agent{
 		ID:        uuid.New().String(),
+		OrgID:     claims.OrgID,
 		Name:      req.Name,
 		Type:      req.Type,
 		Version:   version,

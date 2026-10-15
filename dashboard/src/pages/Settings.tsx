@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Key, Webhook, Trash2, Plus, Copy, Eye, EyeOff,
   CheckCircle2, RefreshCw, Zap, Globe, AlertTriangle,
-  Users, UserPlus, Shield, User, Lock,
+  Users, UserPlus, Shield, User, Lock, CreditCard,
+  Building2, Crown, UserMinus, Sparkle,
 } from 'lucide-react'
 import api from '../services/api'
 import { authApi } from '../services/api'
@@ -34,11 +35,54 @@ const ROLE_BADGE: Record<string, string> = {
   viewer: 'bg-gray-800 text-gray-400 border-gray-700',
 }
 
+type Plan = { id: 'free' | 'pro' | 'enterprise'; label: string; price: string; seats: string; agents: string; blurb: string }
+const PLANS: Plan[] = [
+  { id: 'free', label: 'Free', price: '$0', seats: '3 seats', agents: '5 agents', blurb: 'For trying Orion out' },
+  { id: 'pro', label: 'Pro', price: '$49/mo', seats: '15 seats', agents: '50 agents', blurb: 'For growing teams' },
+  { id: 'enterprise', label: 'Enterprise', price: 'Custom', seats: 'Unlimited seats', agents: 'Unlimited agents', blurb: 'For the whole company' },
+]
+
+type OrgRow = { id: string; name: string; slug: string; plan_tier: string; role: string; active: boolean }
+type Usage = {
+  plan_tier: string; seats_used: number; seat_limit: number
+  agents_used: number; agent_limit: number
+  cost_this_month_usd: number; traces_this_month: number
+}
+
+function Meter({ label, used, limit }: { label: string; used: number; limit: number }) {
+  const unlimited = limit >= 1_000_000
+  const pct = unlimited ? 8 : Math.min(100, (used / Math.max(limit, 1)) * 100)
+  const hot = !unlimited && pct >= 90
+  return (
+    <div>
+      <div className="flex items-center justify-between text-xs mb-1.5">
+        <span className="text-gray-400">{label}</span>
+        <span className={hot ? 'text-red-400 font-medium' : 'text-gray-300'}>
+          {used.toLocaleString()} {unlimited ? '' : `/ ${limit.toLocaleString()}`}
+        </span>
+      </div>
+      <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all ${hot ? 'bg-red-500' : 'bg-blue-500'}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
 export default function Settings() {
   const qc = useQueryClient()
-  const { user: me, checkAccess } = useAuth()
-  const canManageUsers = checkAccess('users', 'read')
-  const [tab, setTab] = useState<'profile' | 'apikeys' | 'webhooks' | 'users'>('profile')
+  const { user: me } = useAuth()
+  const [tab, setTab] = useState<'profile' | 'members' | 'billing' | 'apikeys' | 'webhooks'>('profile')
+
+  const { data: orgs } = useQuery({
+    queryKey: ['my-orgs'],
+    queryFn: async () => { const { data } = await authApi.get('/auth/orgs'); return data.organizations as OrgRow[] },
+  })
+  const myOrg = orgs?.find(o => o.active)
+  const canManageOrg = myOrg?.role === 'owner' || myOrg?.role === 'admin'
+  const canManageUsers = canManageOrg
 
   // Profile
   const [profileName, setProfileName]   = useState(me?.name ?? '')
@@ -61,16 +105,15 @@ export default function Settings() {
     onError: (e: any) => setProfileErr(e?.response?.data?.error ?? 'Update failed'),
   })
 
-  // Users (admin/owner only)
+  // Members (org owner/admin only can mutate; everyone can view)
   const [newUserEmail, setNewUserEmail] = useState('')
   const [newUserName, setNewUserName]   = useState('')
   const [newUserPass, setNewUserPass]   = useState('')
   const [newUserRole, setNewUserRole]   = useState('viewer')
 
-  const { data: usersData, refetch: refetchUsers } = useQuery({
-    queryKey: ['users'],
-    queryFn: async () => { const { data } = await authApi.get('/auth/users'); return data as any[] },
-    enabled: canManageUsers,
+  const { data: membersData, refetch: refetchMembers } = useQuery({
+    queryKey: ['org-members'],
+    queryFn: async () => { const { data } = await api.get('/org/members'); return data.members as any[] },
   })
 
   const [createUserError, setCreateUserError] = useState('')
@@ -81,9 +124,38 @@ export default function Settings() {
     onSuccess: () => {
       setNewUserEmail(''); setNewUserName(''); setNewUserPass(''); setNewUserRole('viewer')
       setCreateUserError('')
-      refetchUsers()
+      refetchMembers()
     },
     onError: (e: any) => setCreateUserError(e?.response?.data?.error ?? 'Failed to create user'),
+  })
+
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ userID, role }: { userID: string; role: string }) => api.patch(`/org/members/${userID}`, { role }),
+    onSuccess: () => refetchMembers(),
+  })
+
+  const removeMemberMutation = useMutation({
+    mutationFn: (userID: string) => api.delete(`/org/members/${userID}`),
+    onSuccess: () => refetchMembers(),
+  })
+
+  // Billing
+  const { data: usage } = useQuery({
+    queryKey: ['org-usage'],
+    queryFn: async () => { const { data } = await api.get('/org/usage'); return data as Usage },
+  })
+
+  const [planError, setPlanError] = useState('')
+  const [switchingTo, setSwitchingTo] = useState<string | null>(null)
+  const changePlanMutation = useMutation({
+    mutationFn: (planTier: string) => { setSwitchingTo(planTier); return api.patch('/org/plan', { plan_tier: planTier }) },
+    onSettled: () => setSwitchingTo(null),
+    onSuccess: () => {
+      setPlanError('')
+      qc.invalidateQueries({ queryKey: ['org-usage'] })
+      qc.invalidateQueries({ queryKey: ['my-orgs'] })
+    },
+    onError: (e: any) => setPlanError(e?.response?.data?.error ?? 'Failed to change plan'),
   })
 
   // API Keys
@@ -157,18 +229,23 @@ export default function Settings() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold text-white">Settings</h1>
-        <p className="text-sm text-gray-500 mt-0.5">API keys, webhooks, and integrations</p>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h1 className="text-xl font-semibold text-white">Settings</h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {myOrg ? <>{myOrg.name} · <span className="capitalize">{myOrg.plan_tier}</span> plan</> : 'API keys, webhooks, and integrations'}
+          </p>
+        </div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-900 border border-gray-800 rounded-lg p-1 w-fit flex-wrap">
         {([
           ['profile', User, 'Profile'],
+          ['members', Users, 'Members'],
+          ['billing', CreditCard, 'Billing'],
           ['apikeys', Key, 'API Keys'],
           ['webhooks', Webhook, 'Webhooks'],
-          ...(canManageUsers ? [['users', Users, 'Users']] : []),
         ] as [string, React.ElementType, string][]).map(([id, Icon, label]) => (
           <button key={id} onClick={() => setTab(id as any)}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-colors
@@ -242,86 +319,188 @@ export default function Settings() {
         </div>
       )}
 
-      {/* ── Users Tab ────────────────────────────────────────────────────── */}
-      {tab === 'users' && canManageUsers && (
+      {/* ── Members Tab ──────────────────────────────────────────────────── */}
+      {tab === 'members' && (
         <div className="space-y-4">
-          {/* Invite form */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <UserPlus className="h-4 w-4 text-blue-400" />
-              <h3 className="text-sm font-semibold text-white">Invite New User</h3>
+          {/* Invite form — owner/admin only */}
+          {canManageUsers && (
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <UserPlus className="h-4 w-4 text-blue-400" />
+                <h3 className="text-sm font-semibold text-white">Invite to {myOrg?.name}</h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Full Name</label>
+                  <input value={newUserName} onChange={e => setNewUserName(e.target.value)}
+                    placeholder="Jane Smith"
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Email</label>
+                  <input value={newUserEmail} onChange={e => setNewUserEmail(e.target.value)}
+                    placeholder="jane@company.com" type="email"
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Temporary Password</label>
+                  <input value={newUserPass} onChange={e => setNewUserPass(e.target.value)}
+                    placeholder="Min 8 characters" type="password"
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Role</label>
+                  <select value={newUserRole} onChange={e => setNewUserRole(e.target.value)}
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                    {me?.role === 'owner' && <option value="owner">Owner</option>}
+                    <option value="admin">Admin</option>
+                    <option value="agent-runner">Agent Runner</option>
+                    <option value="viewer">Viewer</option>
+                  </select>
+                </div>
+              </div>
+              {createUserError && (
+                <p className="text-xs text-red-400">{createUserError}</p>
+              )}
+              <button
+                onClick={() => createUserMutation.mutate()}
+                disabled={!newUserEmail || !newUserName || !newUserPass || createUserMutation.isPending}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                {createUserMutation.isPending ? 'Inviting…' : 'Invite Teammate'}
+              </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">Full Name</label>
-                <input value={newUserName} onChange={e => setNewUserName(e.target.value)}
-                  placeholder="Jane Smith"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">Email</label>
-                <input value={newUserEmail} onChange={e => setNewUserEmail(e.target.value)}
-                  placeholder="jane@company.com" type="email"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">Temporary Password</label>
-                <input value={newUserPass} onChange={e => setNewUserPass(e.target.value)}
-                  placeholder="Min 8 characters" type="password"
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">Role</label>
-                <select value={newUserRole} onChange={e => setNewUserRole(e.target.value)}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                  {me?.role === 'owner' && <option value="owner">Owner</option>}
-                  <option value="admin">Admin</option>
-                  <option value="agent-runner">Agent Runner</option>
-                  <option value="viewer">Viewer</option>
-                </select>
-              </div>
-            </div>
-            {createUserError && (
-              <p className="text-xs text-red-400">{createUserError}</p>
-            )}
-            <button
-              onClick={() => createUserMutation.mutate()}
-              disabled={!newUserEmail || !newUserName || !newUserPass || createUserMutation.isPending}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
-            >
-              <UserPlus className="h-3.5 w-3.5" />
-              {createUserMutation.isPending ? 'Creating…' : 'Create User'}
-            </button>
-          </div>
+          )}
 
-          {/* Users list */}
+          {/* Members list */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
             <div className="px-5 py-3 border-b border-gray-800 flex items-center gap-2">
               <Users className="h-4 w-4 text-blue-400" />
-              <span className="text-sm font-semibold text-white">Team Members</span>
-              <span className="ml-auto text-xs text-gray-500">{(usersData ?? []).length} users</span>
+              <span className="text-sm font-semibold text-white">Members</span>
+              <span className="ml-auto text-xs text-gray-500">
+                {(membersData ?? []).length} of {usage ? (usage.seat_limit >= 1_000_000 ? '∞' : usage.seat_limit) : '…'} seats
+              </span>
             </div>
-            {(usersData ?? []).map((u: any) => (
-              <div key={u.id} className="flex items-center gap-4 flex-wrap px-5 py-3 border-b border-gray-800 last:border-0">
+            {(membersData ?? []).map((u: any) => (
+              <div key={u.user_id} className="flex items-center gap-4 flex-wrap px-5 py-3 border-b border-gray-800 last:border-0">
                 <div className="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                   {u.name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-200">{u.name}</span>
-                    {u.id === me?.id && <span className="text-xs text-gray-500">(you)</span>}
+                    {u.user_id === me?.id && <span className="text-xs text-gray-500">(you)</span>}
                   </div>
                   <div className="text-xs text-gray-500">{u.email}</div>
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full border font-medium flex items-center gap-1 ${ROLE_BADGE[u.role]}`}>
-                  <Shield className="h-2.5 w-2.5" />
-                  {u.role}
-                </span>
-                <div className="text-xs text-gray-600">
+                {canManageUsers && u.user_id !== me?.id ? (
+                  <select
+                    value={u.role}
+                    onChange={e => updateRoleMutation.mutate({ userID: u.user_id, role: e.target.value })}
+                    className={`text-xs px-2 py-1 rounded-full border font-medium bg-transparent ${ROLE_BADGE[u.role]}`}
+                  >
+                    <option value="owner">owner</option>
+                    <option value="admin">admin</option>
+                    <option value="agent-runner">agent-runner</option>
+                    <option value="viewer">viewer</option>
+                  </select>
+                ) : (
+                  <span className={`text-xs px-2 py-0.5 rounded-full border font-medium flex items-center gap-1 ${ROLE_BADGE[u.role]}`}>
+                    <Shield className="h-2.5 w-2.5" />
+                    {u.role}
+                  </span>
+                )}
+                <div className="text-xs text-gray-600 hidden sm:block">
                   {u.last_login_at ? `Last login ${new Date(u.last_login_at).toLocaleDateString()}` : 'Never signed in'}
                 </div>
+                {canManageUsers && u.user_id !== me?.id && (
+                  <button onClick={() => removeMemberMutation.mutate(u.user_id)}
+                    title="Remove from organization"
+                    className="text-gray-500 hover:text-red-400 transition-colors">
+                    <UserMinus className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             ))}
+          </div>
+          <p className="text-xs text-gray-600">
+            Role here controls access within <span className="text-gray-400">{myOrg?.name}</span> — invites, billing, and member management.
+          </p>
+        </div>
+      )}
+
+      {/* ── Billing Tab ──────────────────────────────────────────────────── */}
+      {tab === 'billing' && (
+        <div className="space-y-4 max-w-3xl">
+          {/* Usage meters */}
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Building2 className="h-4 w-4 text-blue-400" />
+              <h3 className="text-sm font-semibold text-white">Usage this month</h3>
+              <span className="ml-auto text-xs text-gray-500 capitalize">{usage?.plan_tier ?? '…'} plan</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <Meter label="Seats" used={usage?.seats_used ?? 0} limit={usage?.seat_limit ?? 0} />
+              <Meter label="Agents" used={usage?.agents_used ?? 0} limit={usage?.agent_limit ?? 0} />
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-5 pt-4 border-t border-gray-800">
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Cost this month</div>
+                <div className="text-lg font-semibold text-white">${(usage?.cost_this_month_usd ?? 0).toFixed(4)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Traces this month</div>
+                <div className="text-lg font-semibold text-white">{(usage?.traces_this_month ?? 0).toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Plan cards */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <CreditCard className="h-4 w-4 text-blue-400" />
+              <h3 className="text-sm font-semibold text-white">Plan</h3>
+            </div>
+            {planError && <p className="text-xs text-red-400 mb-3">{planError}</p>}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {PLANS.map(p => {
+                const current = usage?.plan_tier === p.id
+                return (
+                  <div key={p.id}
+                    className={`relative rounded-xl p-4 border transition-colors ${current ? 'border-blue-600 bg-blue-950/30' : 'border-gray-800 bg-gray-900'}`}>
+                    {p.id === 'enterprise' && (
+                      <Crown className="h-3.5 w-3.5 text-yellow-400 absolute top-4 right-4" />
+                    )}
+                    <div className="text-sm font-semibold text-white flex items-center gap-1.5">
+                      {p.label}
+                      {current && <Sparkle className="h-3 w-3 text-blue-400" />}
+                    </div>
+                    <div className="text-xl font-bold text-white mt-1">{p.price}</div>
+                    <div className="text-xs text-gray-500 mt-1">{p.blurb}</div>
+                    <div className="text-xs text-gray-400 mt-3 space-y-0.5">
+                      <div>{p.seats}</div>
+                      <div>{p.agents}</div>
+                    </div>
+                    <button
+                      onClick={() => changePlanMutation.mutate(p.id)}
+                      disabled={current || !canManageOrg || myOrg?.role !== 'owner' || changePlanMutation.isPending}
+                      className={`w-full mt-4 text-xs font-medium py-2 rounded-lg transition-colors
+                        ${current ? 'bg-gray-800 text-gray-500 cursor-default'
+                          : 'bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-40 disabled:cursor-not-allowed'}`}
+                    >
+                      {current ? 'Current plan' : switchingTo === p.id ? 'Switching…' : 'Switch plan'}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+            {myOrg?.role !== 'owner' && (
+              <p className="text-xs text-gray-600 mt-3">Only the organization owner can change plans.</p>
+            )}
+            <p className="text-xs text-gray-600 mt-2">
+              Plan changes apply instantly — no payment details needed in this workspace.
+            </p>
           </div>
         </div>
       )}

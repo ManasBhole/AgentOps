@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/manasbhole/orion/api/internal/database"
+	"github.com/manasbhole/orion/api/internal/services"
 )
 
 // SeedIfEmpty is called at startup — silently seeds demo data when the DB has no agents.
@@ -67,6 +68,108 @@ func PatchDemoSLOs(db *gorm.DB) {
 			upd["threshold_ms"] = p.threshMs
 		}
 		db.Model(&database.SLODefinition{}).Where("id = ?", p.id).Updates(upd)
+	}
+}
+
+// BackfillUserOrgs gives every pre-existing, org-less user an organization.
+// Needed because EnsureDefaultOwner only provisions an org for brand-new
+// installs — accounts created before this feature shipped (or restored from
+// an older DB) would otherwise be stuck with no active org. Idempotent.
+// admin@orion.ai specifically gets re-attached to "Orion Demo" (enterprise
+// plan) rather than a generic personal org, preserving the demo narrative.
+func BackfillUserOrgs(db *gorm.DB, orgSvc *services.OrgService, logger *zap.Logger) {
+	var users []database.User
+	db.Where("active_org_id = ? OR active_org_id IS NULL", "").Find(&users)
+	for _, u := range users {
+		if u.Email == "admin@orion.ai" {
+			var existing database.Organization
+			if err := db.Where("slug = ?", "orion-demo").First(&existing).Error; err == nil {
+				db.Model(&u).Update("active_org_id", existing.ID)
+				var alreadyMember int64
+				db.Model(&database.OrganizationMember{}).Where("org_id = ? AND user_id = ?", existing.ID, u.ID).Count(&alreadyMember)
+				if alreadyMember == 0 {
+					db.Create(&database.OrganizationMember{ID: "orgmem_" + uuid.New().String(), OrgID: existing.ID, UserID: u.ID, Role: "owner"})
+				}
+				continue
+			}
+			if org, err := orgSvc.CreateOrganization(u.ID, "Orion Demo"); err == nil {
+				orgSvc.UpdatePlan(org.ID, "enterprise")
+			} else {
+				logger.Warn("failed to backfill demo org for admin", zap.Error(err))
+			}
+			continue
+		}
+		if _, err := orgSvc.EnsurePersonalOrg(u.ID, u.Name); err != nil {
+			logger.Warn("failed to backfill personal org", zap.String("user_id", u.ID), zap.Error(err))
+		}
+	}
+}
+
+// BackfillDemoOrgData attaches any org-less demo agents to the "Orion Demo"
+// organization. Safe to re-run — only touches agents with an empty org_id.
+// Called every startup, after EnsureDefaultOwner has created that org.
+func BackfillDemoOrgData(db *gorm.DB, logger *zap.Logger) {
+	var demoOrg database.Organization
+	if err := db.Where("slug = ?", "orion-demo").First(&demoOrg).Error; err != nil {
+		return // demo org doesn't exist yet (e.g. default owner creation failed) — nothing to backfill
+	}
+	res := db.Model(&database.Agent{}).Where("org_id = ? OR org_id IS NULL", "").Update("org_id", demoOrg.ID)
+	if res.RowsAffected > 0 {
+		logger.Info("backfilled demo agents into Orion Demo org", zap.Int64("count", res.RowsAffected))
+	}
+}
+
+// demoActivityModels/costs/tasks mirror the pools used in runSeed so live
+// trickle data looks consistent with the historical seed.
+var (
+	demoActivityAgents = []string{"agt_research01", "agt_codeass02", "agt_ragpipe03", "agt_orchest04", "agt_dataanl05"}
+	demoActivityModels = map[string]float64{"ai-model-fast": 0.000001, "ai-model-balanced": 0.000003, "ai-model-pro": 0.000015}
+	demoActivityTasks  = []string{
+		"Summarize research paper", "Generate unit tests", "Retrieve relevant documents",
+		"Coordinate sub-agents", "Analyze dataset", "Write documentation",
+	}
+)
+
+// GenerateLiveActivity inserts a small trickle of fresh traces + router logs
+// timestamped "now" so the dashboard's live/recent-activity windows never go
+// stale between real ingests. Mirrors the shape of seeded demo data.
+func GenerateLiveActivity(db *gorm.DB) {
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	now := time.Now().UTC()
+
+	n := 1 + rng.Intn(3)
+	for i := 0; i < n; i++ {
+		agentID := demoActivityAgents[rng.Intn(len(demoActivityAgents))]
+		durMs := int64(150 + rng.Intn(3500))
+		start := now.Add(-time.Duration(rng.Intn(120)) * time.Second)
+		end := start.Add(time.Duration(durMs) * time.Millisecond)
+		status := "ok"
+		if rng.Intn(5) == 0 {
+			status = "error"
+		}
+		tokens := int64(400 + rng.Intn(3000))
+		id := fmt.Sprintf("trc_live_%s", uuid.New().String()[:12])
+		attrs, _ := json.Marshal(map[string]any{"tokens_used": tokens, "cost_usd": float64(tokens) * 0.000003, "model": "ai-model-balanced"})
+		db.Create(&database.Trace{
+			ID: id, AgentID: agentID, RunID: "run_live_" + id, TraceID: id,
+			SpanID: "spn_root_" + id, Name: "agent.run", StartTime: start, EndTime: &end,
+			Duration: durMs, Status: status, Attributes: string(attrs), Events: "[]", CreatedAt: start,
+		})
+
+		model := "ai-model-balanced"
+		for m := range demoActivityModels {
+			if rng.Intn(3) == 0 {
+				model = m
+				break
+			}
+		}
+		db.Create(&database.RouterLog{
+			ID: "rl_live_" + uuid.New().String()[:12], AgentID: agentID,
+			Task: demoActivityTasks[rng.Intn(len(demoActivityTasks))],
+			Complexity:  []string{"simple", "moderate", "complex"}[rng.Intn(3)],
+			ModelChosen: model, CostEstUSD: float64(tokens) * demoActivityModels[model],
+			CreatedAt: start,
+		})
 	}
 }
 

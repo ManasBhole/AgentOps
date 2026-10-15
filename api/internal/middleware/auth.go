@@ -57,6 +57,36 @@ func RequireRole(resource, action string) gin.HandlerFunc {
 	}
 }
 
+// RequireOrgRole gates access to org-management endpoints (billing, members,
+// invites) by the caller's role *within their active organization* — distinct
+// from the platform RBAC role checked by RequireRole.
+func RequireOrgRole(roles ...string) gin.HandlerFunc {
+	allowed := make(map[string]bool, len(roles))
+	for _, r := range roles {
+		allowed[r] = true
+	}
+	return func(c *gin.Context) {
+		claims := GetClaims(c)
+		if claims == nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthenticated"})
+			return
+		}
+		if claims.OrgID == "" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "no active organization"})
+			return
+		}
+		if !allowed[claims.OrgRole] {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error":    "insufficient organization role",
+				"required": roles,
+				"org_role": claims.OrgRole,
+			})
+			return
+		}
+		c.Next()
+	}
+}
+
 // GetClaims retrieves the auth claims injected by RequireAuth.
 func GetClaims(c *gin.Context) *services.AuthClaims {
 	v, exists := c.Get(claimsKey)

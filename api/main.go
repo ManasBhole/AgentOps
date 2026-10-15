@@ -44,13 +44,18 @@ func main() {
 	}
 
 	// Initialize auth service and seed default owner if empty
-	authSvc := services.NewAuthService(db, logger, cfg.JWTSecret)
+	orgSvc := services.NewOrgService(db, logger)
+	authSvc := services.NewAuthService(db, logger, cfg.JWTSecret, orgSvc)
 	authSvc.EnsureDefaultOwner()
 
 	// Seed demo data if DB is empty (idempotent)
 	handlers.SeedIfEmpty(db, logger)
 	// Patch SLO targets so budget gauges show realistic values with demo data
 	handlers.PatchDemoSLOs(db)
+	// Give any pre-existing, org-less users an organization (idempotent)
+	handlers.BackfillUserOrgs(db, orgSvc, logger)
+	// Attach org-less demo agents to the Orion Demo org (idempotent)
+	handlers.BackfillDemoOrgData(db, logger)
 
 	// Initialize services
 	hub := services.NewEventHub()
@@ -87,6 +92,21 @@ func main() {
 			select {
 			case <-ticker.C:
 				alertRuleSvc.EvaluateAll()
+			case <-nexusCtx.Done():
+				return
+			}
+		}
+	}()
+
+	// Trickle fresh demo traces/router-logs so "live" stats never go stale
+	// between real ingests (runs every 45 s).
+	go func() {
+		ticker := time.NewTicker(45 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				handlers.GenerateLiveActivity(db)
 			case <-nexusCtx.Done():
 				return
 			}
@@ -178,6 +198,9 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 			authProtected.GET("/check-access", h.CheckAccess)
 			authProtected.GET("/users", middleware.RequireRole("users", "read"), h.ListUsers)
 			authProtected.POST("/users", middleware.RequireRole("users", "read"), h.RegisterUser)
+			authProtected.GET("/orgs", h.ListMyOrgs)
+			authProtected.POST("/orgs", h.CreateMyOrg)
+			authProtected.POST("/switch-org", h.SwitchOrg)
 		}
 	}
 
@@ -310,6 +333,14 @@ func setupRouter(h *handlers.Handlers, logger *zap.Logger, cfg *config.Config, a
 		v1.GET("/timetravel/timelines/:traceID", h.GetTimeline)
 		v1.GET("/timetravel/compare", h.CompareTimelines)
 		v1.POST("/timetravel/fork", h.CreateTimelineFork)
+
+		// Organization (billing, members, usage — scoped to the caller's active org)
+		v1.GET("/org", h.GetMyOrg)
+		v1.GET("/org/members", middleware.RequireOrgRole("owner", "admin", "agent-runner", "viewer"), h.ListOrgMembers)
+		v1.PATCH("/org/members/:userID", middleware.RequireOrgRole("owner", "admin"), h.UpdateOrgMemberRole)
+		v1.DELETE("/org/members/:userID", middleware.RequireOrgRole("owner", "admin"), h.RemoveOrgMember)
+		v1.GET("/org/usage", middleware.RequireOrgRole("owner", "admin", "agent-runner", "viewer"), h.GetOrgUsage)
+		v1.PATCH("/org/plan", middleware.RequireOrgRole("owner"), h.UpdateOrgPlan)
 
 		// Demo seed
 		v1.POST("/seed", h.SeedDemoData)

@@ -7,10 +7,10 @@ import {
   LogOut, Shield, ShieldAlert, Target, Rewind, Radiation,
   Sparkles, Dna, Zap, Flame, DollarSign, GitMerge,
   Sun, Moon, Search, PanelLeftClose, PanelLeftOpen,
-  FileText, ChevronDown, GitCompare,
+  FileText, ChevronDown, GitCompare, Building2, Check, Plus,
 } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
-import api from '../services/api'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import api, { authApi } from '../services/api'
 import { useNotifications } from '../hooks/useNotifications'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
@@ -286,6 +286,7 @@ export default function Layout({ children }: LayoutProps) {
                 ☰
               </button>
             )}
+            <OrgSwitcher />
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ position: 'relative', display: 'flex', width: 8, height: 8 }}>
                 <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#34d399', opacity: 0.6, animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) infinite' }} />
@@ -466,6 +467,145 @@ export default function Layout({ children }: LayoutProps) {
       </div>
 
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+    </div>
+  )
+}
+
+/* ── Organization switcher ──────────────────────────────────────────────── */
+type OrgRow = { id: string; name: string; slug: string; plan_tier: string; role: string; active: boolean }
+
+function OrgSwitcher() {
+  const { storeOAuthSession } = useAuth()
+  const qc = useQueryClient()
+  const [open, setOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [newName, setNewName] = useState('')
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); setCreating(false) } }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  const { data: orgs } = useQuery({
+    queryKey: ['my-orgs'],
+    queryFn: async () => { const { data } = await authApi.get('/auth/orgs'); return data.organizations as OrgRow[] },
+  })
+
+  const refreshOrgScopedData = () => {
+    qc.invalidateQueries({ queryKey: ['my-orgs'] })
+    qc.invalidateQueries({ queryKey: ['my-org'] })
+    qc.invalidateQueries({ queryKey: ['org-members'] })
+    qc.invalidateQueries({ queryKey: ['org-usage'] })
+  }
+
+  const switchMutation = useMutation({
+    mutationFn: async (orgId: string) => { const { data } = await authApi.post('/auth/switch-org', { org_id: orgId }); return data },
+    onSuccess: (data) => { storeOAuthSession(data); refreshOrgScopedData(); setOpen(false) },
+  })
+
+  const createMutation = useMutation({
+    mutationFn: async (name: string) => { const { data } = await authApi.post('/auth/orgs', { name }); return data },
+    onSuccess: (data) => { storeOAuthSession(data); refreshOrgScopedData(); setCreating(false); setNewName(''); setOpen(false) },
+  })
+
+  const current = orgs?.find(o => o.active)
+  if (!orgs || orgs.length === 0) return null
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          fontSize: 12, fontWeight: 500, padding: '5px 10px', borderRadius: 100,
+          color: 'var(--text-secondary)', background: 'var(--bg-input)',
+          border: '1px solid var(--border-default)', cursor: 'pointer',
+          maxWidth: 160, transition: 'border-color 0.15s',
+        }}
+        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)')}
+        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)')}
+        title={current?.name}
+      >
+        <Building2 style={{ width: 12, height: 12, flexShrink: 0, color: '#60a5fa' }} />
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{current?.name ?? 'Organization'}</span>
+        <ChevronDown style={{ width: 11, height: 11, flexShrink: 0, color: 'var(--text-faint)' }} />
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', left: 0, top: 36,
+          width: 260, borderRadius: 14, zIndex: 200, overflow: 'hidden',
+          background: 'var(--bg-popover)', border: '1px solid var(--border-default)',
+          boxShadow: 'var(--shadow-lg)',
+        }}>
+          <div style={{ padding: '8px 12px 6px', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)' }}>
+            Organizations
+          </div>
+          <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+            {orgs.map(o => (
+              <button
+                key={o.id}
+                onClick={() => !o.active && switchMutation.mutate(o.id)}
+                disabled={switchMutation.isPending}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '8px 12px', background: 'none', border: 'none', cursor: o.active ? 'default' : 'pointer',
+                  textAlign: 'left', transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => { if (!o.active) (e.currentTarget as HTMLElement).style.background = 'var(--bg-input)' }}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'none')}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-faint)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
+                    <span style={{ textTransform: 'capitalize' }}>{o.role}</span> · <span style={{ textTransform: 'capitalize' }}>{o.plan_tier}</span>
+                  </div>
+                </div>
+                {o.active && <Check style={{ width: 14, height: 14, color: '#34d399', flexShrink: 0 }} />}
+              </button>
+            ))}
+          </div>
+          <div style={{ borderTop: '1px solid var(--border-subtle)', padding: 6 }}>
+            {creating ? (
+              <div style={{ display: 'flex', gap: 6, padding: '4px 6px' }}>
+                <input
+                  autoFocus
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && newName.trim()) createMutation.mutate(newName.trim()) }}
+                  placeholder="Organization name"
+                  style={{
+                    flex: 1, fontSize: 12, padding: '6px 8px', borderRadius: 8,
+                    background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)', outline: 'none',
+                  }}
+                />
+                <button
+                  onClick={() => newName.trim() && createMutation.mutate(newName.trim())}
+                  disabled={!newName.trim() || createMutation.isPending}
+                  style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', opacity: !newName.trim() || createMutation.isPending ? 0.5 : 1 }}
+                >
+                  {createMutation.isPending ? '…' : 'Create'}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setCreating(true)}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '8px 10px', borderRadius: 8, fontSize: 13, color: '#60a5fa',
+                  background: 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--bg-input)')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'none')}
+              >
+                <Plus style={{ width: 14, height: 14 }} /> New organization
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

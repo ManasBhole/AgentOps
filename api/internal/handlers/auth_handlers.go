@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 
 	"github.com/manasbhole/orion/api/internal/middleware"
 	"github.com/manasbhole/orion/api/internal/services"
@@ -21,10 +22,15 @@ func (h *Handlers) PublicRegister(c *gin.Context) {
 		return
 	}
 
-	user, err := h.authService.Register(req.Email, req.Name, req.Password, "admin")
+	// Platform role defaults to "viewer" — the account's real authority lives
+	// in the personal organization it owns, not in global platform RBAC.
+	user, err := h.authService.Register(req.Email, req.Name, req.Password, "viewer")
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "email already registered"})
 		return
+	}
+	if _, err := h.orgService.EnsurePersonalOrg(user.ID, user.Name); err != nil {
+		h.logger.Warn("failed to provision personal org", zap.Error(err))
 	}
 
 	// Issue tokens so the client is logged in immediately after registering
@@ -178,6 +184,17 @@ func (h *Handlers) RegisterUser(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "email already registered"})
 		return
+	}
+
+	// Add the new teammate to the inviting admin's organization.
+	if claims.OrgID != "" {
+		if _, err := h.orgService.AddMember(claims.OrgID, user.ID, req.Role); err != nil {
+			c.JSON(http.StatusCreated, gin.H{
+				"user":    user,
+				"warning": "user created but could not be added to your organization: " + err.Error(),
+			})
+			return
+		}
 	}
 	c.JSON(http.StatusCreated, user)
 }

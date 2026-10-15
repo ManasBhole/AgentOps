@@ -9,6 +9,7 @@ import (
 // Agent represents an agent deployment
 type Agent struct {
 	ID        string    `gorm:"primaryKey" json:"id"`
+	OrgID     string    `gorm:"index" json:"org_id,omitempty"` // owning organization; empty = pre-org demo data
 	Name      string    `json:"name"`
 	Type      string    `json:"type"`
 	Version   string    `json:"version"`
@@ -229,6 +230,7 @@ type User struct {
 	PasswordHash string     `gorm:"not null" json:"-"`
 	AvatarURL    string     `json:"avatar_url"`
 	IsActive     bool       `gorm:"default:true" json:"is_active"`
+	ActiveOrgID  string     `json:"active_org_id"` // which org's role is embedded in the JWT
 	LastLoginAt  *time.Time `json:"last_login_at"`
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at"`
@@ -578,6 +580,9 @@ func Migrate(db *gorm.DB) error {
 		// Alert Rules
 		&AlertRule{},
 		&AlertFiring{},
+		// Organizations
+		&Organization{},
+		&OrganizationMember{},
 	)
 }
 
